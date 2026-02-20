@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mathe-Lernpfad: Ableitungsregeln</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen" class="screen active">
+        <div class="login-box">
+            <h1>📐 Mathe-Lernpfad</h1>
+            <h2>Produkt- & Kettenregel</h2>
+            <p>12NP — Lore-Lorentz-Schule</p>
+            <div class="login-form">
+                <label for="student-nr">Deine Klassenlistennummer:</label>
+                <input type="number" id="student-nr" min="1" max="25" placeholder="1–25">
+                <button id="login-btn" onclick="doLogin()">Start</button>
+                <p class="hint">Dein Fortschritt wird gespeichert.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN APP -->
+    <div id="app-screen" class="screen">
+        <!-- Top Bar -->
+        <div id="topbar">
+            <div id="topbar-left">
+                <span id="student-label">Nr. —</span>
+                <span id="unit-label">Diagnose</span>
+            </div>
+            <div id="progress-bar-container">
+                <div id="progress-bar"></div>
+            </div>
+            <div id="topbar-right">
+                <button id="gemini-toggle" onclick="toggleGemini()" title="KI-Tutor">💬</button>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div id="content-wrapper">
+            <div id="content-area">
+                <!-- Dynamically filled -->
+            </div>
+
+            <!-- Gemini Chat Panel -->
+            <div id="gemini-panel" class="hidden">
+                <div id="gemini-header">
+                    <span>🤖 KI-Tutor</span>
+                    <button onclick="toggleGemini()">✕</button>
+                </div>
+                <div id="gemini-messages"></div>
+                <div id="gemini-input-area">
+                    <input type="text" id="gemini-input" placeholder="Frag mich was..." onkeydown="if(event.key==='Enter')sendGemini()">
+                    <button onclick="sendGemini()">→</button>
+                </div>
+                <p class="gemini-hint">⚠️ Keine Namen oder persönliche Daten eingeben!</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
