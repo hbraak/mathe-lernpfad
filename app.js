@@ -15,6 +15,30 @@ const REPO_OWNER = 'hbraak';
 const REPO_NAME = 'mathe-lernpfad';
 
 // ============================================================
+// ANSWER NORMALIZATION
+// ============================================================
+function normalizeAnswer(s) {
+    return s
+        .replace(/\s+/g, '')           // remove whitespace
+        .toLowerCase()
+        .replace(/\*\*/g, '^')         // ** → ^
+        .replace(/\^{([^}]+)}/g, '^($1)') // ^{...} → ^(...)
+        .replace(/\^(-?\d)/g, '^($1)') // x^-3 → x^(-3), x^3 → x^(3)  
+        .replace(/\^([a-z])/g, '^($1)')// x^x → x^(x)
+        .replace(/×/g, '*')            // × → *
+        .replace(/·/g, '*')            // · → *
+        .replace(/÷/g, '/')            // ÷ → /
+        .replace(/−/g, '-')            // − (unicode minus) → -
+        .replace(/²/g, '^(2)')
+        .replace(/³/g, '^(3)')
+        .replace(/⁴/g, '^(4)')
+        .replace(/⁵/g, '^(5)')
+        .replace(/√/g, 'sqrt')
+        .replace(/\bexp\(([^)]+)\)/g, 'e^($1)') // exp(x) → e^(x)
+        .replace(/\*{2,}/g, '*');       // collapse multiple *
+}
+
+// ============================================================
 // LOGIN
 // ============================================================
 function doLogin() {
@@ -215,11 +239,12 @@ function renderTask(task, idx, ts) {
         html += `</div>`;
     } else {
         html += `<div class="task-input-row">
-            <input type="text" id="input-${task.id}" placeholder="Deine Antwort..." 
+            <input type="text" id="input-${task.id}" placeholder="z.B. 12x^3 oder e^(2x)" 
                    value="${ts.correct ? ts.answer : ''}" ${ts.correct ? 'disabled' : ''}
                    onkeydown="if(event.key==='Enter')checkAnswer('${task.id}')">
             <button onclick="checkAnswer('${task.id}')" ${ts.correct ? 'disabled' : ''}>Prüfen</button>
-        </div>`;
+        </div>
+        <p class="input-hint">Schreibweise: x^2 für x², e^(3x), sqrt(x), ln(x), sin(x)</p>`;
     }
     
     html += `<div class="task-feedback" id="feedback-${task.id}"></div>`;
@@ -247,9 +272,9 @@ function checkAnswer(taskId) {
     const raw = input.value.trim();
     if (!raw) return;
     
-    const normalized = raw.replace(/\s+/g, '').toLowerCase();
+    const normalized = normalizeAnswer(raw);
     const isCorrect = task.accepts.some(a => 
-        a.replace(/\s+/g, '').toLowerCase() === normalized
+        normalizeAnswer(a) === normalized
     );
     
     ts.attempts++;
@@ -276,7 +301,7 @@ function checkAnswer(taskId) {
         let errorMsg = null;
         if (task.errorPatterns) {
             for (const [pattern, msg] of Object.entries(task.errorPatterns)) {
-                if (pattern.replace(/\s+/g, '').toLowerCase() === normalized) {
+                if (normalizeAnswer(pattern) === normalized) {
                     errorMsg = msg;
                     break;
                 }
@@ -601,7 +626,9 @@ async function sendGemini() {
     const loadingMsg = document.getElementById('gemini-messages').lastChild;
     
     try {
-        const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`, {
+        // Use native Gemini API with key as query param
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+        const resp = await fetch(apiUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -616,7 +643,11 @@ async function sendGemini() {
             })
         });
         
-        if (!resp.ok) throw new Error(`API Error: ${resp.status}`);
+        if (!resp.ok) {
+            const errText = await resp.text().catch(() => '');
+            console.error('Gemini API response:', resp.status, errText);
+            throw new Error(`API Error: ${resp.status}`);
+        }
         
         const data = await resp.json();
         const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Entschuldigung, ich konnte keine Antwort generieren.';

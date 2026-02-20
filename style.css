@@ -20,7 +20,7 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; colo
 .hint { font-size: 0.8rem; color: #475569; }
 
 /* Top Bar */
-#topbar { display: flex; align-items: center; padding: 0.8rem 1.2rem; background: #1e293b; border-bottom: 1px solid #334155; gap: 1rem; }
+#topbar { display: flex; align-items: center; padding: 0.8rem 1.2rem; background: #1e293b; border-bottom: 1px solid #334155; gap: 1rem; position: sticky; top: 0; z-index: 50; }
 #topbar-left { display: flex; gap: 1rem; align-items: center; min-width: 200px; }
 #student-label { color: #64748b; font-size: 0.85rem; }
 #unit-label { font-weight: 600; color: #3b82f6; }
@@ -33,7 +33,7 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; colo
 
 /* Content */
 #app-screen { flex-direction: column; min-height: 100vh; }
-#content-wrapper { display: flex; flex: 1; overflow: hidden; }
+#content-wrapper { display: flex; flex: 1; }
 #content-area { flex: 1; padding: 2rem; overflow-y: auto; max-width: 800px; margin: 0 auto; }
 
 /* Units */
@@ -50,7 +50,7 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; colo
 .task-card h3 { color: #94a3b8; margin-bottom: 1rem; font-size: 0.9rem; }
 .task-question { font-size: 1.1rem; margin-bottom: 1rem; line-height: 1.6; }
 .task-input-row { display: flex; gap: 0.8rem; align-items: center; margin-bottom: 0.5rem; }
-.task-input-row input { flex: 1; padding: 0.6rem 1rem; border-radius: 8px; border: 2px solid #334155; background: #0f172a; color: #e2e8f0; font-size: 1rem; outline: none; }
+.task-input-row input { flex: 1; padding: 0.6rem 1rem; border-radius: 8px; border: 2px solid #334155; background: #0f172a; color: #e2e8f0; font-size: 1rem; outline: none; font-family: 'Courier New', monospace; }
 .task-input-row input:focus { border-color: #3b82f6; }
 .task-input-row button { padding: 0.6rem 1.2rem; border-radius: 8px; border: none; background: #3b82f6; color: white; cursor: pointer; font-size: 0.95rem; white-space: nowrap; }
 .task-input-row button:hover { background: #2563eb; }
@@ -59,6 +59,9 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; colo
 .task-feedback.correct { background: #10b98120; color: #6ee7b7; }
 .task-feedback.wrong { background: #ef444420; color: #fca5a5; }
 .task-feedback.hint { background: #f59e0b20; color: #fcd34d; }
+
+/* Input format hint */
+.input-hint { font-size: 0.75rem; color: #64748b; margin-top: 0.3rem; }
 
 /* Hint Steps */
 .hint-btn { background: #f59e0b30; border: 1px solid #f59e0b50; color: #fcd34d; padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer; font-size: 0.85rem; margin-top: 0.5rem; }
@@ -71,6 +74,9 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; colo
 .mastery-score.pass { color: #10b981; }
 .mastery-score.fail { color: #f59e0b; }
 .mastery-msg { color: #94a3b8; margin-bottom: 1.5rem; line-height: 1.6; }
+
+/* Sync section */
+.sync-section { display: flex; justify-content: center; gap: 1rem; margin: 1.5rem 0; flex-wrap: wrap; }
 
 /* Buttons */
 .btn-primary { padding: 0.8rem 2rem; border-radius: 8px; border: none; background: #3b82f6; color: white; font-size: 1rem; cursor: pointer; }
@@ -93,13 +99,27 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; colo
 .checkpoint-notice { background: #7c3aed20; border: 2px solid #7c3aed50; border-radius: 12px; padding: 1.5rem; text-align: center; margin: 1.5rem 0; }
 .checkpoint-notice h3 { color: #a78bfa; margin-bottom: 0.5rem; }
 
-/* Gemini Panel */
-#gemini-panel { width: 360px; background: #1e293b; border-left: 1px solid #334155; display: flex; flex-direction: column; }
+/* Gemini Panel — floating overlay */
+#gemini-panel {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    width: 380px;
+    max-height: 500px;
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    z-index: 200;
+    overflow: hidden;
+}
 #gemini-panel.hidden { display: none; }
-#gemini-header { display: flex; justify-content: space-between; align-items: center; padding: 0.8rem 1rem; border-bottom: 1px solid #334155; font-weight: 600; }
+#gemini-header { display: flex; justify-content: space-between; align-items: center; padding: 0.8rem 1rem; border-bottom: 1px solid #334155; font-weight: 600; background: #1e293b; border-radius: 16px 16px 0 0; }
 #gemini-header button { background: none; border: none; color: #94a3b8; font-size: 1.2rem; cursor: pointer; }
-#gemini-messages { flex: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 0.8rem; }
-.gemini-msg { padding: 0.8rem 1rem; border-radius: 12px; max-width: 90%; line-height: 1.5; font-size: 0.95rem; }
+#gemini-messages { flex: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 0.8rem; min-height: 200px; max-height: 340px; }
+.gemini-msg { padding: 0.8rem 1rem; border-radius: 12px; max-width: 90%; line-height: 1.5; font-size: 0.95rem; word-wrap: break-word; }
 .gemini-msg.user { background: #3b82f6; align-self: flex-end; border-bottom-right-radius: 4px; }
 .gemini-msg.ai { background: #334155; align-self: flex-start; border-bottom-left-radius: 4px; }
 #gemini-input-area { display: flex; gap: 0.5rem; padding: 0.8rem; border-top: 1px solid #334155; }
@@ -108,7 +128,8 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; colo
 .gemini-hint { text-align: center; padding: 0.4rem; font-size: 0.75rem; color: #64748b; }
 
 /* Responsive */
-@media (max-width: 900px) {
-    #gemini-panel { position: fixed; right: 0; top: 0; bottom: 0; width: 100%; max-width: 360px; z-index: 100; box-shadow: -4px 0 20px rgba(0,0,0,0.5); }
+@media (max-width: 600px) {
+    #gemini-panel { left: 0.5rem; right: 0.5rem; bottom: 0.5rem; width: auto; max-height: 60vh; }
     #content-area { padding: 1rem; }
+    #topbar-left { min-width: auto; }
 }
