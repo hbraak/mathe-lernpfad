@@ -323,7 +323,7 @@ const UNITS = {
                 type: "choice",
                 options: ["$\\sqrt{x}$", "$x^2+1$", "$x^2$", "$x+1$"],
                 correct: 1,
-                hints: ["Was steht „drin" unter der Wurzel?"]
+                hints: ["Was steht 'drin' unter der Wurzel?"]
             },
             {
                 id: "u2_4",
@@ -386,7 +386,7 @@ const UNITS = {
                 question: "Welche Regel für $f(x) = \\sin(5x)$?",
                 options: ["Produktregel", "Kettenregel", "Summenregel", "Keine spezielle"],
                 correct: 1,
-                hints: ["$\\sin$ von $5x$ — eine Funktion „in" einer anderen."]
+                hints: ["$\\sin$ von $5x$ — eine Funktion 'in' einer anderen."]
             },
             {
                 id: "mix3",
