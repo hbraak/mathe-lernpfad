@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lehrer-Dashboard — Mathe-Lernpfad</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; padding: 2rem; }
+        h1 { margin-bottom: 0.5rem; }
+        .subtitle { color: #64748b; margin-bottom: 2rem; }
+        
+        .controls { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
+        .controls button, .controls label { padding: 0.6rem 1.2rem; border-radius: 8px; border: 2px solid #334155; background: #1e293b; color: #e2e8f0; cursor: pointer; font-size: 0.9rem; }
+        .controls button:hover { border-color: #3b82f6; }
+        .controls input[type="file"] { display: none; }
+        
+        textarea { width: 100%; height: 120px; background: #1e293b; color: #e2e8f0; border: 2px solid #334155; border-radius: 8px; padding: 1rem; font-family: monospace; font-size: 0.85rem; margin-bottom: 1rem; resize: vertical; }
+        textarea:focus { border-color: #3b82f6; outline: none; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th { background: #1e293b; padding: 0.7rem; text-align: left; border-bottom: 2px solid #334155; font-size: 0.85rem; color: #94a3b8; }
+        td { padding: 0.6rem 0.7rem; border-bottom: 1px solid #1e293b; font-size: 0.9rem; }
+        tr:hover { background: #1e293b40; }
+        
+        .score { font-weight: 600; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.85rem; }
+        .score.high { background: #10b98130; color: #10b981; }
+        .score.mid { background: #f59e0b30; color: #f59e0b; }
+        .score.low { background: #ef444430; color: #ef4444; }
+        .score.none { background: #33415530; color: #64748b; }
+        
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+        .stat-card { background: #1e293b; border-radius: 12px; padding: 1.2rem; }
+        .stat-value { font-size: 2rem; font-weight: 700; color: #3b82f6; }
+        .stat-label { color: #94a3b8; font-size: 0.85rem; margin-top: 0.3rem; }
+        
+        #no-data { text-align: center; padding: 3rem; color: #64748b; }
+    </style>
+</head>
+<body>
+    <h1>📊 Lehrer-Dashboard</h1>
+    <p class="subtitle">Mathe-Lernpfad — Produkt- & Kettenregel (12NP)</p>
+    
+    <div class="controls">
+        <label for="file-input">📂 JSON-Dateien importieren
+            <input type="file" id="file-input" multiple accept=".json" onchange="importFiles(this.files)">
+        </label>
+        <button onclick="document.getElementById('code-area').style.display = document.getElementById('code-area').style.display === 'none' ? 'block' : 'none'">📋 Codes einfügen</button>
+        <button onclick="exportCSV()">📥 CSV Export</button>
+        <button onclick="clearAll()">🗑️ Alles löschen</button>
+    </div>
+    
+    <div id="code-area" style="display:none;">
+        <p style="margin-bottom:0.5rem; color:#94a3b8; font-size:0.85rem;">Progress-Codes einfügen (einer pro Zeile):</p>
+        <textarea id="code-input" placeholder="Hier Progress-Codes einfügen..."></textarea>
+        <button onclick="importCodes()" style="padding: 0.5rem 1rem; border-radius: 8px; border: none; background: #3b82f6; color: white; cursor: pointer; margin-bottom: 1rem;">Codes importieren</button>
+    </div>
+    
+    <div class="stats" id="stats"></div>
+    
+    <div id="no-data">
+        <h2>Noch keine Daten</h2>
+        <p style="margin-top:1rem;">Importiere JSON-Dateien der Schüler oder füge Progress-Codes ein.</p>
+    </div>
+    
+    <table id="results-table" style="display:none;">
+        <thead>
+            <tr>
+                <th>Nr.</th>
+                <th>Diagnose</th>
+                <th>Grundabl.</th>
+                <th>Produktregel</th>
+                <th>Kettenregel</th>
+                <th>Welche Regel?</th>
+                <th>Abschluss</th>
+                <th>KI-Fragen</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody id="results-body"></tbody>
+    </table>
+
+<script>
+const students = {}; // { nr: { unitProgress, geminiQuestions, ... } }
+const UNIT_IDS = ['diagnose', 'unit0', 'unit1', 'unit2', 'unit25', 'final'];
+const UNIT_NAMES = ['Diagnose', 'Grundabl.', 'Produktregel', 'Kettenregel', 'Welche Regel?', 'Abschluss'];
+
+function importFiles(files) {
+    Array.from(files).forEach(f => {
+        const reader = new FileReader();
+        reader.onload = e => {
+            try {
+                const data = JSON.parse(e.target.result);
+                if (data.studentNr) {
+                    students[data.studentNr] = {
+                        unitProgress: data.unitProgress || {},
+                        geminiQuestions: data.geminiQuestions || 0,
+                        events: data.events || [],
+                        source: 'json'
+                    };
+                }
+            } catch(err) { console.error('Parse error:', err); }
+            render();
+        };
+        reader.readAsText(f);
+    });
+}
+
+function importCodes() {
+    const raw = document.getElementById('code-input').value.trim();
+    if (!raw) return;
+    raw.split('\n').forEach(line => {
+        line = line.trim();
+        if (!line) return;
+        try {
+            const data = JSON.parse(atob(line));
+            if (data.nr) {
+                const up = {};
+                for (const [id, v] of Object.entries(data.u || {})) {
+                    up[id] = { score: (v.s || 0) / 100, completed: v.c === 1, attempts: v.a || 0 };
+                }
+                students[data.nr] = {
+                    unitProgress: up,
+                    geminiQuestions: data.g || 0,
+                    source: 'code'
+                };
+            }
+        } catch(e) { console.warn('Invalid code:', line.substring(0, 20)); }
+    });
+    document.getElementById('code-input').value = '';
+    render();
+}
+
+function scoreCell(unitProgress, unitId) {
+    const p = unitProgress[unitId];
+    if (!p) return '<span class="score none">—</span>';
+    const pct = Math.round((p.score || 0) * 100);
+    const cls = pct >= 80 ? 'high' : pct >= 60 ? 'mid' : 'low';
+    const check = p.completed ? '✅' : '';
+    return `<span class="score ${cls}">${pct}% ${check}</span>`;
+}
+
+function getStatus(s) {
+    const up = s.unitProgress;
+    if (up.final?.completed) return '🏆 Fertig';
+    // Find current unit
+    for (const id of UNIT_IDS) {
+        if (!up[id] || !up[id].completed) {
+            const idx = UNIT_IDS.indexOf(id);
+            return `📍 ${UNIT_NAMES[idx] || id}`;
+        }
+    }
+    return '🏆 Fertig';
+}
+
+function render() {
+    const keys = Object.keys(students).map(Number).sort((a, b) => a - b);
+    
+    if (keys.length === 0) {
+        document.getElementById('no-data').style.display = 'block';
+        document.getElementById('results-table').style.display = 'none';
+        document.getElementById('stats').innerHTML = '';
+        return;
+    }
+    
+    document.getElementById('no-data').style.display = 'none';
+    document.getElementById('results-table').style.display = 'table';
+    
+    // Stats
+    const total = keys.length;
+    const finished = keys.filter(k => students[k].unitProgress.final?.completed).length;
+    const avgGemini = Math.round(keys.reduce((s, k) => s + (students[k].geminiQuestions || 0), 0) / total);
+    const avgFinal = keys.filter(k => students[k].unitProgress.final?.score)
+        .reduce((acc, k) => { acc.sum += students[k].unitProgress.final.score; acc.n++; return acc; }, { sum: 0, n: 0 });
+    
+    document.getElementById('stats').innerHTML = `
+        <div class="stat-card"><div class="stat-value">${total}</div><div class="stat-label">Schüler erfasst</div></div>
+        <div class="stat-card"><div class="stat-value">${finished}/${total}</div><div class="stat-label">Lernpfad abgeschlossen</div></div>
+        <div class="stat-card"><div class="stat-value">${avgGemini}</div><div class="stat-label">Ø KI-Tutor Fragen</div></div>
+        <div class="stat-card"><div class="stat-value">${avgFinal.n > 0 ? Math.round(avgFinal.sum / avgFinal.n * 100) + '%' : '—'}</div><div class="stat-label">Ø Abschlusstest</div></div>
+    `;
+    
+    // Table
+    const tbody = document.getElementById('results-body');
+    tbody.innerHTML = keys.map(nr => {
+        const s = students[nr];
+        return `<tr>
+            <td><strong>${nr}</strong></td>
+            ${UNIT_IDS.map(id => `<td>${scoreCell(s.unitProgress, id)}</td>`).join('')}
+            <td>${s.geminiQuestions || 0}</td>
+            <td>${getStatus(s)}</td>
+        </tr>`;
+    }).join('');
+}
+
+function exportCSV() {
+    const keys = Object.keys(students).map(Number).sort((a, b) => a - b);
+    if (keys.length === 0) return;
+    
+    let csv = 'Nr;Diagnose;Grundabl;Produktregel;Kettenregel;WelcheRegel;Abschluss;KI-Fragen;Status\n';
+    keys.forEach(nr => {
+        const s = students[nr];
+        const scores = UNIT_IDS.map(id => {
+            const p = s.unitProgress[id];
+            return p ? Math.round((p.score || 0) * 100) : '';
+        });
+        csv += `${nr};${scores.join(';')};${s.geminiQuestions || 0};${getStatus(s).replace(/[^\w ]/g, '')}\n`;
+    });
+    
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'lernpfad_ergebnisse.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+function clearAll() {
+    if (!confirm('Alle importierten Daten löschen?')) return;
+    for (const k of Object.keys(students)) delete students[k];
+    render();
+}
+</script>
+</body>
+</html>

@@ -7,8 +7,12 @@ let state = {
     unitProgress: {},   // { unitId: { completed: bool, score: float, attempts: int } }
     taskStates: {},     // { taskId: { attempts: 0, hintLevel: 0, correct: false, answer: '' } }
     geminiQuestions: 0,
-    geminiHistory: []
+    geminiHistory: [],
+    events: []          // local event log
 };
+
+const REPO_OWNER = 'hbraak';
+const REPO_NAME = 'mathe-lernpfad';
 
 // ============================================================
 // LOGIN
@@ -29,6 +33,7 @@ function doLogin() {
             state.unitProgress = parsed.unitProgress || {};
             state.taskStates = parsed.taskStates || {};
             state.geminiQuestions = parsed.geminiQuestions || 0;
+            state.events = parsed.events || [];
         } catch(e) {}
     }
     
@@ -42,16 +47,13 @@ function doLogin() {
 }
 
 function getNextUnit() {
-    // Check diagnose
     if (!state.unitProgress.diagnose) return 'diagnose';
     
     const diagScore = state.unitProgress.diagnose.score || 0;
     
-    // If diagnose score < 60%, need unit0
     if (diagScore < 0.6 && !state.unitProgress.unit0) return 'unit0';
     if (diagScore < 0.6 && state.unitProgress.unit0 && !state.unitProgress.unit0.completed) return 'unit0';
     
-    // Progress through units
     const path = diagScore < 0.6 
         ? ['unit0', 'unit1', 'unit2', 'unit25', 'final']
         : ['unit1', 'unit2', 'unit25', 'final'];
@@ -60,7 +62,7 @@ function getNextUnit() {
         if (!state.unitProgress[u] || !state.unitProgress[u].completed) return u;
     }
     
-    return 'complete';  // All done
+    return 'complete';
 }
 
 // ============================================================
@@ -71,47 +73,69 @@ function saveState() {
     localStorage.setItem(`lernpfad_${state.studentNr}`, JSON.stringify({
         unitProgress: state.unitProgress,
         taskStates: state.taskStates,
-        geminiQuestions: state.geminiQuestions
+        geminiQuestions: state.geminiQuestions,
+        events: state.events
     }));
 }
 
 // ============================================================
-// SEND EVENT TO GOOGLE SHEETS
+// EVENT LOGGING (local, exportable)
 // ============================================================
-function sendEvent(event, data) {
-    if (!SHEETS_WEBHOOK) return;
-    const payload = {
+function logEvent(event, data) {
+    state.events.push({
         nr: state.studentNr,
         event: event,
         timestamp: new Date().toISOString(),
         ...data
-    };
-    // Fire and forget with retry queue
-    fetch(SHEETS_WEBHOOK, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-    }).catch(() => {
-        // Queue for retry
-        const queue = JSON.parse(localStorage.getItem('event_queue') || '[]');
-        queue.push(payload);
-        localStorage.setItem('event_queue', JSON.stringify(queue));
     });
+    saveState();
 }
 
-function flushEventQueue() {
-    if (!SHEETS_WEBHOOK) return;
-    const queue = JSON.parse(localStorage.getItem('event_queue') || '[]');
-    if (queue.length === 0) return;
-    queue.forEach(payload => {
-        fetch(SHEETS_WEBHOOK, {
-            method: 'POST', mode: 'no-cors',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        }).catch(() => {});
+// ============================================================
+// EXPORT / SYNC FUNCTIONS
+// ============================================================
+
+// Generate a compact progress code for teacher verification
+function getProgressCode() {
+    if (!state.studentNr) return '';
+    const summary = {
+        nr: state.studentNr,
+        t: Date.now(),
+        u: {}
+    };
+    for (const [id, p] of Object.entries(state.unitProgress)) {
+        summary.u[id] = { s: Math.round((p.score || 0) * 100), c: p.completed ? 1 : 0, a: p.attempts || 0 };
+    }
+    summary.g = state.geminiQuestions;
+    return btoa(JSON.stringify(summary));
+}
+
+// Export full progress as JSON (download)
+function exportProgress() {
+    const data = {
+        studentNr: state.studentNr,
+        exportTime: new Date().toISOString(),
+        unitProgress: state.unitProgress,
+        taskStates: state.taskStates,
+        geminiQuestions: state.geminiQuestions,
+        events: state.events
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `lernpfad_nr${state.studentNr}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+// Copy progress code to clipboard
+function copyProgressCode() {
+    const code = getProgressCode();
+    navigator.clipboard.writeText(code).then(() => {
+        const btn = document.getElementById('copy-code-btn');
+        if (btn) { btn.textContent = '✅ Kopiert!'; setTimeout(() => btn.textContent = '📋 Code kopieren', 2000); }
     });
-    localStorage.setItem('event_queue', '[]');
 }
 
 // ============================================================
@@ -132,27 +156,24 @@ function showUnit(unitId) {
     document.getElementById('unit-label').textContent = unit.title;
     updateProgressBar();
     
+    logEvent('unit_start', { unit: unitId });
+    
     let html = `<div class="unit-intro"><h2>${unit.title}</h2><p>${unit.description}</p></div>`;
     
-    // Explanation (not for diagnose or final)
     if (unit.explanation) {
         html += `<div class="explanation">${unit.explanation}</div>`;
     }
     
-    // Example
     if (unit.example) {
         html += `<div class="example"><h3>📝 ${unit.example.title}</h3>${unit.example.content}</div>`;
     }
     
-    // Tasks
     unit.tasks.forEach((task, idx) => {
         const ts = state.taskStates[task.id] || { attempts: 0, hintLevel: 0, correct: false, answer: '' };
         state.taskStates[task.id] = ts;
-        
         html += renderTask(task, idx, ts);
     });
     
-    // Checkpoint notice
     if (unitId !== 'diagnose' && unitId !== 'final') {
         html += `<div class="checkpoint-notice">
             <h3>🎓 Lehrer-Checkpoint</h3>
@@ -160,7 +181,6 @@ function showUnit(unitId) {
         </div>`;
     }
     
-    // Mastery check button
     html += `<div class="nav-buttons">
         <button class="btn-primary" onclick="runMasteryCheck()" id="mastery-btn">
             ${unitId === 'diagnose' ? 'Diagnose auswerten' : unitId === 'final' ? 'Abschlusstest auswerten' : 'Mastery-Check starten'}
@@ -188,7 +208,6 @@ function renderTask(task, idx, ts) {
     if (task.type === 'choice') {
         html += `<div class="structure-options" id="options-${task.id}">`;
         task.options.forEach((opt, i) => {
-            const disabled = ts.correct ? 'disabled' : '';
             const cls = ts.correct && i === task.correct ? 'selected-correct' : 
                         (ts.answer === i && !ts.correct && ts.attempts > 0) ? 'selected-wrong' : '';
             html += `<button class="${cls}" onclick="checkChoice('${task.id}', ${i})" ${ts.correct ? 'disabled' : ''}>${opt}</button>`;
@@ -203,10 +222,8 @@ function renderTask(task, idx, ts) {
         </div>`;
     }
     
-    // Feedback area
     html += `<div class="task-feedback" id="feedback-${task.id}"></div>`;
     
-    // Hint button (if not choice and not correct)
     if (!task.type && !ts.correct) {
         html += `<button class="hint-btn" onclick="showHint('${task.id}')" id="hint-btn-${task.id}">
             💡 Hinweis (${ts.hintLevel}/${task.hints ? task.hints.length : 0})
@@ -230,7 +247,6 @@ function checkAnswer(taskId) {
     const raw = input.value.trim();
     if (!raw) return;
     
-    // Normalize answer
     const normalized = raw.replace(/\s+/g, '').toLowerCase();
     const isCorrect = task.accepts.some(a => 
         a.replace(/\s+/g, '').toLowerCase() === normalized
@@ -241,6 +257,8 @@ function checkAnswer(taskId) {
     
     const card = document.getElementById(`task-${taskId}`);
     const feedback = document.getElementById(`feedback-${taskId}`);
+    
+    logEvent('answer', { task: taskId, answer: raw, correct: isCorrect, attempt: ts.attempts });
     
     if (isCorrect) {
         ts.correct = true;
@@ -255,7 +273,6 @@ function checkAnswer(taskId) {
     } else {
         card.classList.add('incorrect');
         
-        // Check error patterns
         let errorMsg = null;
         if (task.errorPatterns) {
             for (const [pattern, msg] of Object.entries(task.errorPatterns)) {
@@ -266,9 +283,7 @@ function checkAnswer(taskId) {
             }
         }
         
-        // Graduated hints based on attempts
         if (ts.attempts >= 3 && task.hints && task.hints.length > 0) {
-            // After 3 attempts: show full solution hint
             const lastHint = task.hints[task.hints.length - 1];
             feedback.className = 'task-feedback show hint';
             feedback.innerHTML = `❌ Nicht ganz. Hier ist der Lösungsweg:<br>${lastHint}<br><br><em>Warum funktioniert das so? Versuch es nochmal!</em>`;
@@ -308,6 +323,8 @@ function checkChoice(taskId, choice) {
     const buttons = container.querySelectorAll('button');
     const feedback = document.getElementById(`feedback-${taskId}`);
     const card = document.getElementById(`task-${taskId}`);
+    
+    logEvent('answer', { task: taskId, answer: choice, correct: choice === task.correct, attempt: ts.attempts });
     
     if (choice === task.correct) {
         ts.correct = true;
@@ -352,6 +369,8 @@ function showHint(taskId) {
     feedback.innerHTML = `💡 Hinweis ${ts.hintLevel + 1}: ${task.hints[ts.hintLevel]}`;
     ts.hintLevel++;
     
+    logEvent('hint', { task: taskId, level: ts.hintLevel });
+    
     const hintBtn = document.getElementById(`hint-btn-${taskId}`);
     if (hintBtn) {
         hintBtn.textContent = `💡 Hinweis (${ts.hintLevel}/${task.hints.length})`;
@@ -374,10 +393,9 @@ function runMasteryCheck() {
     const total = unit.tasks.length;
     const correct = unit.tasks.filter(t => state.taskStates[t.id]?.correct).length;
     const score = correct / total;
-    const threshold = unit.masteryThreshold || 0.6; // diagnose uses 0.6
+    const threshold = unit.masteryThreshold || 0.6;
     const passed = state.currentUnit === 'diagnose' ? true : score >= threshold;
     
-    // Save progress
     state.unitProgress[state.currentUnit] = {
         completed: passed,
         score: score,
@@ -385,17 +403,13 @@ function runMasteryCheck() {
     };
     saveState();
     
-    // Send event
-    sendEvent('mastery_check', {
+    logEvent('mastery_check', {
         unit: state.currentUnit,
         score: Math.round(score * 100),
-        correct: correct,
-        total: total,
-        passed: passed,
+        correct, total, passed,
         geminiQuestions: state.geminiQuestions
     });
     
-    // Show result
     const area = document.getElementById('content-area');
     const pct = Math.round(score * 100);
     
@@ -422,6 +436,10 @@ function runMasteryCheck() {
                 <p class="mastery-msg">${passed 
                     ? '🎉 Bestanden! Du beherrschst Produkt- und Kettenregel.' 
                     : 'Noch nicht bestanden. Wiederhole die schwachen Einheiten und versuche es erneut.'}</p>
+                <div class="sync-section">
+                    <button class="btn-secondary" onclick="copyProgressCode()" id="copy-code-btn">📋 Code kopieren</button>
+                    <button class="btn-secondary" onclick="exportProgress()">💾 Ergebnis speichern</button>
+                </div>
                 <div class="checkpoint-notice">
                     <h3>🎓 Zeig dieses Ergebnis deinem Lehrer!</h3>
                 </div>
@@ -461,7 +479,6 @@ function runMasteryCheck() {
 }
 
 function retryUnit() {
-    // Reset task states for current unit
     const unit = UNITS[state.currentUnit];
     if (unit) {
         unit.tasks.forEach(t => {
@@ -505,6 +522,10 @@ function showCompletion() {
                 }).join('')}
             </table>
             <p class="mastery-msg" style="margin-top: 1.5rem;">KI-Tutor genutzt: ${state.geminiQuestions} Fragen</p>
+            <div class="sync-section">
+                <button class="btn-secondary" onclick="copyProgressCode()" id="copy-code-btn">📋 Code kopieren</button>
+                <button class="btn-secondary" onclick="exportProgress()">💾 Ergebnis speichern</button>
+            </div>
             <div class="checkpoint-notice">
                 <h3>🎓 Zeig dieses Ergebnis deinem Lehrer!</h3>
             </div>
@@ -539,11 +560,10 @@ function addGeminiMessage(role, text) {
     const container = document.getElementById('gemini-messages');
     const div = document.createElement('div');
     div.className = `gemini-msg ${role}`;
-    div.textContent = text;
+    div.innerHTML = text;
     container.appendChild(div);
     container.scrollTop = container.scrollHeight;
     
-    // Render math
     renderMathInElement(div, {
         delimiters: [{left: '$', right: '$', display: false}]
     });
@@ -559,40 +579,55 @@ async function sendGemini() {
     state.geminiQuestions++;
     saveState();
     
-    // Build context
+    logEvent('gemini_question', { question: text.substring(0, 100) });
+    
     const currentTask = getCurrentTaskContext();
-    const messages = [
-        { role: 'system', content: GEMINI_SYSTEM_PROMPT + (currentTask ? `\n\nAktuelle Aufgabe: ${currentTask}` : '') },
-        ...state.geminiHistory.slice(-6),
-        { role: 'user', content: text }
-    ];
+    
+    // Build Gemini API request (native format)
+    const contents = [];
+    
+    // Add history (last 6 messages)
+    for (const msg of state.geminiHistory.slice(-6)) {
+        contents.push({
+            role: msg.role === 'assistant' ? 'model' : 'user',
+            parts: [{ text: msg.content }]
+        });
+    }
+    contents.push({ role: 'user', parts: [{ text: text }] });
     
     state.geminiHistory.push({ role: 'user', content: text });
     
+    addGeminiMessage('ai', '<em>Denke nach...</em>');
+    const loadingMsg = document.getElementById('gemini-messages').lastChild;
+    
     try {
-        const resp = await fetch(GEMINI_API_URL, {
+        const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${GEMINI_API_KEY}`
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                model: GEMINI_MODEL,
-                messages: messages,
-                max_tokens: 500
+                contents: contents,
+                systemInstruction: {
+                    parts: [{ text: GEMINI_SYSTEM_PROMPT + (currentTask ? `\n\nAktuelle Aufgabe: ${currentTask}` : '') }]
+                },
+                generationConfig: {
+                    maxOutputTokens: 500,
+                    temperature: 0.7
+                }
             })
         });
         
         if (!resp.ok) throw new Error(`API Error: ${resp.status}`);
         
         const data = await resp.json();
-        const reply = data.choices?.[0]?.message?.content || 'Entschuldigung, ich konnte keine Antwort generieren.';
+        const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Entschuldigung, ich konnte keine Antwort generieren.';
         
-        addGeminiMessage('ai', reply);
+        loadingMsg.innerHTML = reply;
+        renderMathInElement(loadingMsg, { delimiters: [{left: '$', right: '$', display: false}] });
+        
         state.geminiHistory.push({ role: 'assistant', content: reply });
         
     } catch (e) {
-        addGeminiMessage('ai', '⚠️ Verbindungsfehler. Versuch es nochmal oder frag deinen Lehrer!');
+        loadingMsg.innerHTML = '⚠️ Verbindungsfehler. Versuch es nochmal oder frag deinen Lehrer!';
         console.error('Gemini error:', e);
     }
 }
@@ -602,7 +637,6 @@ function getCurrentTaskContext() {
     const unit = UNITS[state.currentUnit];
     if (!unit) return null;
     
-    // Find first unsolved task
     for (const task of unit.tasks) {
         const ts = state.taskStates[task.id];
         if (!ts?.correct) {
@@ -616,6 +650,5 @@ function getCurrentTaskContext() {
 // INIT
 // ============================================================
 window.addEventListener('load', () => {
-    // Try to flush any queued events
-    flushEventQueue();
+    // Nothing to flush — all local
 });

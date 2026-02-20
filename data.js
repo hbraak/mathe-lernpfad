@@ -228,10 +228,10 @@ const UNITS = {
             {
                 id: "u1_4",
                 question: "Leite ab: $f(x) = (2x+1) \\cdot x^4$",
-                answer: "2x^4+(2x+1)*4x^3",
+                answer: "10x^4+4x^3",
                 accepts: [
                     "2x^4+4x^3*(2x+1)", "2x^4+(8x^4+4x^3)", "10x^4+4x^3",
-                    "2x^4+8x^4+4x^3", "10x^4+4x^3"
+                    "2x^4+8x^4+4x^3"
                 ],
                 hints: [
                     "$u=2x+1$, $v=x^4$ → $u'=2$, $v'=4x^3$",
@@ -394,7 +394,7 @@ const UNITS = {
                 answer: "3(x+1)^2+6x(x+1)",
                 accepts: [
                     "3(x+1)^2+6x(x+1)", "3(x+1)(3x+1)", "9x^2+6x+3",
-                    "(x+1)(9x+3)", "3(x+1)^2+6x(x+1)", "3(3x^2+2x+1)"
+                    "(x+1)(9x+3)", "3(3x^2+2x+1)"
                 ],
                 hints: [
                     "Produktregel: $u=3x$, $v=(x+1)^2$",
@@ -487,10 +487,7 @@ const UNITS = {
 // Lernpfad-Reihenfolge
 const UNIT_ORDER = ['diagnose', 'unit0', 'unit1', 'unit2', 'unit25', 'final'];
 
-// Google Sheets Webhook URL (zu konfigurieren)
-const SHEETS_WEBHOOK = '';  // TODO: Google Apps Script URL
-
-// Gemini API
+// Gemini API (domain-restricted to hbraak.github.io)
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions';
 const GEMINI_API_KEY = 'AIzaSyCQ58V2hw-4p2PlHPeAQ9ov7_-eX9B5AYI';
 const GEMINI_MODEL = 'gemini-2.5-flash';
