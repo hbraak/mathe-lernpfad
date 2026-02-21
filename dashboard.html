@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lehrer-Dashboard — Mathe-Lernpfad</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; padding: 2rem; }
@@ -149,6 +147,8 @@
     </div>
 
 <script src="data.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
 <script>
 // GIST_ID already defined in data.js
 const students = {};
@@ -381,7 +381,8 @@ function renderUnitNav() {
         const label = unit.title.replace(/^Einheit \d+: /, '');
         return `<button class="unit-btn ${i===0?'active':''}" onclick="showUnit('${id}', this)">${label}</button>`;
     }).join('');
-    showUnit(UNIT_ORDER[0]);
+    const firstBtn = nav.querySelector('.unit-btn');
+    showUnit(UNIT_ORDER[0], firstBtn);
 }
 
 function showUnit(unitId, btn) {
@@ -399,9 +400,10 @@ function showUnit(unitId, btn) {
         html += `<div class="unit-explanation"><details><summary style="cursor:pointer;color:#3b82f6;font-weight:600;">📖 Erklärung anzeigen</summary><div style="margin-top:1rem;">${unit.explanation}</div></details></div>`;
     }
     
-    html += `<p style="color:#64748b;font-size:0.85rem;margin-bottom:1rem;">${unit.tasks.length} Aufgaben · Mastery: ${Math.round((unit.masteryThreshold||0.8)*100)}%</p>`;
+    const tasks = Array.isArray(unit.tasks) ? unit.tasks : [];
+    html += `<p style="color:#64748b;font-size:0.85rem;margin-bottom:1rem;">${tasks.length} Aufgaben · Mastery: ${Math.round((unit.masteryThreshold||0.8)*100)}%</p>`;
     
-    unit.tasks.forEach((task, i) => {
+    tasks.forEach((task, i) => {
         const isPhyta = (task.question || '').includes('**') && (task.id || '').startsWith('anw') && i >= 5;
         html += `<div class="task-card ${isPhyta ? 'phyta' : ''}">`;
         html += `<div class="task-meta"><span>ID: ${task.id}</span><span>${task.type === 'choice' ? '📋 Multiple Choice' : '✏️ Freitext'}</span></div>`;
@@ -446,12 +448,15 @@ function showUnit(unitId, btn) {
     document.getElementById('unit-content').innerHTML = html;
     // Render KaTeX if available
     if (typeof renderMathInElement !== 'undefined') {
-        renderMathInElement(document.getElementById('unit-content'), {delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});
+        renderMathInElement(document.getElementById('unit-content'), {
+            delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],
+            throwOnError: false
+        });
     }
 }
 
 function renderMath(text) {
-    // Basic: replace \n with <br>, keep $ for KaTeX auto-render
+    text = (text ?? '').toString();
     return text.replace(/\n/g, '<br>');
 }
 
