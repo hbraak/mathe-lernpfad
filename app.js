@@ -259,6 +259,49 @@ function logEvent(event, data) {
 }
 
 // ============================================================
+// GIST SYNC (automatic upload)
+// ============================================================
+async function syncToGist() {
+    if (!GITHUB_TOKEN || !GIST_ID || !state.studentNr) return;
+    
+    // Read current gist content
+    try {
+        const resp = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+            headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
+        });
+        if (!resp.ok) { console.error('Gist read error:', resp.status); return; }
+        
+        const gist = await resp.json();
+        const currentContent = gist.files?.['progress.json']?.content || '{}';
+        let allData = {};
+        try { allData = JSON.parse(currentContent); } catch(e) { allData = {}; }
+        
+        // Update this student's data
+        allData[state.studentNr] = {
+            unitProgress: state.unitProgress,
+            geminiQuestions: state.geminiQuestions,
+            lastSync: new Date().toISOString()
+        };
+        
+        // Write back
+        await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+            method: 'PATCH',
+            headers: {
+                'Authorization': `token ${GITHUB_TOKEN}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                files: { 'progress.json': { content: JSON.stringify(allData, null, 2) } }
+            })
+        });
+        
+        console.log(`Synced student ${state.studentNr} to Gist`);
+    } catch (e) {
+        console.error('Gist sync error:', e);
+    }
+}
+
+// ============================================================
 // EXPORT / SYNC
 // ============================================================
 function getProgressCode() {
@@ -571,6 +614,9 @@ function runMasteryCheck() {
         correct, total, passed,
         geminiQuestions: state.geminiQuestions
     });
+    
+    // Auto-sync to Gist
+    syncToGist();
     
     const area = document.getElementById('content-area');
     const pct = Math.round(score * 100);

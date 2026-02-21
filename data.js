@@ -486,8 +486,10 @@ const UNIT_ORDER = ['diagnose', 'unit0', 'unit1', 'unit2', 'unit25', 'final'];
 
 // Gemini API (domain-restricted to hbraak.github.io)
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions';
-// Key wird aus URL-Parameter geladen, Fallback leer
+// Keys aus URL-Parametern
 const GEMINI_API_KEY = new URLSearchParams(window.location.search).get('key') || '';
+const GITHUB_TOKEN = new URLSearchParams(window.location.search).get('ghtoken') || '';
+const GIST_ID = '1adfc536c05ff59f6448fb95dcd3bb92';
 const GEMINI_MODEL = 'gemini-2.5-flash';
 const GEMINI_SYSTEM_PROMPT = `Du bist ein freundlicher Mathe-Tutor für Schüler der 12. Klasse an einem Berufskolleg.
 
