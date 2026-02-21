@@ -86,8 +86,8 @@
     <p class="subtitle">Mathe-Lernpfad — Produkt- & Kettenregel (12NP)</p>
     
     <div class="tab-bar">
-        <button class="tab active" onclick="switchTab('schueler')">👥 Schüler-Übersicht</button>
-        <button class="tab" onclick="switchTab('aufgaben')">📝 Aufgaben-Browser</button>
+        <button class="tab active" onclick="switchTab('schueler', this)">👥 Schüler-Übersicht</button>
+        <button class="tab" onclick="switchTab('aufgaben', this)">📝 Aufgaben-Browser</button>
     </div>
 
     <div id="tab-schueler">
@@ -360,11 +360,11 @@ function clearAll() {
 }
 
 // ---- TAB SWITCHING ----
-function switchTab(tab) {
+function switchTab(tab, btn) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     document.getElementById('tab-schueler').style.display = tab === 'schueler' ? 'block' : 'none';
     document.getElementById('tab-aufgaben').style.display = tab === 'aufgaben' ? 'block' : 'none';
-    event.target.classList.add('active');
+    if (btn) btn.classList.add('active');
     if (tab === 'aufgaben') renderUnitNav();
 }
 
