@@ -87,14 +87,11 @@ const UNITS = {
             },
             {
                 id: "d8",
-                question: "Leite ab: $f(x) = 4x^3 - 2x + 1$",
-                answer: "12x^2-2",
-                accepts: ["12x^2-2", "12x² - 2", "12x^2 - 2", "-2+12x^2"],
-                hints: ["Jeden Summanden einzeln ableiten, Potenzregel anwenden."],
-                errorPatterns: {
-                    "12x^2-2+1": "Die Konstante $+1$ fällt beim Ableiten weg!",
-                    "12x^2": "Die Ableitung von $-2x$ ist $-2$, nicht vergessen!"
-                }
+                question: "Welche Ableitungsregel brauchst du für $f(x) = e^{2x}$?",
+                type: "choice",
+                options: ["Potenzregel", "Keine — $e^x$ bleibt $e^x$", "Produktregel", "Kettenregel"],
+                correct: 3,
+                hints: ["$e^{2x}$ ist nicht dasselbe wie $e^x$! Es steckt eine innere Funktion $2x$ drin."]
             }
         ]
     },
