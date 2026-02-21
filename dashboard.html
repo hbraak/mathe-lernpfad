@@ -150,10 +150,10 @@
 
 <script src="data.js"></script>
 <script>
-const GIST_ID = '1adfc536c05ff59f6448fb95dcd3bb92';
+// GIST_ID already defined in data.js
 const students = {};
-const UNIT_IDS = ['diagnose', 'unit0', 'unit1', 'unit2', 'unit25', 'anwendungen1', 'final'];
-const UNIT_NAMES = ['Diagnose', 'Grundabl.', 'Produktregel', 'Kettenregel', 'Welche Regel?', 'Anwendungen', 'Abschluss'];
+const UNIT_IDS_DASH = ['diagnose', 'unit0', 'unit1', 'unit2', 'unit25', 'anwendungen1', 'final'];
+const UNIT_NAMES_DASH = ['Diagnose', 'Grundabl.', 'Produktregel', 'Kettenregel', 'Welche Regel?', 'Anwendungen', 'Abschluss'];
 let refreshInterval = null;
 
 // ---- GIST LOADING ----
@@ -267,10 +267,10 @@ function scoreCell(unitProgress, unitId) {
 function getStatus(s) {
     const up = s.unitProgress;
     if (up.final?.completed) return '🏆 Fertig';
-    for (const id of UNIT_IDS) {
+    for (const id of UNIT_IDS_DASH) {
         if (!up[id] || !up[id].completed) {
-            const idx = UNIT_IDS.indexOf(id);
-            return `📍 ${UNIT_NAMES[idx] || id}`;
+            const idx = UNIT_IDS_DASH.indexOf(id);
+            return `📍 ${UNIT_NAMES_DASH[idx] || id}`;
         }
     }
     return '🏆 Fertig';
@@ -308,7 +308,7 @@ function render() {
         const syncTime = s.lastSync ? new Date(s.lastSync).toLocaleTimeString('de-DE', {hour:'2-digit',minute:'2-digit'}) : '—';
         return `<tr>
             <td><strong>${nr}</strong></td>
-            ${UNIT_IDS.map(id => `<td>${scoreCell(s.unitProgress, id)}</td>`).join('')}
+            ${UNIT_IDS_DASH.map(id => `<td>${scoreCell(s.unitProgress, id)}</td>`).join('')}
             <td>${s.geminiQuestions || 0}</td>
             <td>${getStatus(s)}</td>
             <td style="color:#64748b;font-size:0.8rem;">${syncTime}</td>
@@ -324,7 +324,7 @@ function exportCSV() {
     let csv = 'Nr;Diagnose;Grundabl;Produktregel;Kettenregel;WelcheRegel;Anwendungen;Abschluss;KI-Fragen;Status\n';
     keys.forEach(nr => {
         const s = students[nr];
-        const scores = UNIT_IDS.map(id => {
+        const scores = UNIT_IDS_DASH.map(id => {
             const p = s.unitProgress[id];
             return p ? Math.round((p.score || 0) * 100) : '';
         });
