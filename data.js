@@ -1,5 +1,5 @@
 // ============================================================
-// LERNPFAD-DATEN: Produkt- und Kettenregel
+// LERNPFAD-DATEN: Produkt-/Kettenregel + Kurvendiskussion + Extremwertaufgaben
 // ============================================================
 
 const UNITS = {
@@ -619,6 +619,474 @@ const UNITS = {
     masteryThreshold: 0.7
     },
 
+    // ============================================================
+    // LERNPFAD 2: Kurvendiskussion & Extremwertaufgaben
+    // ============================================================
+
+    // --------------------------------------------------------
+    // DIAGNOSE 2: Einstiegsdiagnose Kurvendiskussion
+    // --------------------------------------------------------
+    diagnose2: {
+        title: "Diagnose: Kurvendiskussion",
+        description: "Teste dein Vorwissen zu Extremstellen, Wendepunkten und Monotonie.",
+        tasks: [
+            {
+                id: "d2_1",
+                question: "Bestimme die Extremstellen von $f(x) = x^3 - 3x$.\n\nGib beide $x$-Werte an (kommagetrennt).",
+                answer: "-1, 1",
+                accepts: ["-1, 1", "-1,1", "1, -1", "1,-1", "x=-1, x=1", "-1 und 1"],
+                hints: [
+                    "$f'(x) = 3x^2 - 3$. Setze $f'(x) = 0$.",
+                    "$3x^2 - 3 = 0 \\Rightarrow x^2 = 1$",
+                    "$x_1 = -1$ und $x_2 = 1$"
+                ],
+                errorPatterns: {
+                    "0": "$f'(0) = -3 \\neq 0$. Löse $3x^2 - 3 = 0$!",
+                    "3": "Du hast $f'(x) = 0$ nicht korrekt gelöst. $3x^2 = 3 \\Rightarrow x^2 = 1$."
+                }
+            },
+            {
+                id: "d2_2",
+                question: "Gegeben: $f(x) = x^3 - 3x$, Extremstellen bei $x = -1$ und $x = 1$.\n\nWelche Art von Extremum liegt bei $x = -1$ vor?",
+                type: "choice",
+                options: ["Maximum", "Minimum", "Sattelpunkt", "Wendepunkt"],
+                correct: 0,
+                hints: [
+                    "$f''(x) = 6x$. Berechne $f''(-1)$.",
+                    "$f''(-1) = -6 < 0$ → ?",
+                    "Negative zweite Ableitung = Linkskrümmung = Maximum."
+                ]
+            },
+            {
+                id: "d2_3",
+                question: "Bestimme die Wendestelle von $f(x) = x^3 - 3x$.\n\nGib den $x$-Wert an.",
+                answer: "0",
+                accepts: ["0", "x=0"],
+                hints: [
+                    "Wendepunkt: $f''(x) = 0$ und Vorzeichenwechsel.",
+                    "$f''(x) = 6x = 0 \\Rightarrow x = 0$",
+                    "$f'''(x) = 6 \\neq 0$, also ist $x=0$ tatsächlich Wendepunkt."
+                ],
+                errorPatterns: {
+                    "1": "Das ist eine Extremstelle, kein Wendepunkt! Setze $f''(x) = 0$.",
+                    "-1": "Das ist eine Extremstelle. Wendepunkt: $f''(x) = 0$, nicht $f'(x) = 0$."
+                }
+            },
+            {
+                id: "d2_4",
+                question: "In welchem Intervall ist $f(x) = x^3 - 3x$ streng monoton fallend?",
+                type: "choice",
+                options: ["$(-\\infty, -1)$", "$(-1, 1)$", "$(1, \\infty)$", "$(-\\infty, 0)$"],
+                correct: 1,
+                hints: [
+                    "Monoton fallend: $f'(x) < 0$. Und $f'(x) = 3x^2 - 3 = 3(x^2 - 1)$.",
+                    "$f'(x) < 0$ wenn $x^2 < 1$, also $-1 < x < 1$.",
+                    "Im Intervall $(-1, 1)$ ist $f$ streng monoton fallend."
+                ]
+            },
+            {
+                id: "d2_5",
+                question: "Bestimme die Extremstellen von $f(x) = 2x^3 - 6x^2 + 3$.\n\nGib beide $x$-Werte an.",
+                answer: "0, 2",
+                accepts: ["0, 2", "0,2", "2, 0", "2,0", "x=0, x=2", "0 und 2"],
+                hints: [
+                    "$f'(x) = 6x^2 - 12x = 6x(x-2)$",
+                    "Setze $f'(x) = 0$: $6x(x-2) = 0$",
+                    "$x_1 = 0$ und $x_2 = 2$"
+                ],
+                errorPatterns: {
+                    "1": "Das ist nicht korrekt. Faktorisiere: $6x^2 - 12x = 6x(x-2) = 0$.",
+                    "6": "Du hast $f'(x)$ nicht gleich Null gesetzt, sondern vielleicht $f''$?"
+                }
+            },
+            {
+                id: "d2_6",
+                question: "Was beschreibt der Wendepunkt geometrisch?",
+                type: "choice",
+                options: [
+                    "Stelle, wo $f$ den größten Wert hat",
+                    "Stelle, wo die Steigung maximal oder minimal ist",
+                    "Stelle, wo $f$ die Krümmung wechselt",
+                    "Stelle, wo $f$ die $x$-Achse schneidet"
+                ],
+                correct: 2,
+                hints: [
+                    "Wendepunkt hat mit der Krümmung zu tun.",
+                    "Krümmung wird durch $f''$ beschrieben. Bei $f'' = 0$ mit VZW...",
+                    "Der Wendepunkt ist die Stelle, wo der Graph von Links- zu Rechtskrümmung wechselt (oder umgekehrt)."
+                ]
+            },
+            {
+                id: "d2_7",
+                question: "Der Graph von $f'(x)$ schneidet die $x$-Achse bei $x = 2$ von positiv nach negativ.\n\nWas bedeutet das für $f(x)$ bei $x = 2$?",
+                type: "choice",
+                options: [
+                    "$f$ hat einen Wendepunkt",
+                    "$f$ hat ein Minimum",
+                    "$f$ hat ein Maximum",
+                    "$f$ hat eine Nullstelle"
+                ],
+                correct: 2,
+                hints: [
+                    "$f'$ geht von positiv nach negativ → $f'$ wechselt das Vorzeichen.",
+                    "$f'(x) > 0$ davor (steigend), $f'(x) < 0$ danach (fallend).",
+                    "Steigend → fallend = Maximum."
+                ]
+            },
+            {
+                id: "d2_8",
+                question: "Berechne die Wendestellen von $f(x) = x^4 - 4x^2$.\n\n(Gib beide $x$-Werte exakt oder auf 2 Dezimalen an.)",
+                answer: "-sqrt(6)/3, sqrt(6)/3",
+                accepts: [
+                    "-sqrt(6)/3, sqrt(6)/3", "sqrt(6)/3, -sqrt(6)/3",
+                    "-0.82, 0.82", "0.82, -0.82", "-0,82, 0,82",
+                    "-√6/3, √6/3", "±sqrt(6)/3", "+-sqrt(6)/3"
+                ],
+                hints: [
+                    "$f''(x) = 12x^2 - 8$. Setze $f''(x) = 0$.",
+                    "$12x^2 - 8 = 0 \\Rightarrow x^2 = \\frac{2}{3}$",
+                    "$x = \\pm\\sqrt{\\frac{2}{3}} = \\pm\\frac{\\sqrt{6}}{3} \\approx \\pm 0{,}82$"
+                ],
+                errorPatterns: {
+                    "0": "$f''(0) = -8 \\neq 0$. Löse $12x^2 - 8 = 0$!",
+                    "2, -2": "Das sind die Nullstellen von $f'$, nicht von $f''$!"
+                }
+            }
+        ],
+        masteryThreshold: 0.8
+    },
+
+    // --------------------------------------------------------
+    // KURVENDISKUSSION
+    // --------------------------------------------------------
+    kurvendisk: {
+        title: "Kurvendiskussion",
+        description: "Analysiere Funktionen systematisch: Extrema, Wendepunkte, Monotonie, Skizze.",
+        explanation: `
+            <h3>Schema einer Kurvendiskussion</h3>
+            <ol style="margin-left:1.5rem; line-height:2.2;">
+                <li><strong>Definitionsbereich:</strong> Wo ist $f$ definiert?</li>
+                <li><strong>Symmetrie:</strong> $f(-x) = f(x)$ → achsensymmetrisch, $f(-x) = -f(x)$ → punktsymmetrisch</li>
+                <li><strong>Nullstellen:</strong> $f(x) = 0$</li>
+                <li><strong>Extremstellen:</strong> $f'(x) = 0$ + Vorzeichenwechsel oder $f''(x_0) \\neq 0$</li>
+                <li><strong>Wendepunkte:</strong> $f''(x) = 0$ + Vorzeichenwechsel oder $f'''(x_0) \\neq 0$</li>
+                <li><strong>Randverhalten:</strong> $\\lim_{x \\to \\pm\\infty} f(x)$</li>
+            </ol>
+            <h3 style="margin-top:1.5rem;">Wichtige Zusammenhänge</h3>
+            <ul style="margin-left:1.5rem; line-height:2.2;">
+                <li>$f'(x) > 0$ → $f$ steigt, $f'(x) < 0$ → $f$ fällt</li>
+                <li>$f''(x) > 0$ → Linkskrümmung (Tal), $f''(x) < 0$ → Rechtskrümmung (Berg)</li>
+                <li>Wendepunkt von $f$ = Extremstelle von $f'$</li>
+            </ul>
+        `,
+        tasks: [
+            {
+                id: "kd1",
+                question: "Bestimme alle Nullstellen von $f(x) = x^3 - 3x$.",
+                answer: "0, -sqrt(3), sqrt(3)",
+                accepts: [
+                    "0, -sqrt(3), sqrt(3)", "0, sqrt(3), -sqrt(3)",
+                    "-sqrt(3), 0, sqrt(3)", "0, -1.73, 1.73",
+                    "0, -√3, √3", "0,-√3,√3", "-1.73, 0, 1.73"
+                ],
+                hints: [
+                    "Ausklammern: $x^3 - 3x = x(x^2 - 3)$",
+                    "$x(x^2 - 3) = 0$: Entweder $x = 0$ oder $x^2 = 3$",
+                    "$x_1 = 0$, $x_2 = -\\sqrt{3} \\approx -1{,}73$, $x_3 = \\sqrt{3} \\approx 1{,}73$"
+                ],
+                errorPatterns: {
+                    "0, 3, -3": "$x^2 = 3$, also $x = \\pm\\sqrt{3}$, nicht $\\pm 3$!",
+                    "0": "Da fehlen zwei! Löse auch $x^2 - 3 = 0$."
+                }
+            },
+            {
+                id: "kd2",
+                question: "Ist $f(x) = x^3 - 3x$ achsensymmetrisch, punktsymmetrisch oder weder noch?",
+                type: "choice",
+                options: ["Achsensymmetrisch zur $y$-Achse", "Punktsymmetrisch zum Ursprung", "Weder noch"],
+                correct: 1,
+                hints: [
+                    "Prüfe: $f(-x) = (-x)^3 - 3(-x) = -x^3 + 3x$",
+                    "Vergleiche mit $-f(x) = -(x^3 - 3x) = -x^3 + 3x$",
+                    "$f(-x) = -f(x)$ → punktsymmetrisch zum Ursprung."
+                ]
+            },
+            {
+                id: "kd3",
+                question: "Führe eine Kurvendiskussion von $f(x) = x^3 - 3x$ durch.\n\nGib den $y$-Wert des lokalen Maximums an.",
+                answer: "2",
+                accepts: ["2", "f(-1)=2", "y=2"],
+                hints: [
+                    "Extremstellen: $f'(x) = 3x^2 - 3 = 0 \\Rightarrow x = \\pm 1$",
+                    "$f''(-1) = -6 < 0$ → Maximum bei $x = -1$.",
+                    "$f(-1) = (-1)^3 - 3 \\cdot (-1) = -1 + 3 = 2$"
+                ],
+                errorPatterns: {
+                    "-2": "Das ist der $y$-Wert des Minimums bei $x=1$. Gefragt ist das Maximum!",
+                    "-1": "Das ist die $x$-Koordinate. Gefragt ist der $y$-Wert: $f(-1) = ?$"
+                }
+            },
+            {
+                id: "kd4",
+                question: "Bestimme die Extremstellen von $f(x) = x \\cdot e^{-x}$.\n\nGib den $x$-Wert und die Art (Max/Min) an.",
+                answer: "x=1, Maximum",
+                accepts: ["x=1, Maximum", "1, Maximum", "1, Max", "Maximum bei x=1", "x=1 Maximum", "1 Max"],
+                hints: [
+                    "Produktregel: $f'(x) = e^{-x} + x(-e^{-x}) = (1-x)e^{-x}$",
+                    "$f'(x) = 0$: Da $e^{-x} \\neq 0$, muss $1-x = 0$, also $x = 1$.",
+                    "$f''(x) = (x-2)e^{-x}$, $f''(1) = -e^{-1} < 0$ → Maximum."
+                ],
+                errorPatterns: {
+                    "0": "$f'(0) = 1 \\neq 0$. Löse $(1-x) = 0$!",
+                    "x=1, Minimum": "Prüfe das Vorzeichen von $f''(1)$: $f''(1) = -e^{-1} < 0$ → Maximum, nicht Minimum!"
+                }
+            },
+            {
+                id: "kd5",
+                question: "Bestimme den Wendepunkt von $f(x) = x \\cdot e^{-x}$.\n\nGib den $x$-Wert an.",
+                answer: "2",
+                accepts: ["2", "x=2"],
+                hints: [
+                    "$f''(x) = (x-2)e^{-x}$. Setze $f''(x) = 0$.",
+                    "Da $e^{-x} \\neq 0$: $x - 2 = 0$",
+                    "$x = 2$. Prüfe: $f'''(x) = (3-x)e^{-x}$, also $f'''(2) = e^{-2} \\neq 0$ ✓"
+                ],
+                errorPatterns: {
+                    "1": "Das ist die Extremstelle! Wendepunkt: $f''(x) = 0$, nicht $f'(x) = 0$."
+                }
+            },
+            {
+                id: "kd6",
+                question: "Bestimme die Extremstellen von $f(x) = x^2 \\cdot e^{-x}$.\n\nGib beide $x$-Werte an.",
+                answer: "0, 2",
+                accepts: ["0, 2", "0,2", "2, 0", "2,0", "x=0, x=2", "0 und 2"],
+                hints: [
+                    "Produktregel: $f'(x) = 2x \\cdot e^{-x} + x^2(-e^{-x}) = x(2-x)e^{-x}$",
+                    "$f'(x) = 0$: $x(2-x) = 0$ (da $e^{-x} \\neq 0$)",
+                    "$x_1 = 0$ (Minimum) und $x_2 = 2$ (Maximum)"
+                ],
+                errorPatterns: {
+                    "2": "Es gibt noch eine zweite Extremstelle! $x(2-x) = 0$ hat zwei Lösungen.",
+                    "0": "Es gibt noch $x = 2$! Löse $x(2-x) = 0$ vollständig."
+                }
+            },
+            {
+                id: "kd7",
+                question: "Wie verhält sich $f(x) = x^2 \\cdot e^{-x}$ für $x \\to +\\infty$?",
+                type: "choice",
+                options: [
+                    "$f(x) \\to +\\infty$",
+                    "$f(x) \\to 0$",
+                    "$f(x) \\to -\\infty$",
+                    "$f(x) \\to 1$"
+                ],
+                correct: 1,
+                hints: [
+                    "Wer wächst schneller: $x^2$ oder $e^x$?",
+                    "$e^x$ wächst viel schneller als jedes Polynom → $\\frac{x^2}{e^x} \\to 0$",
+                    "Die Exponentialfunktion dominiert: $\\lim_{x \\to \\infty} x^2 e^{-x} = 0$"
+                ]
+            },
+            {
+                id: "kd8",
+                question: "Bestimme die Wendestellen von $f(x) = x^2 \\cdot e^{-x}$.\n\n(Gib beide $x$-Werte exakt oder auf 2 Dezimalen an.)",
+                answer: "2-sqrt(2), 2+sqrt(2)",
+                accepts: [
+                    "2-sqrt(2), 2+sqrt(2)", "2+sqrt(2), 2-sqrt(2)",
+                    "0.59, 3.41", "0,59, 3,41", "2-√2, 2+√2", "2±√2"
+                ],
+                hints: [
+                    "$f''(x) = (x^2 - 4x + 2)e^{-x}$. Setze $f''(x) = 0$.",
+                    "$x^2 - 4x + 2 = 0$. pq-Formel: $x = 2 \\pm \\sqrt{4-2}$",
+                    "$x_1 = 2 - \\sqrt{2} \\approx 0{,}59$ und $x_2 = 2 + \\sqrt{2} \\approx 3{,}41$"
+                ],
+                errorPatterns: {
+                    "0, 2": "Das sind die Extremstellen (aus $f' = 0$), nicht die Wendestellen! Löse $f'' = 0$."
+                }
+            },
+            {
+                id: "kd9",
+                question: "Welche Aussage über $f(x) = x^3 - 3x$ ist korrekt?",
+                type: "choice",
+                options: [
+                    "Lokales Maximum bei $(1, -2)$, Minimum bei $(-1, 2)$",
+                    "Lokales Maximum bei $(-1, 2)$, Minimum bei $(1, -2)$",
+                    "Lokales Maximum bei $(0, 0)$, kein Minimum",
+                    "Kein Extremum, da $f$ unbeschränkt ist"
+                ],
+                correct: 1,
+                hints: [
+                    "$f'(x) = 3x^2 - 3 = 0 \\Rightarrow x = \\pm 1$",
+                    "$f(-1) = -1+3 = 2$, $f(1) = 1-3 = -2$",
+                    "$f''(-1) = -6 < 0$ → Max bei $(-1, 2)$. $f''(1) = 6 > 0$ → Min bei $(1, -2)$."
+                ]
+            },
+            {
+                id: "kd10",
+                question: "Für $f(x) = x \\cdot e^{-x}$: Berechne den $y$-Wert des Wendepunkts.\n\n(Gib den exakten Wert an.)",
+                answer: "2e^(-2)",
+                accepts: ["2e^(-2)", "2*e^(-2)", "2/e^2", "2/e²", "2e^{-2}", "0.27"],
+                hints: [
+                    "Wendestelle bei $x = 2$ (aus vorheriger Aufgabe).",
+                    "Einsetzen: $f(2) = 2 \\cdot e^{-2}$",
+                    "$f(2) = 2e^{-2} = \\frac{2}{e^2} \\approx 0{,}27$"
+                ],
+                errorPatterns: {
+                    "e^(-1)": "Das ist $f(1)$, nicht $f(2)$! Setze $x = 2$ ein.",
+                    "1/e": "Das ist $f(1) = e^{-1}$. Der Wendepunkt liegt bei $x = 2$."
+                }
+            }
+        ],
+        masteryThreshold: 0.7
+    },
+
+    // --------------------------------------------------------
+    // EXTREMWERTAUFGABEN
+    // --------------------------------------------------------
+    extremwert: {
+        title: "Extremwertaufgaben",
+        description: "Optimierungsprobleme lösen: Zielfunktion + Nebenbedingung.",
+        explanation: `
+            <h3>Schema für Extremwertaufgaben</h3>
+            <ol style="margin-left:1.5rem; line-height:2.2;">
+                <li><strong>Skizze</strong> anfertigen, Variablen benennen</li>
+                <li><strong>Zielfunktion</strong> aufstellen (was soll max/min werden?)</li>
+                <li><strong>Nebenbedingung</strong> aufstellen (welche Einschränkung gilt?)</li>
+                <li><strong>Einsetzen:</strong> Nebenbedingung in Zielfunktion → Funktion mit einer Variablen</li>
+                <li><strong>Ableiten</strong> und $f'(x) = 0$ lösen</li>
+                <li><strong>Überprüfen:</strong> $f''(x_0)$ für Max/Min, Randwerte beachten</li>
+                <li><strong>Antwort</strong> im Sachkontext formulieren</li>
+            </ol>
+            <h3 style="margin-top:1.5rem;">Typische Nebenbedingungen</h3>
+            <ul style="margin-left:1.5rem; line-height:2.2;">
+                <li>Fester Umfang: $U = 2a + 2b$ → $b = \\frac{U}{2} - a$</li>
+                <li>Festes Volumen: $V = \\pi r^2 h$ → $h = \\frac{V}{\\pi r^2}$</li>
+                <li>Punkt auf Graph: $y = f(x)$ → eine Variable eliminieren</li>
+            </ul>
+        `,
+        tasks: [
+            {
+                id: "ew1",
+                question: "**Rechteck:** Ein Rechteck hat den Umfang $U = 20\\,\\text{cm}$.\n\nBestimme die Seitenlänge $a$, für die der Flächeninhalt maximal wird.\n\n(Gib $a$ in cm an.)",
+                answer: "5",
+                accepts: ["5", "a=5", "5 cm", "a=b=5"],
+                hints: [
+                    "Nebenbedingung: $2a + 2b = 20 \\Rightarrow b = 10 - a$",
+                    "Zielfunktion: $A(a) = a \\cdot (10 - a) = 10a - a^2$",
+                    "$A'(a) = 10 - 2a = 0 \\Rightarrow a = 5$. Also $a = b = 5$ (Quadrat!)."
+                ],
+                errorPatterns: {
+                    "10": "Das ist der halbe Umfang. Die Seitenlänge ist $a = 5$.",
+                    "25": "Das ist die maximale Fläche, nicht die Seitenlänge."
+                }
+            },
+            {
+                id: "ew2",
+                question: "**Rechteck (Forts.):** Wie groß ist die maximale Fläche bei $U = 20\\,\\text{cm}$?\n\n(Angabe in cm².)",
+                answer: "25",
+                accepts: ["25", "25 cm²", "25cm²", "A=25"],
+                hints: [
+                    "Aus vorheriger Aufgabe: $a = b = 5$",
+                    "$A = a \\cdot b = 5 \\cdot 5$",
+                    "$A_{\\max} = 25\\,\\text{cm}^2$"
+                ],
+                errorPatterns: {
+                    "5": "Das ist die Seitenlänge, nicht die Fläche! $A = 5 \\cdot 5 = 25$."
+                }
+            },
+            {
+                id: "ew3",
+                question: "**Rinne:** Aus einem $12\\,\\text{cm}$ breiten Blech wird eine U-förmige Rinne gebogen (Höhe $h$, Breite $12 - 2h$).\n\nBei welcher Höhe $h$ ist der Querschnitt maximal? (in cm)",
+                answer: "3",
+                accepts: ["3", "h=3", "3 cm", "3cm"],
+                hints: [
+                    "Querschnittsfläche: $A(h) = h \\cdot (12 - 2h) = 12h - 2h^2$",
+                    "$A'(h) = 12 - 4h = 0$",
+                    "$h = 3\\,\\text{cm}$. Maximaler Querschnitt: $A(3) = 3 \\cdot 6 = 18\\,\\text{cm}^2$."
+                ],
+                errorPatterns: {
+                    "6": "Das ist die Breite der Rinne bei $h = 3$, nicht die Höhe!",
+                    "18": "Das ist die maximale Fläche, nicht die Höhe."
+                }
+            },
+            {
+                id: "ew4",
+                question: "**Dose:** Eine zylindrische Dose soll $V = 500\\,\\text{cm}^3$ fassen. Die Oberfläche $A = 2\\pi r^2 + 2\\pi rh$ soll minimal sein.\n\nStelle $A$ als Funktion von $r$ allein auf.\n\n(Nutze $h = \\frac{500}{\\pi r^2}$.)",
+                answer: "2*pi*r^2+1000/r",
+                accepts: [
+                    "2*pi*r^2+1000/r", "2πr²+1000/r", "2*pi*r^2 + 1000/r",
+                    "2pi*r^2+1000/r", "2πr² + 1000/r"
+                ],
+                hints: [
+                    "Nebenbedingung: $V = \\pi r^2 h = 500 \\Rightarrow h = \\frac{500}{\\pi r^2}$",
+                    "Einsetzen: $A(r) = 2\\pi r^2 + 2\\pi r \\cdot \\frac{500}{\\pi r^2}$",
+                    "Vereinfachen: $A(r) = 2\\pi r^2 + \\frac{1000}{r}$"
+                ],
+                errorPatterns: {
+                    "2*pi*r^2+500/r": "$2\\pi r \\cdot \\frac{500}{\\pi r^2} = \\frac{1000}{r}$, nicht $\\frac{500}{r}$."
+                }
+            },
+            {
+                id: "ew5",
+                question: "**Dose (Forts.):** Für $A(r) = 2\\pi r^2 + \\frac{1000}{r}$: Berechne den optimalen Radius.\n\n(Auf 2 Dezimalen, in cm.)",
+                answer: "4.30",
+                accepts: ["4.30", "4,30", "4.3", "4,3", "r=4.30", "r=4.3"],
+                hints: [
+                    "$A'(r) = 4\\pi r - \\frac{1000}{r^2}$. Setze $A'(r) = 0$.",
+                    "$4\\pi r = \\frac{1000}{r^2} \\Rightarrow r^3 = \\frac{250}{\\pi}$",
+                    "$r = \\sqrt[3]{\\frac{250}{\\pi}} \\approx 4{,}30\\,\\text{cm}$"
+                ],
+                errorPatterns: {}
+            },
+            {
+                id: "ew6",
+                question: "**Leistungsanpassung:** Spannungsquelle $U = 10\\,\\text{V}$, $R_i = 50\\,\\Omega$, Lastwiderstand $R$:\n$$P(R) = \\frac{100R}{(R+50)^2}$$\n\nBei welchem $R$ ist $P$ maximal? (in $\\Omega$)",
+                answer: "50",
+                accepts: ["50", "R=50", "50 Ohm", "50Ω", "R=Ri"],
+                hints: [
+                    "$P'(R) = \\frac{100(50-R)}{(R+50)^3}$. Setze $P'(R) = 0$.",
+                    "$50 - R = 0 \\Rightarrow R = 50$",
+                    "$R = R_i = 50\\,\\Omega$ — das ist die **Leistungsanpassung**!"
+                ],
+                errorPatterns: {
+                    "0": "Bei $R = 0$ (Kurzschluss) ist $P = 0$!",
+                    "100": "Leite ab: $P'(R) = \\frac{100(50-R)}{(R+50)^3} = 0 \\Rightarrow R = 50$."
+                }
+            },
+            {
+                id: "ew7",
+                question: "**Leistungsanpassung (Forts.):** $P_{\\max}$ bei $R = 50\\,\\Omega$?\n\n(in Watt)",
+                answer: "0.5",
+                accepts: ["0.5", "0,5", "1/2", "0.5 W", "0,5 W", "P=0.5"],
+                hints: [
+                    "$P(50) = \\frac{100 \\cdot 50}{(50+50)^2}$",
+                    "$= \\frac{5000}{10000}$",
+                    "$P_{\\max} = 0{,}5\\,\\text{W}$"
+                ],
+                errorPatterns: {
+                    "2": "$\\frac{5000}{10000} = 0{,}5$, nicht $2$.",
+                    "1": "$\\frac{5000}{10000} = 0{,}5$, nicht $1$."
+                }
+            },
+            {
+                id: "ew8",
+                question: "**Zaun:** Rechteckiges Grundstück an einer Mauer (eine Seite frei). $24\\,\\text{m}$ Zaun verfügbar.\n\nBestimme $a$ (parallel zur Mauer) und $b$ (senkrecht) für maximale Fläche.\n\n(Gib $a$ und $b$ in m an.)",
+                answer: "12, 6",
+                accepts: ["12, 6", "12,6", "a=12, b=6", "12 und 6"],
+                hints: [
+                    "NB: $a + 2b = 24$ (Mauer ersetzt eine Seite!) → $a = 24 - 2b$",
+                    "Zielfunktion: $A(b) = (24-2b) \\cdot b = 24b - 2b^2$",
+                    "$A'(b) = 24 - 4b = 0 \\Rightarrow b = 6$, also $a = 12$."
+                ],
+                errorPatterns: {
+                    "6, 6": "Die Mauer ersetzt eine Seite! NB ist $a + 2b = 24$, nicht $2a + 2b = 24$.",
+                    "8, 8": "Das wäre ohne Mauer. Hier: $a + 2b = 24$."
+                }
+            }
+        ],
+        masteryThreshold: 0.7
+    },
+
     // --------------------------------------------------------
     // ABSCHLUSSTEST
     // --------------------------------------------------------
@@ -673,7 +1141,7 @@ const UNITS = {
 };
 
 // Lernpfad-Reihenfolge
-const UNIT_ORDER = ['diagnose', 'unit0', 'unit1', 'unit2', 'unit25', 'anwendungen1', 'final'];
+const UNIT_ORDER = ['diagnose', 'unit0', 'unit1', 'unit2', 'unit25', 'anwendungen1', 'diagnose2', 'kurvendisk', 'extremwert', 'final'];
 
 // Gemini API (domain-restricted to hbraak.github.io)
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions';
@@ -692,5 +1160,5 @@ REGELN:
 5. Nutze LaTeX für Formeln: $...$
 6. Sei ermutigend aber ehrlich
 7. Antworte auf Deutsch
-8. Thema: Produktregel und Kettenregel (Ableitungen)
+8. Thema: Produktregel, Kettenregel, Kurvendiskussion und Extremwertaufgaben
 9. Wenn Schüler persönliche Daten teilen, weise freundlich darauf hin, dass sie das nicht tun sollen.`;
