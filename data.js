@@ -429,6 +429,197 @@ const UNITS = {
     },
 
     // --------------------------------------------------------
+    // ANWENDUNGEN: Produkt- & Kettenregel
+    // --------------------------------------------------------
+    anwendungen1: {
+    title: "Anwendungen: Produkt- & Kettenregel",
+    description: "Tangenten, Extremstellen und physikalische Anwendungen — jetzt wird's konkret!",
+    explanation: `
+        <h3>Was kommt jetzt?</h3>
+        <p>Du kannst die Produkt- und Kettenregel anwenden. Jetzt nutzen wir sie für konkrete Aufgaben:</p>
+        <ul style="margin-left:1.5rem; line-height:2.2;">
+            <li><strong>Tangentengleichung:</strong> $y = f'(x_0)(x - x_0) + f(x_0)$</li>
+            <li><strong>Normalengleichung:</strong> $y = -\\frac{1}{f'(x_0)}(x - x_0) + f(x_0)$</li>
+            <li><strong>Extremstellen:</strong> $f'(x) = 0$ und Vorzeichenwechsel / $f''(x)$ prüfen</li>
+            <li><strong>Monotonie:</strong> $f'(x) > 0$ auf einem Intervall → dort streng steigend. Aber: Einzelne Stellen mit $f'=0$ brechen strenge Monotonie nicht!</li>
+        </ul>
+        <h3 style="margin-top:1.5rem;">Physikalische Anwendungen</h3>
+        <p>Ableitungen beschreiben Änderungsraten — in der Physik z.B.:</p>
+        <ul style="margin-left:1.5rem; line-height:2.2;">
+            <li>Geschwindigkeit = Ableitung des Weges: $v(t) = s'(t)$</li>
+            <li>Abkühlrate = Ableitung der Temperatur: $T'(t)$</li>
+            <li>Beim Kondensator: $i_C(t) = C \\cdot U_C'(t)$</li>
+        </ul>
+    `,
+    tasks: [
+        {
+            id: "anw1",
+            question: "Bestimme die Tangentengleichung an $f(x) = x^2 \\cdot e^{-x}$ an der Stelle $x_0 = 1$.\n\n(Gib die Tangente in der Form $y = ...$ an.)",
+            answer: "y=x/e",
+            accepts: [
+                "y=x/e", "y=x*e^(-1)", "y=xe^(-1)", "y=(1/e)*x",
+                "y=x·e^(-1)", "y = x/e", "y = x * e^(-1)",
+                "y=e^(-1)*x", "y=(e^(-1))*x"
+            ],
+            hints: [
+                "Produktregel: $u = x^2$, $v = e^{-x}$ → $f'(x) = 2x \\cdot e^{-x} + x^2 \\cdot (-e^{-x}) = x(2-x)e^{-x}$",
+                "Einsetzen: $f(1) = 1 \\cdot e^{-1} = \\frac{1}{e}$ und $f'(1) = 1 \\cdot 1 \\cdot e^{-1} = \\frac{1}{e}$",
+                "Tangente: $y = \\frac{1}{e}(x - 1) + \\frac{1}{e} = \\frac{x}{e}$"
+            ],
+            errorPatterns: {
+                "y=x*e^(-1)+e^(-1)": "Vereinfache! $\\frac{1}{e}(x-1) + \\frac{1}{e} = \\frac{x-1+1}{e} = \\frac{x}{e}$",
+                "y=(2-x)*e^(-x)*x": "Das ist f'(x), nicht die Tangente! Tangente: $y = f'(x_0)(x - x_0) + f(x_0)$"
+            }
+        },
+        {
+            id: "anw2",
+            question: "Bestimme die Extremstelle von $f(x) = x \\cdot e^{-x}$.\n\nGib den $x$-Wert an.",
+            answer: "1",
+            accepts: ["1", "x=1"],
+            hints: [
+                "Produktregel: $f'(x) = e^{-x} + x \\cdot (-e^{-x}) = (1-x) \\cdot e^{-x}$",
+                "Setze $f'(x) = 0$: Da $e^{-x} \\neq 0$, muss $1-x = 0$ gelten.",
+                "$x = 1$. Prüfe: $f''(x) = (x-2)e^{-x}$, also $f''(1) = -e^{-1} < 0$ → Maximum."
+            ],
+            errorPatterns: {
+                "0": "$e^{-x}$ ist nie Null! Der Faktor $(1-x)$ muss Null sein.",
+                "-1": "Vorzeichen beachten: $1 - x = 0 \\Rightarrow x = 1$"
+            }
+        },
+        {
+            id: "anw3",
+            question: "Gegeben: $f(x) = (2x+1)^3$.\n\nIn welchen Intervallen ist $f$ streng monoton steigend?",
+            type: "choice",
+            options: [
+                "$(-\\infty, -\\frac{1}{2})$ und $(-\\frac{1}{2}, \\infty)$",
+                "$(-\\infty, \\infty)$ (überall)",
+                "$(0, \\infty)$",
+                "$(-\\frac{1}{2}, \\infty)$"
+            ],
+            correct: 1,
+            hints: [
+                "Kettenregel: $f'(x) = 3(2x+1)^2 \\cdot 2 = 6(2x+1)^2$",
+                "$f'(x) = 6(2x+1)^2 \\geq 0$ für alle $x$, und $f'(x) = 0$ nur bei $x = -\\frac{1}{2}$.",
+                "$f$ ist Komposition streng steigender Funktionen ($2x+1$ und $u^3$) → streng monoton steigend auf ganz $\\mathbb{R}$. Eine einzelne Stelle mit $f'=0$ bricht die strenge Monotonie nicht!"
+            ]
+        },
+        {
+            id: "anw4",
+            question: "Bestimme die Normalengleichung an $f(x) = e^{2x}$ an der Stelle $x_0 = 0$.\n\n(Gib die Normale als $y = ...$ an.)",
+            answer: "y=-x/2+1",
+            accepts: [
+                "y=-x/2+1", "y=1-x/2", "y=-0.5x+1", "y=-0,5x+1",
+                "y = -x/2 + 1", "y = 1 - x/2", "y=-(1/2)x+1"
+            ],
+            hints: [
+                "Kettenregel: $f'(x) = 2e^{2x}$ → $f'(0) = 2$",
+                "Normalensteigung = $-\\frac{1}{f'(0)} = -\\frac{1}{2}$. Und $f(0) = e^0 = 1$.",
+                "Normale: $y = -\\frac{1}{2}(x - 0) + 1 = -\\frac{x}{2} + 1$"
+            ],
+            errorPatterns: {
+                "y=2x+1": "Das ist die Tangente, nicht die Normale! Normalensteigung = $-1/m_{Tangente}$.",
+                "y=-x/2": "Du hast den $y$-Achsenabschnitt vergessen! $f(0) = 1$."
+            }
+        },
+        {
+            id: "anw5",
+            question: "Gegeben: $f(x) = x^3 \\cdot e^x$.\n\nDie Tangente an $x_0 = 1$ schneidet die $x$-Achse. Berechne den Schnittpunkt.\n\n(Gib den $x$-Wert als Bruch an.)",
+            answer: "3/4",
+            accepts: ["3/4", "0.75", "0,75", "x=3/4", "x=0.75"],
+            hints: [
+                "Produktregel: $f'(x) = 3x^2 e^x + x^3 e^x = x^2(x+3)e^x$ → $f'(1) = 4e$",
+                "Tangente: $y = 4e(x - 1) + e = 4ex - 3e$. Setze $y = 0$.",
+                "$4ex - 3e = 0 \\Rightarrow x = \\frac{3}{4}$"
+            ],
+            errorPatterns: {
+                "4/3": "Rechne nochmal: $4ex = 3e \\Rightarrow x = \\frac{3}{4}$, nicht $\\frac{4}{3}$!",
+                "1": "Das ist $x_0$, nicht der Schnittpunkt der Tangente mit der $x$-Achse."
+            }
+        },
+        {
+            id: "anw6",
+            question: "**Bremsvorgang:** Ein Fahrzeug bewegt sich nach dem Weg-Zeit-Gesetz\n$$s(t) = t^2 \\cdot e^{-0{,}5t} \\quad (0 \\leq t \\leq 4)$$\n($s$ in Metern, $t$ in Sekunden).\n\nBerechne die Geschwindigkeit $v(t) = s'(t)$ und gib $v(2)$ an.\n\n(Angabe in der Form: $v(2) = ...$, gerundet auf 2 Dezimalen)",
+            answer: "0.74",
+            accepts: ["0.74", "0,74", "v(2)=0.74", "v(2)=0,74", "2/e", "2*e^(-1)", "2e^(-1)"],
+            hints: [
+                "Produktregel: $u = t^2$, $v = e^{-0{,}5t}$ → $u' = 2t$, $v' = -0{,}5 \\cdot e^{-0{,}5t}$",
+                "$v(t) = s'(t) = 2t \\cdot e^{-0{,}5t} + t^2 \\cdot (-0{,}5 \\cdot e^{-0{,}5t}) = t(2 - 0{,}5t) \\cdot e^{-0{,}5t}$",
+                "$v(2) = 2 \\cdot (2 - 1) \\cdot e^{-1} = 2e^{-1} \\approx 0{,}74$ m/s"
+            ],
+            errorPatterns: {
+                "1.47": "Hast du $t=2$ in $s(t)$ statt in $s'(t)$ eingesetzt? Gesucht ist die Geschwindigkeit!",
+                "-0.74": "Vorzeichen prüfen! Bei $t=2$ ist $(2 - 0{,}5 \\cdot 2) = 1 > 0$."
+            }
+        },
+        {
+            id: "anw7",
+            question: "**Wechselstromleistung:** An einem Bauteil liegen an:\n$$U(t) = 5 \\cdot \\sin(100\\pi t), \\quad I(t) = 2 \\cdot \\cos(100\\pi t)$$\n($U$ in Volt, $I$ in Ampere, $t$ in Sekunden).\n\nDie Momentanleistung ist $P(t) = U(t) \\cdot I(t)$.\n\nBerechne $P'(t)$ mit der Produktregel.\n\n(Vereinfache mit $\\sin(2\\alpha) = 2\\sin\\alpha\\cos\\alpha$)",
+            answer: "1000*pi*cos(200*pi*t)",
+            accepts: [
+                "1000*pi*cos(200*pi*t)", "1000π·cos(200πt)",
+                "1000*pi*cos(200*pi*t)", "1000pi*cos(200pit)",
+                "1000πcos(200πt)"
+            ],
+            hints: [
+                "Vereinfache erst: $P(t) = 10\\sin(100\\pi t)\\cos(100\\pi t) = 5\\sin(200\\pi t)$",
+                "Jetzt Kettenregel: $P'(t) = 5 \\cdot \\cos(200\\pi t) \\cdot 200\\pi$",
+                "$P'(t) = 1000\\pi \\cdot \\cos(200\\pi t)$"
+            ],
+            errorPatterns: {
+                "500*pi*cos(100*pi*t)": "Hast du die Doppelwinkelformel vergessen? $10\\sin\\alpha\\cos\\alpha = 5\\sin(2\\alpha)$"
+            }
+        },
+        {
+            id: "anw8",
+            question: "**Kondensator-Ladekurve:** Ein Kondensator ($C = 2\\,\\mu\\text{F}$, $R = 1\\,\\text{k}\\Omega$) wird auf $U_0 = 10\\,\\text{V}$ geladen:\n$$U_C(t) = 10 \\cdot \\left(1 - e^{-500t}\\right)$$\n($t$ in Sekunden, $RC = 0{,}002\\,\\text{s}$).\n\nBerechne die Änderungsrate $U_C'(t)$ und gib $U_C'(0)$ in V/s an.",
+            answer: "5000",
+            accepts: ["5000", "5000 V/s", "5000V/s", "U_C'(0)=5000"],
+            hints: [
+                "Kettenregel: Innere Funktion $g(t) = -500t$ → $g'(t) = -500$",
+                "$U_C'(t) = 10 \\cdot (-1) \\cdot e^{-500t} \\cdot (-500) = 5000 \\cdot e^{-500t}$",
+                "$U_C'(0) = 5000 \\cdot e^0 = 5000$ V/s"
+            ],
+            errorPatterns: {
+                "10": "Du hast nur $U_C(0)$ berechnet — gesucht ist $U_C'(0)$!",
+                "-5000": "Vorzeichen! $10 \\cdot (-1) \\cdot (-500) = +5000$."
+            }
+        },
+        {
+            id: "anw9",
+            question: "**Abkühlung (Newton):** Ein Bauteil kühlt nach dem Gesetz\n$$T(t) = 20 + 80 \\cdot e^{-0{,}1t}$$\n($T$ in °C, $t$ in Minuten) ab.\n\nBerechne die Abkühlrate $T'(t)$ und gib $T'(0)$ in °C/min an.",
+            answer: "-8",
+            accepts: ["-8", "-8 °C/min", "-8°C/min", "T'(0)=-8"],
+            hints: [
+                "Die Konstante $20$ fällt weg. Kettenregel auf $80 \\cdot e^{-0{,}1t}$ anwenden.",
+                "$T'(t) = 80 \\cdot e^{-0{,}1t} \\cdot (-0{,}1) = -8 \\cdot e^{-0{,}1t}$",
+                "$T'(0) = -8 \\cdot e^0 = -8$ °C/min"
+            ],
+            errorPatterns: {
+                "8": "Die Temperatur sinkt — die Änderungsrate muss negativ sein!",
+                "-80": "Du hast nur mit $80$ multipliziert, aber $(-0{,}1) \\cdot 80 = -8$."
+            }
+        },
+        {
+            id: "anw10",
+            question: "**Bremsvorgang (Fortsetzung):** Für $s(t) = t^2 \\cdot e^{-0{,}5t}$ (aus Aufgabe 6):\n\nBei welchem Zeitpunkt $t$ ist die Geschwindigkeit $v(t) = s'(t)$ maximal?\n\n(Tipp: $v'(t) = 0$ setzen. Gib den $t$-Wert an.)",
+            answer: "4-2*sqrt(2)",
+            accepts: ["4-2*sqrt(2)", "4-2√2", "4-2*wurzel(2)", "1.17", "1,17"],
+            hints: [
+                "Wir brauchen $v'(t) = s''(t) = 0$. Aus Aufgabe 6: $v(t) = t(2-0{,}5t)e^{-0{,}5t}$",
+                "$s''(t) = \\frac{1}{4}(t^2 - 8t + 8)e^{-0{,}5t}$. Da $e^{-0{,}5t} \\neq 0$: Löse $t^2 - 8t + 8 = 0$.",
+                "pq-Formel: $t = 4 \\pm \\sqrt{16-8} = 4 \\pm 2\\sqrt{2}$. Der kleinere Wert $t = 4 - 2\\sqrt{2} \\approx 1{,}17$ s ist das Maximum. Der größere ($t \\approx 6{,}83$) liegt außerhalb des Gültigkeitsbereichs $0 \\leq t \\leq 4$."
+            ],
+            errorPatterns: {
+                "4": "$t = 4$ ist die Nullstelle von $v(t)$, nicht das Maximum! Setze $v'(t) = s''(t) = 0$.",
+                "0": "Bei $t = 0$ ist $v(0) = 0$ — das ist ein Minimum, nicht das Maximum.",
+                "2": "Hast du geraten? Löse $t^2 - 8t + 8 = 0$ mit der pq-Formel."
+            }
+        }
+    ],
+    masteryThreshold: 0.7
+    },
+
+    // --------------------------------------------------------
     // ABSCHLUSSTEST
     // --------------------------------------------------------
     final: {
@@ -482,7 +673,7 @@ const UNITS = {
 };
 
 // Lernpfad-Reihenfolge
-const UNIT_ORDER = ['diagnose', 'unit0', 'unit1', 'unit2', 'unit25', 'final'];
+const UNIT_ORDER = ['diagnose', 'unit0', 'unit1', 'unit2', 'unit25', 'anwendungen1', 'final'];
 
 // Gemini API (domain-restricted to hbraak.github.io)
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions';
