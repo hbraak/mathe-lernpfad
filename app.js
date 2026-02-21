@@ -577,7 +577,11 @@ function toggleGemini() {
     btn.classList.toggle('active');
     
     if (!panel.classList.contains('hidden') && state.geminiHistory.length === 0) {
-        addGeminiMessage('ai', 'Hallo! 👋 Ich bin dein Mathe-Tutor. Frag mich, wenn du bei einer Aufgabe nicht weiterkommst. Ich gebe dir Hinweise — aber nicht die Lösung! 😉');
+        if (!GEMINI_API_KEY) {
+            addGeminiMessage('ai', '⚠️ KI-Tutor nicht verfügbar. Frag deinen Lehrer um den richtigen Link!');
+        } else {
+            addGeminiMessage('ai', 'Hallo! 👋 Ich bin dein Mathe-Tutor. Frag mich, wenn du bei einer Aufgabe nicht weiterkommst. Ich gebe dir Hinweise — aber nicht die Lösung! 😉');
+        }
     }
 }
 
@@ -621,6 +625,11 @@ async function sendGemini() {
     contents.push({ role: 'user', parts: [{ text: text }] });
     
     state.geminiHistory.push({ role: 'user', content: text });
+    
+    if (!GEMINI_API_KEY) {
+        addGeminiMessage('ai', '⚠️ KI-Tutor nicht verfügbar. Frag deinen Lehrer!');
+        return;
+    }
     
     addGeminiMessage('ai', '<em>Denke nach...</em>');
     const loadingMsg = document.getElementById('gemini-messages').lastChild;
