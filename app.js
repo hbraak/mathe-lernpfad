@@ -811,6 +811,62 @@ function getCurrentTaskContext() {
 }
 
 // ============================================================
+// DRAGGABLE GEMINI PANEL
+// ============================================================
+function initDraggable() {
+    const panel = document.getElementById('gemini-panel');
+    const header = document.getElementById('gemini-header');
+    let isDragging = false;
+    let startX, startY, startLeft, startTop;
+
+    function onStart(e) {
+        // Don't drag if clicking close button
+        if (e.target.tagName === 'BUTTON') return;
+        isDragging = true;
+        const touch = e.touches ? e.touches[0] : e;
+        const rect = panel.getBoundingClientRect();
+        startX = touch.clientX;
+        startY = touch.clientY;
+        startLeft = rect.left;
+        startTop = rect.top;
+        // Switch from bottom/right to top/left positioning
+        panel.style.left = rect.left + 'px';
+        panel.style.top = rect.top + 'px';
+        panel.style.right = 'auto';
+        panel.style.bottom = 'auto';
+        e.preventDefault();
+    }
+
+    function onMove(e) {
+        if (!isDragging) return;
+        const touch = e.touches ? e.touches[0] : e;
+        const dx = touch.clientX - startX;
+        const dy = touch.clientY - startY;
+        let newLeft = startLeft + dx;
+        let newTop = startTop + dy;
+        // Clamp to viewport
+        newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - 100));
+        newTop = Math.max(0, Math.min(newTop, window.innerHeight - 50));
+        panel.style.left = newLeft + 'px';
+        panel.style.top = newTop + 'px';
+        e.preventDefault();
+    }
+
+    function onEnd() {
+        isDragging = false;
+    }
+
+    header.addEventListener('mousedown', onStart);
+    header.addEventListener('touchstart', onStart, { passive: false });
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('touchmove', onMove, { passive: false });
+    document.addEventListener('mouseup', onEnd);
+    document.addEventListener('touchend', onEnd);
+}
+
+// ============================================================
 // INIT
 // ============================================================
-window.addEventListener('load', () => {});
+window.addEventListener('load', () => {
+    initDraggable();
+});
