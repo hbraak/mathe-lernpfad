@@ -4,11 +4,11 @@
 let state = {
     studentNr: null,
     currentUnit: null,
-    unitProgress: {},   // { unitId: { completed: bool, score: float, attempts: int } }
-    taskStates: {},     // { taskId: { attempts: 0, hintLevel: 0, correct: false, answer: '' } }
+    unitProgress: {},
+    taskStates: {},
     geminiQuestions: 0,
     geminiHistory: [],
-    events: []          // local event log
+    events: []
 };
 
 const REPO_OWNER = 'hbraak';
@@ -19,23 +19,168 @@ const REPO_NAME = 'mathe-lernpfad';
 // ============================================================
 function normalizeAnswer(s) {
     return s
-        .replace(/\s+/g, '')           // remove whitespace
+        .replace(/\s+/g, '')
         .toLowerCase()
-        .replace(/\*\*/g, '^')         // ** → ^
-        .replace(/\^{([^}]+)}/g, '^($1)') // ^{...} → ^(...)
-        .replace(/\^(-?\d)/g, '^($1)') // x^-3 → x^(-3), x^3 → x^(3)  
-        .replace(/\^([a-z])/g, '^($1)')// x^x → x^(x)
-        .replace(/×/g, '*')            // × → *
-        .replace(/·/g, '*')            // · → *
-        .replace(/÷/g, '/')            // ÷ → /
-        .replace(/−/g, '-')            // − (unicode minus) → -
-        .replace(/²/g, '^(2)')
-        .replace(/³/g, '^(3)')
-        .replace(/⁴/g, '^(4)')
-        .replace(/⁵/g, '^(5)')
+        .replace(/\*\*/g, '^')
+        .replace(/\^{([^}]+)}/g, '^($1)')
+        .replace(/\^(-?\d)/g, '^($1)')
+        .replace(/\^([a-z])/g, '^($1)')
+        .replace(/×/g, '*').replace(/·/g, '*').replace(/÷/g, '/').replace(/−/g, '-')
+        .replace(/²/g, '^(2)').replace(/³/g, '^(3)').replace(/⁴/g, '^(4)').replace(/⁵/g, '^(5)')
         .replace(/√/g, 'sqrt')
-        .replace(/\bexp\(([^)]+)\)/g, 'e^($1)') // exp(x) → e^(x)
-        .replace(/\*{2,}/g, '*');       // collapse multiple *
+        .replace(/\bexp\(([^)]+)\)/g, 'e^($1)')
+        .replace(/\*{2,}/g, '*');
+}
+
+// ============================================================
+// TEXT → LaTeX CONVERSION (for live preview)
+// ============================================================
+function textToLatex(s) {
+    if (!s || !s.trim()) return '';
+    let t = s.trim();
+    
+    // Replace function names
+    t = t.replace(/sqrt\(([^)]+)\)/g, '\\sqrt{$1}');
+    t = t.replace(/sin\(/g, '\\sin(');
+    t = t.replace(/cos\(/g, '\\cos(');
+    t = t.replace(/tan\(/g, '\\tan(');
+    t = t.replace(/ln\(/g, '\\ln(');
+    t = t.replace(/log\(/g, '\\log(');
+    
+    // e^(...) → e^{...}
+    t = t.replace(/e\^\(([^)]+)\)/g, 'e^{$1}');
+    t = t.replace(/e\^(-?[a-z0-9]+)/g, 'e^{$1}');
+    
+    // x^(...) → x^{...}
+    t = t.replace(/\^(\(([^)]+)\))/g, '^{$2}');
+    t = t.replace(/\^(-?\d+)/g, '^{$1}');
+    
+    // Fractions: a/b → \frac{a}{b} (simple cases)
+    t = t.replace(/(\d+)\/(\d+)/g, '\\frac{$1}{$2}');
+    
+    // * → \cdot
+    t = t.replace(/\*/g, ' \\cdot ');
+    
+    return t;
+}
+
+function renderPreview(inputId) {
+    const input = document.getElementById(inputId);
+    const preview = document.getElementById('preview-' + inputId.replace('input-', ''));
+    if (!input || !preview) return;
+    
+    const raw = input.value.trim();
+    if (!raw) {
+        preview.innerHTML = '<span class="preview-placeholder">Vorschau...</span>';
+        return;
+    }
+    
+    try {
+        const latex = textToLatex(raw);
+        katex.render(latex, preview, { throwOnError: false, displayMode: false });
+    } catch (e) {
+        preview.textContent = raw;
+    }
+}
+
+// ============================================================
+// MATH KEYBOARD
+// ============================================================
+function insertMathSymbol(taskId, symbol) {
+    const input = document.getElementById(`input-${taskId}`);
+    if (!input || input.disabled) return;
+    
+    const start = input.selectionStart;
+    const end = input.selectionEnd;
+    const before = input.value.substring(0, start);
+    const after = input.value.substring(end);
+    
+    // Some symbols need special cursor placement
+    let insert = symbol;
+    let cursorOffset = symbol.length;
+    
+    if (symbol === '^()') {
+        insert = '^(';
+        cursorOffset = 2;
+        // Auto-close later
+        input.value = before + insert + after;
+    } else if (symbol === 'sqrt()') {
+        insert = 'sqrt(';
+        cursorOffset = 5;
+        input.value = before + insert + after;
+    } else {
+        input.value = before + insert + after;
+    }
+    
+    input.focus();
+    input.selectionStart = input.selectionEnd = start + cursorOffset;
+    renderPreview(`input-${taskId}`);
+}
+
+function buildMathKeyboard(taskId) {
+    const keys = [
+        { label: 'x', value: 'x' },
+        { label: 'e', value: 'e' },
+        { label: 'π', value: 'pi' },
+        { label: 'x²', value: 'x^(2)', cls: 'key-op' },
+        { label: 'x³', value: 'x^(3)', cls: 'key-op' },
+        { label: 'xⁿ', value: '^()', cls: 'key-op' },
+        { label: '√', value: 'sqrt()', cls: 'key-fn' },
+        { label: 'sin', value: 'sin()', cls: 'key-fn' },
+        { label: 'cos', value: 'cos()', cls: 'key-fn' },
+        { label: 'ln', value: 'ln()', cls: 'key-fn' },
+        { label: '(', value: '(' },
+        { label: ')', value: ')' },
+        { label: '+', value: '+', cls: 'key-op' },
+        { label: '−', value: '-', cls: 'key-op' },
+        { label: '·', value: '*', cls: 'key-op' },
+        { label: '/', value: '/', cls: 'key-op' },
+        { label: '0', value: '0', cls: 'key-num' },
+        { label: '1', value: '1', cls: 'key-num' },
+        { label: '2', value: '2', cls: 'key-num' },
+        { label: '3', value: '3', cls: 'key-num' },
+        { label: '4', value: '4', cls: 'key-num' },
+        { label: '5', value: '5', cls: 'key-num' },
+        { label: '6', value: '6', cls: 'key-num' },
+        { label: '7', value: '7', cls: 'key-num' },
+        { label: '8', value: '8', cls: 'key-num' },
+        { label: '9', value: '9', cls: 'key-num' },
+        { label: '⌫', value: '__backspace__', cls: 'key-del' },
+        { label: 'C', value: '__clear__', cls: 'key-del' },
+    ];
+    
+    let html = `<div class="math-keyboard" id="kbd-${taskId}">`;
+    for (const k of keys) {
+        if (k.value === '__backspace__') {
+            html += `<button class="math-key ${k.cls || ''}" onclick="mathBackspace('${taskId}')">${k.label}</button>`;
+        } else if (k.value === '__clear__') {
+            html += `<button class="math-key ${k.cls || ''}" onclick="mathClear('${taskId}')">${k.label}</button>`;
+        } else {
+            html += `<button class="math-key ${k.cls || ''}" onclick="insertMathSymbol('${taskId}','${k.value}')">${k.label}</button>`;
+        }
+    }
+    html += `</div>`;
+    return html;
+}
+
+function mathBackspace(taskId) {
+    const input = document.getElementById(`input-${taskId}`);
+    if (!input || input.disabled) return;
+    const pos = input.selectionStart;
+    if (pos > 0) {
+        input.value = input.value.substring(0, pos - 1) + input.value.substring(pos);
+        input.focus();
+        input.selectionStart = input.selectionEnd = pos - 1;
+    }
+    renderPreview(`input-${taskId}`);
+}
+
+function mathClear(taskId) {
+    const input = document.getElementById(`input-${taskId}`);
+    if (!input || input.disabled) return;
+    input.value = '';
+    input.focus();
+    renderPreview(`input-${taskId}`);
 }
 
 // ============================================================
@@ -49,7 +194,6 @@ function doLogin() {
     }
     state.studentNr = nr;
     
-    // Load saved state
     const saved = localStorage.getItem(`lernpfad_${nr}`);
     if (saved) {
         try {
@@ -65,7 +209,6 @@ function doLogin() {
     document.getElementById('app-screen').classList.add('active');
     document.getElementById('student-label').textContent = `Nr. ${nr}`;
     
-    // Determine which unit to show
     const nextUnit = getNextUnit();
     showUnit(nextUnit);
 }
@@ -103,7 +246,7 @@ function saveState() {
 }
 
 // ============================================================
-// EVENT LOGGING (local, exportable)
+// EVENT LOGGING
 // ============================================================
 function logEvent(event, data) {
     state.events.push({
@@ -116,17 +259,11 @@ function logEvent(event, data) {
 }
 
 // ============================================================
-// EXPORT / SYNC FUNCTIONS
+// EXPORT / SYNC
 // ============================================================
-
-// Generate a compact progress code for teacher verification
 function getProgressCode() {
     if (!state.studentNr) return '';
-    const summary = {
-        nr: state.studentNr,
-        t: Date.now(),
-        u: {}
-    };
+    const summary = { nr: state.studentNr, t: Date.now(), u: {} };
     for (const [id, p] of Object.entries(state.unitProgress)) {
         summary.u[id] = { s: Math.round((p.score || 0) * 100), c: p.completed ? 1 : 0, a: p.attempts || 0 };
     }
@@ -134,7 +271,6 @@ function getProgressCode() {
     return btoa(JSON.stringify(summary));
 }
 
-// Export full progress as JSON (download)
 function exportProgress() {
     const data = {
         studentNr: state.studentNr,
@@ -153,7 +289,6 @@ function exportProgress() {
     URL.revokeObjectURL(url);
 }
 
-// Copy progress code to clipboard
 function copyProgressCode() {
     const code = getProgressCode();
     navigator.clipboard.writeText(code).then(() => {
@@ -169,17 +304,13 @@ function showUnit(unitId) {
     state.currentUnit = unitId;
     const area = document.getElementById('content-area');
     
-    if (unitId === 'complete') {
-        showCompletion();
-        return;
-    }
+    if (unitId === 'complete') { showCompletion(); return; }
     
     const unit = UNITS[unitId];
     if (!unit) return;
     
     document.getElementById('unit-label').textContent = unit.title;
     updateProgressBar();
-    
     logEvent('unit_start', { unit: unitId });
     
     let html = `<div class="unit-intro"><h2>${unit.title}</h2><p>${unit.description}</p></div>`;
@@ -187,7 +318,6 @@ function showUnit(unitId) {
     if (unit.explanation) {
         html += `<div class="explanation">${unit.explanation}</div>`;
     }
-    
     if (unit.example) {
         html += `<div class="example"><h3>📝 ${unit.example.title}</h3>${unit.example.content}</div>`;
     }
@@ -238,13 +368,19 @@ function renderTask(task, idx, ts) {
         });
         html += `</div>`;
     } else {
-        html += `<div class="task-input-row">
-            <input type="text" id="input-${task.id}" placeholder="z.B. 12x^3 oder e^(2x)" 
-                   value="${ts.correct ? ts.answer : ''}" ${ts.correct ? 'disabled' : ''}
-                   onkeydown="if(event.key==='Enter')checkAnswer('${task.id}')">
-            <button onclick="checkAnswer('${task.id}')" ${ts.correct ? 'disabled' : ''}>Prüfen</button>
-        </div>
-        <p class="input-hint">Schreibweise: x^2 für x², e^(3x), sqrt(x), ln(x), sin(x)</p>`;
+        // Text input with math keyboard and live preview
+        html += `<div class="math-input-area">
+            <div class="task-input-row">
+                <input type="text" id="input-${task.id}" placeholder="Deine Antwort..." 
+                       value="${ts.correct ? ts.answer : ''}" ${ts.correct ? 'disabled' : ''}
+                       oninput="renderPreview('input-${task.id}')"
+                       onkeydown="if(event.key==='Enter')checkAnswer('${task.id}')"
+                       autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+                <button onclick="checkAnswer('${task.id}')" ${ts.correct ? 'disabled' : ''}>Prüfen</button>
+            </div>
+            <div class="math-preview" id="preview-${task.id}"><span class="preview-placeholder">Vorschau...</span></div>
+            ${!ts.correct ? buildMathKeyboard(task.id) : ''}
+        </div>`;
     }
     
     html += `<div class="task-feedback" id="feedback-${task.id}"></div>`;
@@ -260,7 +396,7 @@ function renderTask(task, idx, ts) {
 }
 
 // ============================================================
-// CHECK ANSWER (free text)
+// CHECK ANSWER
 // ============================================================
 function checkAnswer(taskId) {
     const unit = UNITS[state.currentUnit];
@@ -273,9 +409,7 @@ function checkAnswer(taskId) {
     if (!raw) return;
     
     const normalized = normalizeAnswer(raw);
-    const isCorrect = task.accepts.some(a => 
-        normalizeAnswer(a) === normalized
-    );
+    const isCorrect = task.accepts.some(a => normalizeAnswer(a) === normalized);
     
     ts.attempts++;
     ts.answer = raw;
@@ -293,6 +427,9 @@ function checkAnswer(taskId) {
         feedback.textContent = '✅ Richtig!';
         input.disabled = true;
         input.nextElementSibling.disabled = true;
+        // Hide keyboard
+        const kbd = document.getElementById(`kbd-${taskId}`);
+        if (kbd) kbd.style.display = 'none';
         const hintBtn = document.getElementById(`hint-btn-${taskId}`);
         if (hintBtn) hintBtn.style.display = 'none';
     } else {
@@ -498,9 +635,7 @@ function runMasteryCheck() {
             </div>`;
     }
     
-    renderMathInElement(area, {
-        delimiters: [{left: '$', right: '$', display: false}]
-    });
+    renderMathInElement(area, { delimiters: [{left: '$', right: '$', display: false}] });
 }
 
 function retryUnit() {
@@ -593,9 +728,7 @@ function addGeminiMessage(role, text) {
     container.appendChild(div);
     container.scrollTop = container.scrollHeight;
     
-    renderMathInElement(div, {
-        delimiters: [{left: '$', right: '$', display: false}]
-    });
+    renderMathInElement(div, { delimiters: [{left: '$', right: '$', display: false}] });
 }
 
 async function sendGemini() {
@@ -610,12 +743,14 @@ async function sendGemini() {
     
     logEvent('gemini_question', { question: text.substring(0, 100) });
     
+    if (!GEMINI_API_KEY) {
+        addGeminiMessage('ai', '⚠️ KI-Tutor nicht verfügbar. Frag deinen Lehrer!');
+        return;
+    }
+    
     const currentTask = getCurrentTaskContext();
     
-    // Build Gemini API request (native format)
     const contents = [];
-    
-    // Add history (last 6 messages)
     for (const msg of state.geminiHistory.slice(-6)) {
         contents.push({
             role: msg.role === 'assistant' ? 'model' : 'user',
@@ -626,16 +761,10 @@ async function sendGemini() {
     
     state.geminiHistory.push({ role: 'user', content: text });
     
-    if (!GEMINI_API_KEY) {
-        addGeminiMessage('ai', '⚠️ KI-Tutor nicht verfügbar. Frag deinen Lehrer!');
-        return;
-    }
-    
     addGeminiMessage('ai', '<em>Denke nach...</em>');
     const loadingMsg = document.getElementById('gemini-messages').lastChild;
     
     try {
-        // Use native Gemini API with key as query param
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
         const resp = await fetch(apiUrl, {
             method: 'POST',
@@ -645,10 +774,7 @@ async function sendGemini() {
                 systemInstruction: {
                     parts: [{ text: GEMINI_SYSTEM_PROMPT + (currentTask ? `\n\nAktuelle Aufgabe: ${currentTask}` : '') }]
                 },
-                generationConfig: {
-                    maxOutputTokens: 500,
-                    temperature: 0.7
-                }
+                generationConfig: { maxOutputTokens: 500, temperature: 0.7 }
             })
         });
         
@@ -679,9 +805,7 @@ function getCurrentTaskContext() {
     
     for (const task of unit.tasks) {
         const ts = state.taskStates[task.id];
-        if (!ts?.correct) {
-            return task.question.replace(/\n/g, ' ');
-        }
+        if (!ts?.correct) return task.question.replace(/\n/g, ' ');
     }
     return `Einheit: ${unit.title}`;
 }
@@ -689,6 +813,4 @@ function getCurrentTaskContext() {
 // ============================================================
 // INIT
 // ============================================================
-window.addEventListener('load', () => {
-    // Nothing to flush — all local
-});
+window.addEventListener('load', () => {});

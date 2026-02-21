@@ -60,8 +60,21 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; colo
 .task-feedback.wrong { background: #ef444420; color: #fca5a5; }
 .task-feedback.hint { background: #f59e0b20; color: #fcd34d; }
 
-/* Input format hint */
-.input-hint { font-size: 0.75rem; color: #64748b; margin-top: 0.3rem; }
+/* Math input area */
+.math-input-area { display: flex; flex-direction: column; gap: 0.5rem; }
+
+/* Live preview */
+.math-preview { min-height: 2.2rem; padding: 0.5rem 1rem; background: #0f172a; border: 1px solid #334155; border-radius: 8px; font-size: 1.2rem; display: flex; align-items: center; }
+.preview-placeholder { color: #475569; font-size: 0.85rem; font-style: italic; }
+
+/* Math keyboard */
+.math-keyboard { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; padding: 0.5rem 0; }
+.math-key { padding: 0.5rem 0.2rem; border-radius: 6px; border: 1px solid #334155; background: #1e293b; color: #e2e8f0; font-size: 1rem; cursor: pointer; text-align: center; transition: all 0.15s; min-height: 38px; user-select: none; -webkit-user-select: none; touch-action: manipulation; }
+.math-key:hover, .math-key:active { background: #334155; border-color: #3b82f6; }
+.math-key.key-op { color: #3b82f6; font-weight: 600; }
+.math-key.key-fn { color: #10b981; font-size: 0.8rem; font-weight: 600; }
+.math-key.key-num { color: #94a3b8; }
+.math-key.key-del { color: #ef4444; font-weight: 600; }
 
 /* Hint Steps */
 .hint-btn { background: #f59e0b30; border: 1px solid #f59e0b50; color: #fcd34d; padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer; font-size: 0.85rem; margin-top: 0.5rem; }
@@ -132,4 +145,6 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; colo
     #gemini-panel { left: 0.5rem; right: 0.5rem; bottom: 0.5rem; width: auto; max-height: 60vh; }
     #content-area { padding: 1rem; }
     #topbar-left { min-width: auto; }
+    .math-keyboard { grid-template-columns: repeat(7, 1fr); gap: 3px; }
+    .math-key { padding: 0.6rem 0.1rem; font-size: 0.95rem; min-height: 42px; }
 }
