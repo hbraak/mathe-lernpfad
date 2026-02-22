@@ -817,12 +817,12 @@ const UNITS = {
                 hints: [
                     "$f(0) = 0 = y_\\text{links}$ ✓, $f'(0) = 0 = y'_\\text{links}$ ✓",
                     "$f(2) = 1 = y_\\text{rechts}$ ✓, $f'(2) = 0 = y'_\\text{rechts}$ ✓",
-                    "Knickfrei (= $C^1$-stetig). Für $C^2$ (auch Krümmung glatt) bräuchte man ein Polynom 5. Grades."
+                    "Knickfrei ($C^1$-stetig). Für $C^2$ (auch Krümmung glatt) an zwei Übergängen braucht man i.d.R. 6 Bedingungen → Ansatz Grad 5."
                 ]
             },
             {
                 id: "sb4",
-                question: "**Spannungs-Dehnungs-Diagramm (PhyTA):** Modell: $\\sigma(\\varepsilon) = a\\varepsilon^2 + b\\varepsilon$.\n\nBedingungen:\n- $\\sigma(0) = 0$ (automatisch ✓)\n- $\\sigma(2) = 400\\,\\text{MPa}$ (Zugfestigkeit bei $\\varepsilon = 2$)\n- $\\sigma'(2) = 0$ (Maximum)\n\nLöse nach $a$ und $b$. Format: `a; b`",
+                question: "**Spannungs-Dehnungs-Diagramm (PhyTA):** Modell: $\\sigma(\\varepsilon) = a\\varepsilon^2 + b\\varepsilon$.\n\nBedingungen:\n- $\\sigma(0) = 0$ (automatisch ✓)\n- $\\sigma(2) = 400\\,\\text{MPa}$ (Zugfestigkeit bei $\\varepsilon = 2\\,\\%$)\n- $\\sigma'(2) = 0$ (Maximum)\n\nLöse nach $a$ und $b$. Format: `a; b`",
                 answer: "-100; 400",
                 accepts: ["-100; 400", "-100;400", "a=-100, b=400"],
                 hints: [
@@ -918,7 +918,7 @@ const UNITS = {
                 <li><strong>Bewerten:</strong> Ist das Modell gut ($R^2$)? Ist das Ergebnis realistisch?</li>
             </ul>
             <h4>Bestimmtheitsmaß $R^2$</h4>
-            <p>$R^2 = 1$: perfekt. $R^2 > 0{,}9$: gut. $R^2 > 0{,}95$: sehr gut.</p>
+            <p>$R^2 = 1$: perfekt. Faustregel (kontextabhängig!): $R^2 > 0{,}9$ oft gut, $R^2 > 0{,}95$ sehr gut.</p>
             <h4>Extremwertaufgaben</h4>
             <ol style="margin-left:1.5rem;">
                 <li>Zielfunktion + Nebenbedingung</li>
@@ -956,7 +956,7 @@ const UNITS = {
                 question: "**Feder (Forts.):** Prognostiziere $L$ bei $m = 4$ kg. (in cm, 2 Dez.)",
                 answer: "29.84",
                 accepts: ["29.84", "29,84", "29.84 cm"],
-                hints: ["$L(4) = 4{,}98 \\cdot 4 + 9{,}92 = 29{,}84$ cm."],
+                hints: ["$L(4) = 4{,}98 \\cdot 4 + 9{,}92 = 29{,}84$ cm. (Achtung: $m = 4$ liegt außerhalb der Messdaten — das ist Extrapolation!)"],
                 errorPatterns: { "19.92": "$y$-Achsenabschnitt nicht vergessen!" }
             },
             {
@@ -1072,7 +1072,7 @@ const UNITS = {
                 type: "choice",
                 options: [
                     "A — einfacher",
-                    "B — Abkühlung ist exponentiell (Newton), $T > 0$ bleibt",
+                    "B — Exponentialmodell ist bei Abkühlung physikalisch plausibel (Newton) und $T > 0$ bleibt",
                     "Beide gleichwertig",
                     "A — Polynome sind genauer"
                 ],
@@ -1182,7 +1182,7 @@ const UNITS = {
                 type: "choice",
                 options: [
                     "Kubisch — $R^2$ höher",
-                    "Exponentiell — Polynome explodieren, Temperatur ist physikalisch exponentiell",
+                    "Exponentiell — Polynome explodieren bei Extrapolation, Exponentialmodell ist bei Abkühlung physikalisch fundiert",
                     "Egal — $R^2$ entscheidet",
                     "Keines"
                 ],
@@ -1244,14 +1244,14 @@ const UNITS = {
             },
             {
                 id: "f5",
-                question: "Ein Betrieb produziert Gehäuse. Die Stückkosten sind:\n$$K(x) = x - 10 + \\frac{50}{x}$$\nBei welcher Stückzahl $x$ sind die Kosten minimal?",
-                answer: "sqrt(50)",
-                accepts: ["sqrt(50)", "√50", "5*sqrt(2)", "5√2", "7.07", "7,07"],
+                question: "Ein Betrieb produziert Gehäuse. Die Stückkosten sind:\n$$K(x) = x - 10 + \\frac{50}{x}$$\nBei welcher **ganzzahligen** Stückzahl sind die Kosten minimal?",
+                answer: "7",
+                accepts: ["7", "x=7", "7 Stück"],
                 hints: [
-                    "$K'(x) = 1 - \\frac{50}{x^2} = 0$",
-                    "$x^2 = 50 \\Rightarrow x = \\sqrt{50} = 5\\sqrt{2} \\approx 7{,}07$"
+                    "$K'(x) = 1 - \\frac{50}{x^2} = 0 \\Rightarrow x = \\sqrt{50} \\approx 7{,}07$",
+                    "Ganzzahlig: $K(7) = 7 - 10 + 50/7 \\approx 4{,}14$, $K(8) = 8 - 10 + 50/8 = 4{,}25$ → **7 Stück**."
                 ],
-                errorPatterns: { "50": "Wurzel ziehen! $x^2 = 50 \\Rightarrow x = \\sqrt{50}$." }
+                errorPatterns: { "7.07": "Ganzzahlige Stückzahlen! Vergleiche $K(7)$ und $K(8)$.", "50": "Wurzel ziehen! $x = \\sqrt{50} \\approx 7{,}07$ → ganzzahlig: 7." }
             },
             {
                 id: "f6",
