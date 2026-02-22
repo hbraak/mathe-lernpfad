@@ -221,11 +221,24 @@ function getNextUnit() {
     if (diagScore < 0.6 && !state.unitProgress.unit0) return 'unit0';
     if (diagScore < 0.6 && state.unitProgress.unit0 && !state.unitProgress.unit0.completed) return 'unit0';
     
-    const path = diagScore < 0.6 
-        ? ['unit0', 'unit1', 'unit2', 'unit25', 'final']
-        : ['unit1', 'unit2', 'unit25', 'final'];
+    // LP1: Ableitungsregeln
+    const lp1 = diagScore < 0.6 
+        ? ['unit0', 'unit1', 'unit2', 'unit25', 'anwendungen1']
+        : ['unit1', 'unit2', 'unit25', 'anwendungen1'];
     
-    for (const u of path) {
+    for (const u of lp1) {
+        if (!state.unitProgress[u] || !state.unitProgress[u].completed) return u;
+    }
+    
+    // LP2: Anwendungen der Differentialrechnung (AS 6)
+    if (!state.unitProgress.diagnose2) return 'diagnose2';
+    
+    const diag2Score = state.unitProgress.diagnose2.score || 0;
+    const lp2 = diag2Score < 0.6
+        ? ['steckbrief', 'modellierung', 'extremwert', 'final']
+        : ['modellierung', 'extremwert', 'final'];
+    
+    for (const u of lp2) {
         if (!state.unitProgress[u] || !state.unitProgress[u].completed) return u;
     }
     
