@@ -620,320 +620,360 @@ const UNITS = {
     },
 
     // ============================================================
-    // LERNPFAD 2: Kurvendiskussion & Extremwertaufgaben
+    // LERNPFAD 2: Extremwertaufgaben — Modellieren & Optimieren
+    // (AS 6: Anwendungen der Differentialrechnung)
     // ============================================================
 
     // --------------------------------------------------------
-    // DIAGNOSE 2: Einstiegsdiagnose Kurvendiskussion
+    // DIAGNOSE 2: Vorwissen Extremwertaufgaben
+    // Testet: Extremstellen bestimmen, Sachkontext → Formel,
+    //         Nebenbedingung einsetzen, Ergebnis interpretieren
     // --------------------------------------------------------
     diagnose2: {
-        title: "Diagnose: Kurvendiskussion",
-        description: "Teste dein Vorwissen zu Extremstellen, Wendepunkten und Monotonie.",
+        title: "Diagnose: Optimierung",
+        description: "Kannst du Extremstellen bestimmen und Sachprobleme mathematisch formulieren? Finde es heraus.",
         tasks: [
             {
                 id: "d2_1",
-                question: "Bestimme die Extremstellen von $f(x) = x^3 - 3x$.\n\nGib beide $x$-Werte an (kommagetrennt).",
-                answer: "-1, 1",
-                accepts: ["-1, 1", "-1,1", "1, -1", "1,-1", "x=-1, x=1", "-1 und 1"],
+                question: "Bestimme die Extremstellen von $f(x) = -2x^2 + 8x - 3$.\n\nGib den $x$-Wert an.",
+                answer: "2",
+                accepts: ["2", "x=2"],
                 hints: [
-                    "$f'(x) = 3x^2 - 3$. Setze $f'(x) = 0$.",
-                    "$3x^2 - 3 = 0 \\Rightarrow x^2 = 1$",
-                    "$x_1 = -1$ und $x_2 = 1$"
+                    "$f'(x) = -4x + 8$. Setze gleich Null.",
+                    "$-4x + 8 = 0 \\Rightarrow x = 2$",
+                    "$f''(2) = -4 < 0$ → Maximum bei $x = 2$."
                 ],
                 errorPatterns: {
-                    "0": "$f'(0) = -3 \\neq 0$. Löse $3x^2 - 3 = 0$!",
-                    "3": "Du hast $f'(x) = 0$ nicht korrekt gelöst. $3x^2 = 3 \\Rightarrow x^2 = 1$."
+                    "-2": "Vorzeichenfehler! $-4x + 8 = 0 \\Rightarrow x = 2$.",
+                    "8": "Das ist ein Koeffizient, keine Nullstelle der Ableitung."
                 }
             },
             {
                 id: "d2_2",
-                question: "Gegeben: $f(x) = x^3 - 3x$, Extremstellen bei $x = -1$ und $x = 1$.\n\nWelche Art von Extremum liegt bei $x = -1$ vor?",
-                type: "choice",
-                options: ["Maximum", "Minimum", "Sattelpunkt", "Wendepunkt"],
-                correct: 0,
+                question: "Ein Rechteck hat den Umfang $U = 40\\,\\text{cm}$, Seiten $a$ und $b$.\n\nDrücke $b$ durch $a$ aus.",
+                answer: "20-a",
+                accepts: ["20-a", "b=20-a", "20 - a", "b = 20 - a"],
                 hints: [
-                    "$f''(x) = 6x$. Berechne $f''(-1)$.",
-                    "$f''(-1) = -6 < 0$ → ?",
-                    "Negative zweite Ableitung = Linkskrümmung = Maximum."
-                ]
+                    "Umfang: $2a + 2b = 40$",
+                    "Teile durch 2: $a + b = 20$",
+                    "Also $b = 20 - a$."
+                ],
+                errorPatterns: {
+                    "40-a": "Du musst durch 2 teilen! $2a + 2b = 40 \\Rightarrow a + b = 20$.",
+                    "40-2a": "Fast! Aber löse nach $b$ auf: $2b = 40 - 2a \\Rightarrow b = 20 - a$."
+                }
             },
             {
                 id: "d2_3",
-                question: "Bestimme die Wendestelle von $f(x) = x^3 - 3x$.\n\nGib den $x$-Wert an.",
-                answer: "0",
-                accepts: ["0", "x=0"],
+                question: "Das Rechteck mit Umfang $40\\,\\text{cm}$ soll **maximale Fläche** haben.\n\nStelle die Flächenfunktion $A(a)$ auf. (Nutze $b = 20 - a$.)",
+                answer: "a*(20-a)",
+                accepts: ["a*(20-a)", "a(20-a)", "20a-a^2", "20a - a^2", "-a^2+20a", "a·(20-a)"],
                 hints: [
-                    "Wendepunkt: $f''(x) = 0$ und Vorzeichenwechsel.",
-                    "$f''(x) = 6x = 0 \\Rightarrow x = 0$",
-                    "$f'''(x) = 6 \\neq 0$, also ist $x=0$ tatsächlich Wendepunkt."
+                    "Fläche = Länge × Breite: $A = a \\cdot b$",
+                    "Setze $b = 20 - a$ ein.",
+                    "$A(a) = a \\cdot (20 - a) = 20a - a^2$"
                 ],
                 errorPatterns: {
-                    "1": "Das ist eine Extremstelle, kein Wendepunkt! Setze $f''(x) = 0$.",
-                    "-1": "Das ist eine Extremstelle. Wendepunkt: $f''(x) = 0$, nicht $f'(x) = 0$."
+                    "a*b": "Richtig, aber du musst $b$ eliminieren! Setze $b = 20-a$ ein.",
+                    "2a*(20-a)": "Der Faktor 2 ist zu viel. $A = a \\cdot b$, nicht $2ab$."
                 }
             },
             {
                 id: "d2_4",
-                question: "In welchem Intervall ist $f(x) = x^3 - 3x$ streng monoton fallend?",
-                type: "choice",
-                options: ["$(-\\infty, -1)$", "$(-1, 1)$", "$(1, \\infty)$", "$(-\\infty, 0)$"],
-                correct: 1,
+                question: "Für $A(a) = 20a - a^2$: Bei welchem $a$ ist die Fläche maximal?\n\n(Gib $a$ in cm an.)",
+                answer: "10",
+                accepts: ["10", "a=10", "10 cm"],
                 hints: [
-                    "Monoton fallend: $f'(x) < 0$. Und $f'(x) = 3x^2 - 3 = 3(x^2 - 1)$.",
-                    "$f'(x) < 0$ wenn $x^2 < 1$, also $-1 < x < 1$.",
-                    "Im Intervall $(-1, 1)$ ist $f$ streng monoton fallend."
-                ]
+                    "$A'(a) = 20 - 2a$. Setze $A'(a) = 0$.",
+                    "$20 - 2a = 0 \\Rightarrow a = 10$",
+                    "$A''(10) = -2 < 0$ → Maximum. Die optimale Form ist ein Quadrat ($a = b = 10$)."
+                ],
+                errorPatterns: {
+                    "20": "Das ist der halbe Umfang. Leite ab: $A'(a) = 20 - 2a = 0$.",
+                    "100": "Das ist die maximale Fläche ($10 \\times 10$), nicht die Seitenlänge."
+                }
             },
             {
                 id: "d2_5",
-                question: "Bestimme die Extremstellen von $f(x) = 2x^3 - 6x^2 + 3$.\n\nGib beide $x$-Werte an.",
-                answer: "0, 2",
-                accepts: ["0, 2", "0,2", "2, 0", "2,0", "x=0, x=2", "0 und 2"],
-                hints: [
-                    "$f'(x) = 6x^2 - 12x = 6x(x-2)$",
-                    "Setze $f'(x) = 0$: $6x(x-2) = 0$",
-                    "$x_1 = 0$ und $x_2 = 2$"
+                question: "Ein Bauer hat $60\\,\\text{m}$ Zaun. Er will an einer Hauswand ein rechteckiges Gehege bauen (Wand = eine Längsseite).\n\nWie lautet die Nebenbedingung für die Seitenlängen $a$ (parallel zur Wand) und $b$ (senkrecht)?",
+                type: "choice",
+                options: [
+                    "$2a + 2b = 60$",
+                    "$a + 2b = 60$",
+                    "$a + b = 60$",
+                    "$2a + b = 60$"
                 ],
-                errorPatterns: {
-                    "1": "Das ist nicht korrekt. Faktorisiere: $6x^2 - 12x = 6x(x-2) = 0$.",
-                    "6": "Du hast $f'(x)$ nicht gleich Null gesetzt, sondern vielleicht $f''$?"
-                }
+                correct: 1,
+                hints: [
+                    "Die Wand ersetzt eine Seite. Welche Seiten brauchen Zaun?",
+                    "Eine Längsseite ($a$) + zwei Querseiten ($b$) = Gesamtzaun",
+                    "$a + 2b = 60$ — die Wand spart eine komplette Seite $a$."
+                ]
             },
             {
                 id: "d2_6",
-                question: "Was beschreibt der Wendepunkt geometrisch?",
-                type: "choice",
-                options: [
-                    "Stelle, wo $f$ den größten Wert hat",
-                    "Stelle, wo die Steigung maximal oder minimal ist",
-                    "Stelle, wo $f$ die Krümmung wechselt",
-                    "Stelle, wo $f$ die $x$-Achse schneidet"
-                ],
-                correct: 2,
+                question: "Eine Firma produziert $x$ Einheiten eines Bauteils. Der Gewinn ist:\n$$G(x) = -0{,}5x^2 + 40x - 200$$\n\nBei welcher Stückzahl ist der Gewinn maximal?",
+                answer: "40",
+                accepts: ["40", "x=40", "40 Stück"],
                 hints: [
-                    "Wendepunkt hat mit der Krümmung zu tun.",
-                    "Krümmung wird durch $f''$ beschrieben. Bei $f'' = 0$ mit VZW...",
-                    "Der Wendepunkt ist die Stelle, wo der Graph von Links- zu Rechtskrümmung wechselt (oder umgekehrt)."
-                ]
+                    "$G'(x) = -x + 40$. Setze gleich Null.",
+                    "$-x + 40 = 0 \\Rightarrow x = 40$",
+                    "$G''(40) = -1 < 0$ → Maximum. $G(40) = -800 + 1600 - 200 = 600$."
+                ],
+                errorPatterns: {
+                    "200": "Das ist die Fixkosten-Konstante, nicht die optimale Stückzahl.",
+                    "600": "Das ist der maximale Gewinn, nicht die Stückzahl! Gefragt ist $x$."
+                }
             },
             {
                 id: "d2_7",
-                question: "Der Graph von $f'(x)$ schneidet die $x$-Achse bei $x = 2$ von positiv nach negativ.\n\nWas bedeutet das für $f(x)$ bei $x = 2$?",
-                type: "choice",
-                options: [
-                    "$f$ hat einen Wendepunkt",
-                    "$f$ hat ein Minimum",
-                    "$f$ hat ein Maximum",
-                    "$f$ hat eine Nullstelle"
-                ],
-                correct: 2,
+                question: "Ein Ball wird mit $v_0 = 20\\,\\frac{\\text{m}}{\\text{s}}$ senkrecht nach oben geworfen:\n$$h(t) = 20t - 5t^2$$\n\nNach wie vielen Sekunden erreicht er die maximale Höhe?",
+                answer: "2",
+                accepts: ["2", "t=2", "2 s", "2s"],
                 hints: [
-                    "$f'$ geht von positiv nach negativ → $f'$ wechselt das Vorzeichen.",
-                    "$f'(x) > 0$ davor (steigend), $f'(x) < 0$ danach (fallend).",
-                    "Steigend → fallend = Maximum."
-                ]
+                    "$h'(t) = 20 - 10t$. Maximum: $h'(t) = 0$.",
+                    "$20 - 10t = 0 \\Rightarrow t = 2\\,\\text{s}$",
+                    "Die maximale Höhe ist $h(2) = 40 - 20 = 20\\,\\text{m}$."
+                ],
+                errorPatterns: {
+                    "4": "Bei $t = 4$ ist $h = 0$ (Boden!). Das Maximum liegt bei $t = 2$.",
+                    "20": "Das ist die maximale Höhe in Metern, nicht die Zeit."
+                }
             },
             {
                 id: "d2_8",
-                question: "Berechne die Wendestellen von $f(x) = x^4 - 4x^2$.\n\n(Gib beide $x$-Werte exakt oder auf 2 Dezimalen an.)",
-                answer: "-sqrt(6)/3, sqrt(6)/3",
-                accepts: [
-                    "-sqrt(6)/3, sqrt(6)/3", "sqrt(6)/3, -sqrt(6)/3",
-                    "-0.82, 0.82", "0.82, -0.82", "-0,82, 0,82",
-                    "-√6/3, √6/3", "±sqrt(6)/3", "+-sqrt(6)/3"
+                question: "Bei einer Extremwertaufgabe hast du berechnet, dass eine Dose den optimalen Radius $r = -3\\,\\text{cm}$ hat.\n\nWas schließt du daraus?",
+                type: "choice",
+                options: [
+                    "Die Dose hat negative Krümmung",
+                    "Das Ergebnis ist physikalisch unsinnig — Rechenfehler oder falscher Definitionsbereich",
+                    "Man muss den Betrag nehmen: $r = 3\\,\\text{cm}$",
+                    "Negative Radien sind bei Hohlkörpern zulässig"
                 ],
+                correct: 1,
                 hints: [
-                    "$f''(x) = 12x^2 - 8$. Setze $f''(x) = 0$.",
-                    "$12x^2 - 8 = 0 \\Rightarrow x^2 = \\frac{2}{3}$",
-                    "$x = \\pm\\sqrt{\\frac{2}{3}} = \\pm\\frac{\\sqrt{6}}{3} \\approx \\pm 0{,}82$"
-                ],
-                errorPatterns: {
-                    "0": "$f''(0) = -8 \\neq 0$. Löse $12x^2 - 8 = 0$!",
-                    "2, -2": "Das sind die Nullstellen von $f'$, nicht von $f''$!"
-                }
+                    "Kann ein Radius negativ sein?",
+                    "Nein! $r > 0$ ist eine natürliche Einschränkung (Definitionsbereich).",
+                    "Ein negatives Ergebnis bedeutet: Rechenfehler suchen oder Definitionsbereich prüfen. **Ergebnisse immer im Sachkontext bewerten!**"
+                ]
             }
         ],
-        masteryThreshold: 0.8
+        masteryThreshold: 0.75
     },
 
     // --------------------------------------------------------
-    // KURVENDISKUSSION
+    // MODELLIERUNG: Geführte Extremwertaufgaben
+    // Kern von AS 6: Sachproblem → Modell → Lösung → Bewertung
+    // Scaffolding: Schritt für Schritt zum Modell
     // --------------------------------------------------------
-    kurvendisk: {
-        title: "Kurvendiskussion",
-        description: "Analysiere Funktionen systematisch: Extrema, Wendepunkte, Monotonie, Skizze.",
+    modellierung: {
+        title: "Modellieren lernen",
+        description: "Vom Sachproblem zur Zielfunktion — Schritt für Schritt.",
         explanation: `
-            <h3>Schema einer Kurvendiskussion</h3>
+            <h3>Schema für Extremwertaufgaben</h3>
             <ol style="margin-left:1.5rem; line-height:2.2;">
-                <li><strong>Definitionsbereich:</strong> Wo ist $f$ definiert?</li>
-                <li><strong>Symmetrie:</strong> $f(-x) = f(x)$ → achsensymmetrisch, $f(-x) = -f(x)$ → punktsymmetrisch</li>
-                <li><strong>Nullstellen:</strong> $f(x) = 0$</li>
-                <li><strong>Extremstellen:</strong> $f'(x) = 0$ + Vorzeichenwechsel oder $f''(x_0) \\neq 0$</li>
-                <li><strong>Wendepunkte:</strong> $f''(x) = 0$ + Vorzeichenwechsel oder $f'''(x_0) \\neq 0$</li>
-                <li><strong>Randverhalten:</strong> $\\lim_{x \\to \\pm\\infty} f(x)$</li>
+                <li><strong>Verstehen:</strong> Was soll optimiert werden? (→ Zielfunktion)</li>
+                <li><strong>Skizzieren:</strong> Bild anfertigen, Variablen einführen</li>
+                <li><strong>Nebenbedingung</strong> (NB): Welche Einschränkung gilt?</li>
+                <li><strong>Einsetzen:</strong> NB in Zielfunktion → Funktion mit <em>einer</em> Variablen</li>
+                <li><strong>Optimieren:</strong> $f'(x) = 0$, Art des Extremums prüfen</li>
+                <li><strong>Definitionsbereich</strong> beachten + Randwerte prüfen</li>
+                <li><strong>Antwort</strong> im Sachkontext, Einheiten, Plausibilität</li>
             </ol>
-            <h3 style="margin-top:1.5rem;">Wichtige Zusammenhänge</h3>
-            <ul style="margin-left:1.5rem; line-height:2.2;">
-                <li>$f'(x) > 0$ → $f$ steigt, $f'(x) < 0$ → $f$ fällt</li>
-                <li>$f''(x) > 0$ → Linkskrümmung (Tal), $f''(x) < 0$ → Rechtskrümmung (Berg)</li>
-                <li>Wendepunkt von $f$ = Extremstelle von $f'$</li>
-            </ul>
+            <div style="margin-top:1rem; padding:0.8rem; background:#fff3cd; border-radius:8px;">
+                <strong>⚠️ Häufige Fehler:</strong> NB vergessen, Definitionsbereich ignoriert, Einheiten vergessen, Ergebnis nicht im Kontext interpretiert.
+            </div>
         `,
         tasks: [
+            // --- Block A: Verpackungsoptimierung (3 Aufgaben, geführt) ---
             {
-                id: "kd1",
-                question: "Bestimme alle Nullstellen von $f(x) = x^3 - 3x$.",
-                answer: "0, -sqrt(3), sqrt(3)",
+                id: "mod1",
+                question: "**Verpackung:** Eine offene Schachtel (ohne Deckel) soll $V = 500\\,\\text{cm}^3$ fassen. Der Boden ist quadratisch (Seite $a$), die Höhe ist $h$.\n\n**Schritt 1:** Stelle die Nebenbedingung auf — drücke $h$ durch $a$ aus.",
+                answer: "500/a^2",
+                accepts: ["500/a^2", "h=500/a^2", "500/a²", "h = 500/a^2", "500/(a^2)"],
+                hints: [
+                    "Volumen eines Quaders: $V = \\text{Grundfläche} \\times \\text{Höhe}$",
+                    "$V = a^2 \\cdot h = 500$",
+                    "Umstellen: $h = \\frac{500}{a^2}$"
+                ],
+                errorPatterns: {
+                    "500/a": "Die Grundfläche ist quadratisch: $a \\cdot a = a^2$, nicht $a$!",
+                    "500/(2a)": "Die Grundfläche ist $a^2$ (Quadrat), nicht $2a$."
+                }
+            },
+            {
+                id: "mod2",
+                question: "**Verpackung (Forts.):** Die Oberfläche (Boden + 4 Seiten, kein Deckel) soll **minimal** sein.\n\n**Schritt 2:** Stelle $O(a)$ auf. (Nutze $h = \\frac{500}{a^2}$.)",
+                answer: "a^2+2000/a",
+                accepts: ["a^2+2000/a", "a^2 + 2000/a", "a² + 2000/a", "O=a^2+2000/a"],
+                hints: [
+                    "Oberfläche = Boden + 4 Seitenflächen: $O = a^2 + 4 \\cdot a \\cdot h$",
+                    "Einsetzen: $O(a) = a^2 + 4a \\cdot \\frac{500}{a^2}$",
+                    "Vereinfachen: $O(a) = a^2 + \\frac{2000}{a}$"
+                ],
+                errorPatterns: {
+                    "2a^2+2000/a": "Die Schachtel hat keinen Deckel! Boden = $a^2$ (einmal), nicht $2a^2$.",
+                    "a^2+500/a": "$4 \\cdot a \\cdot \\frac{500}{a^2} = \\frac{2000}{a}$, nicht $\\frac{500}{a}$."
+                }
+            },
+            {
+                id: "mod3",
+                question: "**Verpackung (Forts.):** Für $O(a) = a^2 + \\frac{2000}{a}$:\n\n**Schritt 3:** Berechne die optimale Seitenlänge $a$ (in cm).",
+                answer: "10.0",
+                accepts: ["10.0", "10", "10,0", "a=10", "10 cm"],
+                hints: [
+                    "$O'(a) = 2a - \\frac{2000}{a^2}$. Setze $O'(a) = 0$.",
+                    "$2a = \\frac{2000}{a^2} \\Rightarrow 2a^3 = 2000 \\Rightarrow a^3 = 1000$",
+                    "$a = \\sqrt[3]{1000} = 10\\,\\text{cm}$. Dann $h = \\frac{500}{100} = 5\\,\\text{cm}$."
+                ],
+                errorPatterns: {
+                    "5": "Das ist die Höhe $h$, nicht die Seitenlänge $a$!",
+                    "1000": "Du musst die dritte Wurzel ziehen: $a = \\sqrt[3]{1000} = 10$."
+                }
+            },
+            // --- Block B: Rinne (Blechbearbeitung — PhyTA) ---
+            {
+                id: "mod4",
+                question: "**Blechrinne (PhyTA):** Aus einem $30\\,\\text{cm}$ breiten Blech werden die Ränder um die Höhe $h$ nach oben gebogen → U-Profil.\n\nDie Rinnenbreite ist $b = 30 - 2h$.\n\n**Zielfunktion:** Der Querschnitt $A(h) = h \\cdot b$ soll maximal sein. Stelle $A(h)$ auf.",
+                answer: "h*(30-2h)",
+                accepts: ["h*(30-2h)", "h(30-2h)", "30h-2h^2", "30h - 2h^2", "-2h^2+30h"],
+                hints: [
+                    "Querschnitt = Höhe × Breite: $A = h \\cdot b$",
+                    "Setze $b = 30 - 2h$ ein.",
+                    "$A(h) = h(30 - 2h) = 30h - 2h^2$"
+                ],
+                errorPatterns: {
+                    "h*(30-h)": "Beide Seiten werden hochgebogen: $b = 30 - 2h$, nicht $30 - h$!",
+                    "30h-h^2": "Vorfaktor beachten: $h \\cdot (-2h) = -2h^2$."
+                }
+            },
+            {
+                id: "mod5",
+                question: "**Blechrinne (Forts.):** Für $A(h) = 30h - 2h^2$:\n\nBei welcher Höhe $h$ ist der Querschnitt maximal? (in cm)",
+                answer: "7.5",
+                accepts: ["7.5", "7,5", "h=7.5", "h=7,5", "7.5 cm", "15/2", "7,5 cm"],
+                hints: [
+                    "$A'(h) = 30 - 4h = 0 \\Rightarrow h = 7{,}5\\,\\text{cm}$",
+                    "Definitionsbereich: $h > 0$ und $b = 30 - 2h > 0$, also $0 < h < 15$.",
+                    "$h = 7{,}5$ liegt im Definitionsbereich $0 < h < 15$ ✓. Querschnitt: $A(7{,}5) = 112{,}5\\,\\text{cm}^2$."
+                ],
+                errorPatterns: {
+                    "15": "Bei $h = 15$ ist $b = 0$ — kein Querschnitt! Das ist der Rand des Definitionsbereichs.",
+                    "3.75": "Rechenfehler: $30 - 4h = 0 \\Rightarrow h = 7{,}5$, nicht $3{,}75$."
+                }
+            },
+            // --- Block C: Kostenoptimierung (PhyTA — Produktion) ---
+            {
+                id: "mod6",
+                question: "**Produktionskosten (PhyTA):** Eine Werkstatt produziert $x$ Bauteile pro Tag. Die Stückkosten betragen:\n$$K(x) = \\frac{x^2 - 20x + 200}{x} = x - 20 + \\frac{200}{x}$$\n\n(in € pro Stück, für $x > 0$)\n\nBei welcher Tagesproduktion sind die **Stückkosten minimal**?",
+                answer: "sqrt(200)",
+                accepts: ["sqrt(200)", "√200", "10*sqrt(2)", "10√2", "14.14", "14,14", "14.1", "14,1"],
+                hints: [
+                    "$K'(x) = 1 - \\frac{200}{x^2}$. Setze $K'(x) = 0$.",
+                    "$1 = \\frac{200}{x^2} \\Rightarrow x^2 = 200$",
+                    "$x = \\sqrt{200} = 10\\sqrt{2} \\approx 14{,}1$ Bauteile. $K''(x) = \\frac{400}{x^3} > 0$ → Minimum ✓"
+                ],
+                errorPatterns: {
+                    "200": "Du musst die Wurzel ziehen! $x^2 = 200 \\Rightarrow x = \\sqrt{200}$.",
+                    "10": "$10^2 = 100 \\neq 200$. Rechne nochmal: $x = \\sqrt{200} \\approx 14{,}1$.",
+                    "20": "Das ist aus $-20$ im Term, nicht aus der Ableitung."
+                }
+            },
+            {
+                id: "mod7",
+                question: "**Produktionskosten (Forts.):** Die minimalen Stückkosten bei $x \\approx 14{,}1$.\n\nAber: Man kann nur **ganzzahlige** Stückzahlen produzieren. Vergleiche $K(14)$ und $K(15)$.\n\nWelche Stückzahl ist günstiger?",
+                answer: "14",
+                accepts: ["14", "x=14", "14 Stück"],
+                hints: [
+                    "$K(14) = 14 - 20 + \\frac{200}{14} = 14 - 20 + 14{,}29 \\approx 8{,}29\\,€$",
+                    "$K(15) = 15 - 20 + \\frac{200}{15} = 15 - 20 + 13{,}33 \\approx 8{,}33\\,€$",
+                    "$K(14) \\approx 8{,}29 < K(15) \\approx 8{,}33$ → **14 Stück** ist minimal."
+                ],
+                errorPatterns: {
+                    "15": "Nachrechnen! $K(14) \\approx 8{,}29 < K(15) \\approx 8{,}33$. 14 ist besser."
+                }
+            },
+            // --- Block D: Behälterdesign (komplexer, technisch) ---
+            {
+                id: "mod8",
+                question: "**Lagertank (PhyTA):** Ein zylindrischer Tank soll $V = 2000\\,\\text{Liter} = 2\\,\\text{m}^3$ fassen. Die Herstellungskosten hängen von der Oberfläche ab:\n$$O(r) = 2\\pi r^2 + \\frac{2V}{r} = 2\\pi r^2 + \\frac{4}{r}$$\n\nBerechne den optimalen Radius $r$ für minimale Kosten.\n\n(Auf 2 Dezimalen, in m.)",
+                answer: "0.68",
+                accepts: ["0.68", "0,68", "r=0.68", "r=0,68", "0.683", "0,683"],
+                hints: [
+                    "$O'(r) = 4\\pi r - \\frac{4}{r^2}$. Setze $O'(r) = 0$.",
+                    "$4\\pi r = \\frac{4}{r^2} \\Rightarrow r^3 = \\frac{1}{\\pi}$",
+                    "$r = \\sqrt[3]{\\frac{1}{\\pi}} \\approx 0{,}68\\,\\text{m}$. Höhe: $h = \\frac{2}{\\pi \\cdot 0{,}68^2} \\approx 1{,}38\\,\\text{m}$."
+                ],
+                errorPatterns: {
+                    "0.32": "Hast du $r^3 = \\pi$ statt $r^3 = \\frac{1}{\\pi}$ gerechnet? Richtig: $4\\pi r = \\frac{4}{r^2}$.",
+                    "1.38": "Das ist die Höhe $h$, nicht der Radius!"
+                }
+            },
+            // --- Block E: Modellierung aus Text (weniger Scaffolding) ---
+            {
+                id: "mod9",
+                question: "**Solarfeld (PhyTA):** Ein rechteckiges Solarfeld wird mit $120\\,\\text{m}$ Zaun eingezäunt. Auf einer Seite steht bereits eine Hallenwand.\n\nStelle die Flächenfunktion $A(b)$ auf, wobei $b$ die Seite senkrecht zur Wand ist.\n\n(Tipp: Überlege zuerst die Nebenbedingung.)",
+                answer: "b*(120-2b)",
+                accepts: ["b*(120-2b)", "b(120-2b)", "120b-2b^2", "120b - 2b^2", "-2b^2+120b"],
+                hints: [
+                    "Nebenbedingung: Eine Seite $a$ (parallel zur Wand) + zwei Seiten $b$ = $120\\,\\text{m}$.",
+                    "Also $a = 120 - 2b$.",
+                    "$A(b) = a \\cdot b = (120 - 2b) \\cdot b = 120b - 2b^2$"
+                ],
+                errorPatterns: {
+                    "b*(120-b)": "Beide Querseiten brauchen Zaun: $a + 2b = 120$, nicht $a + b = 120$!",
+                    "b*(60-b)": "Der Umfang ist nicht $2a + 2b = 120$! Eine Seite fehlt (Wand): $a + 2b = 120$."
+                }
+            },
+            {
+                id: "mod10",
+                question: "**Solarfeld (Forts.):** Berechne die maximale Fläche des Solarfeldes.\n\n(Gib die Fläche in m² an.)",
+                answer: "1800",
+                accepts: ["1800", "1800 m²", "1800m²", "A=1800"],
+                hints: [
+                    "$A(b) = 120b - 2b^2$. Ableiten: $A'(b) = 120 - 4b = 0$.",
+                    "$b = 30\\,\\text{m}$, also $a = 120 - 60 = 60\\,\\text{m}$.",
+                    "$A_{\\max} = 60 \\cdot 30 = 1800\\,\\text{m}^2$"
+                ],
+                errorPatterns: {
+                    "30": "Das ist $b$, nicht die Fläche! $A = 60 \\cdot 30 = 1800\\,\\text{m}^2$.",
+                    "60": "Das ist $a$. Fläche $= a \\cdot b = 60 \\cdot 30 = 1800$.",
+                    "900": "Das wäre $30^2$. Aber $a \\neq b$! $A = 60 \\cdot 30 = 1800$."
+                }
+            },
+            // --- Block F: Gewinnmaximierung ---
+            {
+                id: "mod11",
+                question: "**Preisoptimierung (PhyTA):** Ein Betrieb verkauft Sensoren. Bei Preis $p$ (in €) ist die Nachfrage:\n$$x(p) = 200 - 4p$$\nDie Produktionskosten betragen $5\\,€$ pro Stück (+ $100\\,€$ Fixkosten).\n\nStelle die Gewinnfunktion $G(p)$ auf.\n\n(Gewinn = Erlös − Kosten, Erlös = $p \\cdot x$)",
+                answer: "(p-5)*(200-4p)-100",
                 accepts: [
-                    "0, -sqrt(3), sqrt(3)", "0, sqrt(3), -sqrt(3)",
-                    "-sqrt(3), 0, sqrt(3)", "0, -1.73, 1.73",
-                    "0, -√3, √3", "0,-√3,√3", "-1.73, 0, 1.73"
+                    "(p-5)*(200-4p)-100", "-4p^2+220p-1100",
+                    "-4p^2 + 220p - 1100", "p*(200-4p)-5*(200-4p)-100",
+                    "(200-4p)*(p-5)-100", "200p-4p^2-1000+20p-100"
                 ],
                 hints: [
-                    "Ausklammern: $x^3 - 3x = x(x^2 - 3)$",
-                    "$x(x^2 - 3) = 0$: Entweder $x = 0$ oder $x^2 = 3$",
-                    "$x_1 = 0$, $x_2 = -\\sqrt{3} \\approx -1{,}73$, $x_3 = \\sqrt{3} \\approx 1{,}73$"
+                    "Erlös: $E(p) = p \\cdot x(p) = p(200 - 4p)$",
+                    "Kosten: $K(x) = 5x + 100 = 5(200 - 4p) + 100 = 1100 - 20p$",
+                    "$G(p) = E - K = 200p - 4p^2 - 1100 + 20p = -4p^2 + 220p - 1100$"
                 ],
                 errorPatterns: {
-                    "0, 3, -3": "$x^2 = 3$, also $x = \\pm\\sqrt{3}$, nicht $\\pm 3$!",
-                    "0": "Da fehlen zwei! Löse auch $x^2 - 3 = 0$."
+                    "p*(200-4p)": "Das ist nur der Erlös! Kosten abziehen: $G = E - K$.",
+                    "200p-4p^2-100": "Du hast die variablen Kosten ($5$ € pro Stück) vergessen!"
                 }
             },
             {
-                id: "kd2",
-                question: "Ist $f(x) = x^3 - 3x$ achsensymmetrisch, punktsymmetrisch oder weder noch?",
-                type: "choice",
-                options: ["Achsensymmetrisch zur $y$-Achse", "Punktsymmetrisch zum Ursprung", "Weder noch"],
-                correct: 1,
+                id: "mod12",
+                question: "**Preisoptimierung (Forts.):** Für $G(p) = -4p^2 + 220p - 1100$:\n\nBerechne den gewinnmaximalen Preis.\n\n(Gib $p$ in € an.)",
+                answer: "27.5",
+                accepts: ["27.5", "27,5", "p=27.5", "p=27,5", "27.50", "27,50", "55/2"],
                 hints: [
-                    "Prüfe: $f(-x) = (-x)^3 - 3(-x) = -x^3 + 3x$",
-                    "Vergleiche mit $-f(x) = -(x^3 - 3x) = -x^3 + 3x$",
-                    "$f(-x) = -f(x)$ → punktsymmetrisch zum Ursprung."
-                ]
-            },
-            {
-                id: "kd3",
-                question: "Führe eine Kurvendiskussion von $f(x) = x^3 - 3x$ durch.\n\nGib den $y$-Wert des lokalen Maximums an.",
-                answer: "2",
-                accepts: ["2", "f(-1)=2", "y=2"],
-                hints: [
-                    "Extremstellen: $f'(x) = 3x^2 - 3 = 0 \\Rightarrow x = \\pm 1$",
-                    "$f''(-1) = -6 < 0$ → Maximum bei $x = -1$.",
-                    "$f(-1) = (-1)^3 - 3 \\cdot (-1) = -1 + 3 = 2$"
+                    "$G'(p) = -8p + 220 = 0$",
+                    "$p = \\frac{220}{8} = 27{,}5\\,€$",
+                    "$G(27{,}5) = -4 \\cdot 756{,}25 + 6050 - 1100 = -3025 + 6050 - 1100 = 1925\\,€$"
                 ],
                 errorPatterns: {
-                    "-2": "Das ist der $y$-Wert des Minimums bei $x=1$. Gefragt ist das Maximum!",
-                    "-1": "Das ist die $x$-Koordinate. Gefragt ist der $y$-Wert: $f(-1) = ?$"
-                }
-            },
-            {
-                id: "kd4",
-                question: "Bestimme die Extremstellen von $f(x) = x \\cdot e^{-x}$.\n\nGib den $x$-Wert und die Art (Max/Min) an.",
-                answer: "x=1, Maximum",
-                accepts: ["x=1, Maximum", "1, Maximum", "1, Max", "Maximum bei x=1", "x=1 Maximum", "1 Max"],
-                hints: [
-                    "Produktregel: $f'(x) = e^{-x} + x(-e^{-x}) = (1-x)e^{-x}$",
-                    "$f'(x) = 0$: Da $e^{-x} \\neq 0$, muss $1-x = 0$, also $x = 1$.",
-                    "$f''(x) = (x-2)e^{-x}$, $f''(1) = -e^{-1} < 0$ → Maximum."
-                ],
-                errorPatterns: {
-                    "0": "$f'(0) = 1 \\neq 0$. Löse $(1-x) = 0$!",
-                    "x=1, Minimum": "Prüfe das Vorzeichen von $f''(1)$: $f''(1) = -e^{-1} < 0$ → Maximum, nicht Minimum!"
-                }
-            },
-            {
-                id: "kd5",
-                question: "Bestimme den Wendepunkt von $f(x) = x \\cdot e^{-x}$.\n\nGib den $x$-Wert an.",
-                answer: "2",
-                accepts: ["2", "x=2"],
-                hints: [
-                    "$f''(x) = (x-2)e^{-x}$. Setze $f''(x) = 0$.",
-                    "Da $e^{-x} \\neq 0$: $x - 2 = 0$",
-                    "$x = 2$. Prüfe: $f'''(x) = (3-x)e^{-x}$, also $f'''(2) = e^{-2} \\neq 0$ ✓"
-                ],
-                errorPatterns: {
-                    "1": "Das ist die Extremstelle! Wendepunkt: $f''(x) = 0$, nicht $f'(x) = 0$."
-                }
-            },
-            {
-                id: "kd6",
-                question: "Bestimme die Extremstellen von $f(x) = x^2 \\cdot e^{-x}$.\n\nGib beide $x$-Werte an.",
-                answer: "0, 2",
-                accepts: ["0, 2", "0,2", "2, 0", "2,0", "x=0, x=2", "0 und 2"],
-                hints: [
-                    "Produktregel: $f'(x) = 2x \\cdot e^{-x} + x^2(-e^{-x}) = x(2-x)e^{-x}$",
-                    "$f'(x) = 0$: $x(2-x) = 0$ (da $e^{-x} \\neq 0$)",
-                    "$x_1 = 0$ (Minimum) und $x_2 = 2$ (Maximum)"
-                ],
-                errorPatterns: {
-                    "2": "Es gibt noch eine zweite Extremstelle! $x(2-x) = 0$ hat zwei Lösungen.",
-                    "0": "Es gibt noch $x = 2$! Löse $x(2-x) = 0$ vollständig."
-                }
-            },
-            {
-                id: "kd7",
-                question: "Wie verhält sich $f(x) = x^2 \\cdot e^{-x}$ für $x \\to +\\infty$?",
-                type: "choice",
-                options: [
-                    "$f(x) \\to +\\infty$",
-                    "$f(x) \\to 0$",
-                    "$f(x) \\to -\\infty$",
-                    "$f(x) \\to 1$"
-                ],
-                correct: 1,
-                hints: [
-                    "Wer wächst schneller: $x^2$ oder $e^x$?",
-                    "$e^x$ wächst viel schneller als jedes Polynom → $\\frac{x^2}{e^x} \\to 0$",
-                    "Die Exponentialfunktion dominiert: $\\lim_{x \\to \\infty} x^2 e^{-x} = 0$"
-                ]
-            },
-            {
-                id: "kd8",
-                question: "Bestimme die Wendestellen von $f(x) = x^2 \\cdot e^{-x}$.\n\n(Gib beide $x$-Werte exakt oder auf 2 Dezimalen an.)",
-                answer: "2-sqrt(2), 2+sqrt(2)",
-                accepts: [
-                    "2-sqrt(2), 2+sqrt(2)", "2+sqrt(2), 2-sqrt(2)",
-                    "0.59, 3.41", "0,59, 3,41", "2-√2, 2+√2", "2±√2"
-                ],
-                hints: [
-                    "$f''(x) = (x^2 - 4x + 2)e^{-x}$. Setze $f''(x) = 0$.",
-                    "$x^2 - 4x + 2 = 0$. pq-Formel: $x = 2 \\pm \\sqrt{4-2}$",
-                    "$x_1 = 2 - \\sqrt{2} \\approx 0{,}59$ und $x_2 = 2 + \\sqrt{2} \\approx 3{,}41$"
-                ],
-                errorPatterns: {
-                    "0, 2": "Das sind die Extremstellen (aus $f' = 0$), nicht die Wendestellen! Löse $f'' = 0$."
-                }
-            },
-            {
-                id: "kd9",
-                question: "Welche Aussage über $f(x) = x^3 - 3x$ ist korrekt?",
-                type: "choice",
-                options: [
-                    "Lokales Maximum bei $(1, -2)$, Minimum bei $(-1, 2)$",
-                    "Lokales Maximum bei $(-1, 2)$, Minimum bei $(1, -2)$",
-                    "Lokales Maximum bei $(0, 0)$, kein Minimum",
-                    "Kein Extremum, da $f$ unbeschränkt ist"
-                ],
-                correct: 1,
-                hints: [
-                    "$f'(x) = 3x^2 - 3 = 0 \\Rightarrow x = \\pm 1$",
-                    "$f(-1) = -1+3 = 2$, $f(1) = 1-3 = -2$",
-                    "$f''(-1) = -6 < 0$ → Max bei $(-1, 2)$. $f''(1) = 6 > 0$ → Min bei $(1, -2)$."
-                ]
-            },
-            {
-                id: "kd10",
-                question: "Für $f(x) = x \\cdot e^{-x}$: Berechne den $y$-Wert des Wendepunkts.\n\n(Gib den exakten Wert an.)",
-                answer: "2e^(-2)",
-                accepts: ["2e^(-2)", "2*e^(-2)", "2/e^2", "2/e²", "2e^{-2}", "0.27"],
-                hints: [
-                    "Wendestelle bei $x = 2$ (aus vorheriger Aufgabe).",
-                    "Einsetzen: $f(2) = 2 \\cdot e^{-2}$",
-                    "$f(2) = 2e^{-2} = \\frac{2}{e^2} \\approx 0{,}27$"
-                ],
-                errorPatterns: {
-                    "e^(-1)": "Das ist $f(1)$, nicht $f(2)$! Setze $x = 2$ ein.",
-                    "1/e": "Das ist $f(1) = e^{-1}$. Der Wendepunkt liegt bei $x = 2$."
+                    "50": "Bei $p = 50$ ist $x = 0$ — niemand kauft! Leite $G'(p)$ ab.",
+                    "55": "$G'(p) = -8p + 220 = 0 \\Rightarrow p = 27{,}5$, nicht $55$."
                 }
             }
         ],
@@ -941,146 +981,153 @@ const UNITS = {
     },
 
     // --------------------------------------------------------
-    // EXTREMWERTAUFGABEN
+    // EXTREMWERTAUFGABEN: Selbstständig modellieren & optimieren
+    // Weniger Scaffolding, komplexere Kontexte
     // --------------------------------------------------------
     extremwert: {
         title: "Extremwertaufgaben",
-        description: "Optimierungsprobleme lösen: Zielfunktion + Nebenbedingung.",
+        description: "Jetzt komplett selbstständig: Sachproblem analysieren, Modell aufstellen, optimieren, bewerten.",
         explanation: `
-            <h3>Schema für Extremwertaufgaben</h3>
+            <h3>Erinnerung: Vorgehen</h3>
             <ol style="margin-left:1.5rem; line-height:2.2;">
-                <li><strong>Skizze</strong> anfertigen, Variablen benennen</li>
-                <li><strong>Zielfunktion</strong> aufstellen (was soll max/min werden?)</li>
-                <li><strong>Nebenbedingung</strong> aufstellen (welche Einschränkung gilt?)</li>
-                <li><strong>Einsetzen:</strong> Nebenbedingung in Zielfunktion → Funktion mit einer Variablen</li>
-                <li><strong>Ableiten</strong> und $f'(x) = 0$ lösen</li>
-                <li><strong>Überprüfen:</strong> $f''(x_0)$ für Max/Min, Randwerte beachten</li>
-                <li><strong>Antwort</strong> im Sachkontext formulieren</li>
+                <li><strong>Was</strong> soll optimiert werden? → Zielfunktion</li>
+                <li><strong>Welche Einschränkung</strong> gilt? → Nebenbedingung</li>
+                <li>NB einsetzen → Funktion mit <strong>einer</strong> Variablen</li>
+                <li>Ableiten, Nullstellen, Art prüfen</li>
+                <li><strong>Definitionsbereich + Einheiten + Plausibilität!</strong></li>
             </ol>
-            <h3 style="margin-top:1.5rem;">Typische Nebenbedingungen</h3>
-            <ul style="margin-left:1.5rem; line-height:2.2;">
-                <li>Fester Umfang: $U = 2a + 2b$ → $b = \\frac{U}{2} - a$</li>
-                <li>Festes Volumen: $V = \\pi r^2 h$ → $h = \\frac{V}{\\pi r^2}$</li>
-                <li>Punkt auf Graph: $y = f(x)$ → eine Variable eliminieren</li>
-            </ul>
         `,
         tasks: [
             {
                 id: "ew1",
-                question: "**Rechteck:** Ein Rechteck hat den Umfang $U = 20\\,\\text{cm}$.\n\nBestimme die Seitenlänge $a$, für die der Flächeninhalt maximal wird.\n\n(Gib $a$ in cm an.)",
-                answer: "5",
-                accepts: ["5", "a=5", "5 cm", "a=b=5"],
+                question: "**Kabelkanal (PhyTA):** Ein Kabelkanal mit U-Profil wird aus einem $24\\,\\text{cm}$ breiten Alublech gebogen. Die Biegehöhe ist $h$, die Kanalbreite $24 - 2h$.\n\nBerechne $h$ für maximalen Kabelquerschnitt und gib die **maximale Querschnittsfläche** an.\n\n(Gib $h$ in cm und $A_{\\max}$ in cm² an, Format: `h; A`)",
+                answer: "6; 72",
+                accepts: ["6; 72", "6;72", "h=6, A=72", "6, 72", "h=6; A=72"],
                 hints: [
-                    "Nebenbedingung: $2a + 2b = 20 \\Rightarrow b = 10 - a$",
-                    "Zielfunktion: $A(a) = a \\cdot (10 - a) = 10a - a^2$",
-                    "$A'(a) = 10 - 2a = 0 \\Rightarrow a = 5$. Also $a = b = 5$ (Quadrat!)."
+                    "$A(h) = h \\cdot (24 - 2h) = 24h - 2h^2$",
+                    "$A'(h) = 24 - 4h = 0 \\Rightarrow h = 6\\,\\text{cm}$",
+                    "$A(6) = 6 \\cdot 12 = 72\\,\\text{cm}^2$. Definitionsbereich: $0 < h < 12$ ✓"
                 ],
                 errorPatterns: {
-                    "10": "Das ist der halbe Umfang. Die Seitenlänge ist $a = 5$.",
-                    "25": "Das ist die maximale Fläche, nicht die Seitenlänge."
+                    "12; 0": "Bei $h = 12$ ist die Breite $0$! $h = 12$ ist der Rand, nicht das Maximum.",
+                    "6; 36": "Breite = $24 - 2 \\cdot 6 = 12$, nicht $6$! $A = 6 \\cdot 12 = 72$."
                 }
             },
             {
                 id: "ew2",
-                question: "**Rechteck (Forts.):** Wie groß ist die maximale Fläche bei $U = 20\\,\\text{cm}$?\n\n(Angabe in cm².)",
-                answer: "25",
-                accepts: ["25", "25 cm²", "25cm²", "A=25"],
+                question: "**Leistungsanpassung (PhyTA):** Eine Spannungsquelle ($U_0 = 12\\,\\text{V}$, Innenwiderstand $R_i = 4\\,\\Omega$) speist einen Lastwiderstand $R$.\n\nDie Leistung am Lastwiderstand ist:\n$$P(R) = \\frac{U_0^2 \\cdot R}{(R + R_i)^2} = \\frac{144R}{(R+4)^2}$$\n\nBei welchem $R$ ist $P$ maximal? (in $\\Omega$)\n\nUnd: Wie groß ist $P_{\\max}$? (in W)\n\n(Format: `R; P`)",
+                answer: "4; 9",
+                accepts: ["4; 9", "4;9", "R=4, P=9", "4, 9", "R=Ri; 9", "R=4; P=9"],
                 hints: [
-                    "Aus vorheriger Aufgabe: $a = b = 5$",
-                    "$A = a \\cdot b = 5 \\cdot 5$",
-                    "$A_{\\max} = 25\\,\\text{cm}^2$"
+                    "Quotientenregel oder: $P(R) = 144R(R+4)^{-2}$, Produktregel.",
+                    "$P'(R) = \\frac{144(4-R)}{(R+4)^3}$. Also $P'(R) = 0 \\Rightarrow R = 4 = R_i$.",
+                    "**Leistungsanpassung:** $R = R_i$ → maximale Leistung! $P(4) = \\frac{144 \\cdot 4}{64} = 9\\,\\text{W}$."
                 ],
                 errorPatterns: {
-                    "5": "Das ist die Seitenlänge, nicht die Fläche! $A = 5 \\cdot 5 = 25$."
+                    "0; 0": "Bei $R = 0$ (Kurzschluss) fließt zwar max. Strom, aber alle Leistung geht in $R_i$ verloren!",
+                    "4; 36": "$P(4) = \\frac{576}{64} = 9\\,\\text{W}$, nicht $36$."
                 }
             },
             {
                 id: "ew3",
-                question: "**Rinne:** Aus einem $12\\,\\text{cm}$ breiten Blech wird eine U-förmige Rinne gebogen (Höhe $h$, Breite $12 - 2h$).\n\nBei welcher Höhe $h$ ist der Querschnitt maximal? (in cm)",
-                answer: "3",
-                accepts: ["3", "h=3", "3 cm", "3cm"],
+                question: "**Fenster:** Ein gotisches Fenster besteht aus einem Rechteck (Breite $2r$, Höhe $h$) mit aufgesetztem Halbkreis (Radius $r$). Der Umfang beträgt $U = 6\\,\\text{m}$.\n\nDrücke $h$ durch $r$ aus.\n\n(Umfang = untere Kante + 2 Seiten + Halbkreisbogen)",
+                answer: "3-r-pi*r/2",
+                accepts: [
+                    "3-r-pi*r/2", "3 - r - πr/2", "(6-2r-pi*r)/2", "3-r(1+pi/2)",
+                    "3-r-0.5*pi*r", "h=3-r-pi*r/2"
+                ],
                 hints: [
-                    "Querschnittsfläche: $A(h) = h \\cdot (12 - 2h) = 12h - 2h^2$",
-                    "$A'(h) = 12 - 4h = 0$",
-                    "$h = 3\\,\\text{cm}$. Maximaler Querschnitt: $A(3) = 3 \\cdot 6 = 18\\,\\text{cm}^2$."
+                    "Umfang: Unten ($2r$) + 2 Seiten ($2h$) + Halbkreis ($\\pi r$) = $6$",
+                    "$2r + 2h + \\pi r = 6$",
+                    "$2h = 6 - 2r - \\pi r \\Rightarrow h = 3 - r - \\frac{\\pi r}{2}$"
                 ],
                 errorPatterns: {
-                    "6": "Das ist die Breite der Rinne bei $h = 3$, nicht die Höhe!",
-                    "18": "Das ist die maximale Fläche, nicht die Höhe."
+                    "3-r-pi*r": "Du hast $\\pi r$ nicht durch 2 geteilt! Aus $2h = 6 - 2r - \\pi r$ folgt $h = 3 - r - \\frac{\\pi r}{2}$.",
+                    "3-r": "Du hast den Halbkreisbogen vergessen!"
                 }
             },
             {
                 id: "ew4",
-                question: "**Dose:** Eine zylindrische Dose soll $V = 500\\,\\text{cm}^3$ fassen. Die Oberfläche $A = 2\\pi r^2 + 2\\pi rh$ soll minimal sein.\n\nStelle $A$ als Funktion von $r$ allein auf.\n\n(Nutze $h = \\frac{500}{\\pi r^2}$.)",
-                answer: "2*pi*r^2+1000/r",
+                question: "**Rohrleitung (PhyTA):** Eine Rohrleitung soll von Punkt $A$ zu Punkt $B$ verlegt werden. $A$ liegt $3\\,\\text{km}$ von einer Straße entfernt (senkrecht), $B$ liegt $5\\,\\text{km}$ entlang der Straße.\n\nKosten: Querfeld $8000\\,€/\\text{km}$, Straße $5000\\,€/\\text{km}$.\n\nDie Leitung geht $x\\,\\text{km}$ entlang der Straße, dann quer zum Punkt $A$.\n\nStelle die Kostenfunktion $K(x)$ auf.\n\n(Querfeldstrecke mit Pythagoras.)",
+                answer: "5000x+8000*sqrt(9+(5-x)^2)",
                 accepts: [
-                    "2*pi*r^2+1000/r", "2πr²+1000/r", "2*pi*r^2 + 1000/r",
-                    "2pi*r^2+1000/r", "2πr² + 1000/r"
+                    "5000x+8000*sqrt(9+(5-x)^2)",
+                    "5000x + 8000*sqrt((5-x)^2+9)",
+                    "5000x+8000*sqrt((5-x)^2+3^2)",
+                    "5000x+8000√(9+(5-x)²)"
                 ],
                 hints: [
-                    "Nebenbedingung: $V = \\pi r^2 h = 500 \\Rightarrow h = \\frac{500}{\\pi r^2}$",
-                    "Einsetzen: $A(r) = 2\\pi r^2 + 2\\pi r \\cdot \\frac{500}{\\pi r^2}$",
-                    "Vereinfachen: $A(r) = 2\\pi r^2 + \\frac{1000}{r}$"
+                    "Von $B$ aus: $x$ km Straße (Kosten: $5000x$), dann quer.",
+                    "Die Querfeldstrecke: Horizontale Distanz $= 5 - x$, Vertikale $= 3$.",
+                    "Pythagoras: $d = \\sqrt{(5-x)^2 + 9}$. Kosten quer: $8000\\sqrt{(5-x)^2 + 9}$.\n\n$K(x) = 5000x + 8000\\sqrt{(5-x)^2 + 9}$"
                 ],
                 errorPatterns: {
-                    "2*pi*r^2+500/r": "$2\\pi r \\cdot \\frac{500}{\\pi r^2} = \\frac{1000}{r}$, nicht $\\frac{500}{r}$."
+                    "5000x+8000*sqrt(9+x^2)": "Die Querfeldstrecke geht von der Abzweigung zu $A$. Horizontale Distanz = $5 - x$, nicht $x$!",
+                    "5000x+8000*sqrt(25+9)": "Die horizontale Distanz hängt von $x$ ab: $5 - x$, nicht konstant 5!"
                 }
             },
             {
                 id: "ew5",
-                question: "**Dose (Forts.):** Für $A(r) = 2\\pi r^2 + \\frac{1000}{r}$: Berechne den optimalen Radius.\n\n(Auf 2 Dezimalen, in cm.)",
-                answer: "4.30",
-                accepts: ["4.30", "4,30", "4.3", "4,3", "r=4.30", "r=4.3"],
+                question: "**Dose (klassisch):** Eine geschlossene zylindrische Dose soll $V = 330\\,\\text{cm}^3$ (wie eine Getränkedose) fassen.\n\nDie Oberfläche soll minimal sein: $O(r) = 2\\pi r^2 + \\frac{660}{r}$.\n\nBerechne den optimalen Radius $r$.\n\n(Auf 2 Dezimalen, in cm.)",
+                answer: "3.74",
+                accepts: ["3.74", "3,74", "r=3.74", "r=3,74", "3.7", "3,7"],
                 hints: [
-                    "$A'(r) = 4\\pi r - \\frac{1000}{r^2}$. Setze $A'(r) = 0$.",
-                    "$4\\pi r = \\frac{1000}{r^2} \\Rightarrow r^3 = \\frac{250}{\\pi}$",
-                    "$r = \\sqrt[3]{\\frac{250}{\\pi}} \\approx 4{,}30\\,\\text{cm}$"
+                    "$O'(r) = 4\\pi r - \\frac{660}{r^2} = 0$",
+                    "$4\\pi r^3 = 660 \\Rightarrow r^3 = \\frac{660}{4\\pi} = \\frac{165}{\\pi}$",
+                    "$r = \\sqrt[3]{\\frac{165}{\\pi}} \\approx 3{,}74\\,\\text{cm}$"
                 ],
-                errorPatterns: {}
+                errorPatterns: {
+                    "3.3": "Eine echte Getränkedose hat $r \\approx 3{,}3$ cm, ist aber NICHT optimal (Marketing!).",
+                    "52.5": "Das ist $\\frac{165}{\\pi}$ — du musst noch die dritte Wurzel ziehen!"
+                }
             },
             {
                 id: "ew6",
-                question: "**Leistungsanpassung:** Spannungsquelle $U = 10\\,\\text{V}$, $R_i = 50\\,\\Omega$, Lastwiderstand $R$:\n$$P(R) = \\frac{100R}{(R+50)^2}$$\n\nBei welchem $R$ ist $P$ maximal? (in $\\Omega$)",
-                answer: "50",
-                accepts: ["50", "R=50", "50 Ohm", "50Ω", "R=Ri"],
-                hints: [
-                    "$P'(R) = \\frac{100(50-R)}{(R+50)^3}$. Setze $P'(R) = 0$.",
-                    "$50 - R = 0 \\Rightarrow R = 50$",
-                    "$R = R_i = 50\\,\\Omega$ — das ist die **Leistungsanpassung**!"
+                question: "**Dose (Reflexion):** Der berechnete optimale Radius ist $r \\approx 3{,}74\\,\\text{cm}$, eine echte 330-ml-Dose hat $r \\approx 3{,}3\\,\\text{cm}$.\n\nWarum weichen reale Dosen vom mathematischen Optimum ab?",
+                type: "choice",
+                options: [
+                    "Die Mathematik ist falsch",
+                    "Reale Dosen müssen ins Regal passen, stapelbar sein, und die Griffergonomie spielt eine Rolle",
+                    "Aluminium ist zu teuer für optimale Formen",
+                    "Zylindrische Dosen sind grundsätzlich nicht optimal"
                 ],
-                errorPatterns: {
-                    "0": "Bei $R = 0$ (Kurzschluss) ist $P = 0$!",
-                    "100": "Leite ab: $P'(R) = \\frac{100(50-R)}{(R+50)^3} = 0 \\Rightarrow R = 50$."
-                }
+                correct: 1,
+                hints: [
+                    "Das Modell minimiert nur die Oberfläche. Was berücksichtigt es nicht?",
+                    "Ergonomie (Griffgröße), Regale, Stapelbarkeit, Transporteffizienz...",
+                    "Das mathematische Modell ist eine **Vereinfachung** der Realität. Reale Entscheidungen berücksichtigen viele Faktoren, die im Modell fehlen."
+                ]
             },
             {
                 id: "ew7",
-                question: "**Leistungsanpassung (Forts.):** $P_{\\max}$ bei $R = 50\\,\\Omega$?\n\n(in Watt)",
-                answer: "0.5",
-                accepts: ["0.5", "0,5", "1/2", "0.5 W", "0,5 W", "P=0.5"],
-                hints: [
-                    "$P(50) = \\frac{100 \\cdot 50}{(50+50)^2}$",
-                    "$= \\frac{5000}{10000}$",
-                    "$P_{\\max} = 0{,}5\\,\\text{W}$"
+                question: "**Abwasserkanal (PhyTA):** Ein trapezförmiger Kanal hat die Bodenbreite $b = 2\\,\\text{m}$. Die schrägen Seitenwände haben die Länge $s$ und den Neigungswinkel $60°$.\n\nDie Querschnittsfläche des Trapezes ist:\n$$A(s) = 2s + \\frac{\\sqrt{3}}{2} s^2$$\n\nBei welcher Seitenlänge $s$ pro laufendem Meter Kanal ist $A$ maximal sinnlos — die Fläche wächst unbegrenzt!\n\nWas ist das **eigentliche** Optimierungsproblem bei einem Kanal?",
+                type: "choice",
+                options: [
+                    "Maximale Fläche bei festem Umfang",
+                    "Minimaler Umfang (= Materialverbrauch) bei festem Querschnitt",
+                    "Maximale Tiefe bei festem Volumen",
+                    "Minimale Fläche bei festem Gewicht"
                 ],
-                errorPatterns: {
-                    "2": "$\\frac{5000}{10000} = 0{,}5$, nicht $2$.",
-                    "1": "$\\frac{5000}{10000} = 0{,}5$, nicht $1$."
-                }
+                correct: 1,
+                hints: [
+                    "Mehr Seitenwand = mehr Material = teurer. Was ist begrenzt?",
+                    "Man will einen bestimmten Durchfluss (= Querschnitt) und möglichst wenig Material.",
+                    "**Minimaler Umfang bei festem Querschnitt** — die Zielfunktion ist der Umfang (= Materialverbrauch), die Nebenbedingung ist die geforderte Querschnittsfläche."
+                ]
             },
             {
                 id: "ew8",
-                question: "**Zaun:** Rechteckiges Grundstück an einer Mauer (eine Seite frei). $24\\,\\text{m}$ Zaun verfügbar.\n\nBestimme $a$ (parallel zur Mauer) und $b$ (senkrecht) für maximale Fläche.\n\n(Gib $a$ und $b$ in m an.)",
-                answer: "12, 6",
-                accepts: ["12, 6", "12,6", "a=12, b=6", "12 und 6"],
+                question: "**Wärmedämmung (PhyTA):** Eine Wand (Fläche $A = 20\\,\\text{m}^2$) soll mit $d\\,\\text{cm}$ Dämmung versehen werden. Die Gesamtkosten sind:\n$$K(d) = 15d + \\frac{6000}{d+2}$$\n(Dämmkosten + Heizkosten über 20 Jahre, in €)\n\nBerechne die optimale Dämmstärke $d$.\n\n(Auf 1 Dezimale, in cm.)",
+                answer: "18.0",
+                accepts: ["18.0", "18", "18,0", "d=18", "d=18.0", "18 cm", "18cm", "d=18 cm"],
                 hints: [
-                    "NB: $a + 2b = 24$ (Mauer ersetzt eine Seite!) → $a = 24 - 2b$",
-                    "Zielfunktion: $A(b) = (24-2b) \\cdot b = 24b - 2b^2$",
-                    "$A'(b) = 24 - 4b = 0 \\Rightarrow b = 6$, also $a = 12$."
+                    "$K'(d) = 15 - \\frac{6000}{(d+2)^2} = 0$",
+                    "$15(d+2)^2 = 6000 \\Rightarrow (d+2)^2 = 400$",
+                    "$(d+2) = 20 \\Rightarrow d = 18\\,\\text{cm}$. ($d = -22$ entfällt, da $d > 0$.)"
                 ],
                 errorPatterns: {
-                    "6, 6": "Die Mauer ersetzt eine Seite! NB ist $a + 2b = 24$, nicht $2a + 2b = 24$.",
-                    "8, 8": "Das wäre ohne Mauer. Hier: $a + 2b = 24$."
+                    "20": "$(d+2) = 20$, also $d = 18$, nicht $20$!",
+                    "-22": "Negative Dämmstärke? Definitionsbereich: $d > 0$!"
                 }
             }
         ],
@@ -1092,7 +1139,7 @@ const UNITS = {
     // --------------------------------------------------------
     final: {
         title: "Abschlusstest",
-        description: "Zeig was du kannst! Alle Regeln gemischt.",
+        description: "Zeig was du kannst! Ableitungsregeln + Extremwertaufgaben gemischt.",
         tasks: [
             {
                 id: "f1", question: "Leite ab: $f(x) = x^2 \\cdot \\cos(x)$",
@@ -1123,17 +1170,38 @@ const UNITS = {
                 errorPatterns: { "5(4x-3)^4": "Innere Ableitung $4$ vergessen!" }
             },
             {
-                id: "f5", question: "Leite ab: $f(x) = x^2 \\cdot e^{-x}$",
-                answer: "2x*e^(-x)-x^2*e^(-x)",
-                accepts: [
-                    "2x*e^(-x)-x^2*e^(-x)", "e^(-x)(2x-x^2)", "(2x-x^2)*e^(-x)",
-                    "e^(-x)*(2x-x^2)", "x*e^(-x)*(2-x)", "xe^(-x)(2-x)"
-                ],
+                id: "f5",
+                question: "Ein Betrieb produziert Gehäuse. Die Stückkosten sind:\n$$K(x) = x - 10 + \\frac{50}{x}$$\nBei welcher Stückzahl $x$ sind die Kosten minimal?",
+                answer: "sqrt(50)",
+                accepts: ["sqrt(50)", "√50", "5*sqrt(2)", "5√2", "7.07", "7,07"],
                 hints: [
-                    "Produktregel + Kettenregel für $e^{-x}$",
-                    "$u=x^2, v=e^{-x}$ → $u'=2x, v'=-e^{-x}$"
+                    "$K'(x) = 1 - \\frac{50}{x^2} = 0$",
+                    "$x^2 = 50 \\Rightarrow x = \\sqrt{50} = 5\\sqrt{2} \\approx 7{,}07$"
                 ],
-                errorPatterns: {}
+                errorPatterns: { "50": "Wurzel ziehen! $x^2 = 50 \\Rightarrow x = \\sqrt{50}$." }
+            },
+            {
+                id: "f6",
+                question: "Aus einem $20\\,\\text{cm}$ breiten Blech wird ein U-Kanal gebogen (Höhe $h$). Maximaler Querschnitt bei $h = \\,?$ cm.",
+                answer: "5",
+                accepts: ["5", "h=5", "5 cm"],
+                hints: [
+                    "$A(h) = h(20-2h)$, $A'(h) = 20-4h = 0$",
+                    "$h = 5$, $A(5) = 50\\,\\text{cm}^2$"
+                ],
+                errorPatterns: { "10": "Bei $h=10$ ist die Breite 0! Definitionsbereich: $0 < h < 10$." }
+            },
+            {
+                id: "f7", type: "choice",
+                question: "Du berechnest, dass ein optimaler Behälter den Radius $r = 12\\,\\text{m}$ haben soll, aber er muss in eine $3\\,\\text{m}$ breite Halle passen.\n\nWas tust du?",
+                options: [
+                    "Ergebnis ist mathematisch korrekt, also $r = 12$ nehmen",
+                    "Definitionsbereich anpassen: Maximum im Bereich $0 < r \\leq 1{,}5$ suchen (Randwertvergleich)",
+                    "Aufgabe ist unlösbar",
+                    "Einen größeren Raum suchen"
+                ],
+                correct: 1,
+                hints: ["Das mathematische Optimum liegt außerhalb des zulässigen Bereichs. Was dann?"]
             }
         ],
         masteryThreshold: 0.8
@@ -1141,7 +1209,7 @@ const UNITS = {
 };
 
 // Lernpfad-Reihenfolge
-const UNIT_ORDER = ['diagnose', 'unit0', 'unit1', 'unit2', 'unit25', 'anwendungen1', 'diagnose2', 'kurvendisk', 'extremwert', 'final'];
+const UNIT_ORDER = ['diagnose', 'unit0', 'unit1', 'unit2', 'unit25', 'anwendungen1', 'diagnose2', 'modellierung', 'extremwert', 'final'];
 
 // Gemini API (domain-restricted to hbraak.github.io)
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions';
