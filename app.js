@@ -416,9 +416,8 @@ function miniMarkdown(text) {
         if (rows.length < 2) return tableBlock;
         let html = '<table class="md-table">';
         rows.forEach((row, i) => {
-            // Skip separator rows (|---|---|)
-            if (/^\|[\s\-:]+\|$/.test(row.replace(/\|/g, m => m).trim().replace(/[^|\-:\s]/g, ''))) return;
-            if (/^[\s|:-]+$/.test(row.replace(/[^|:\-\s]/g, ''))) return;
+            // Skip separator rows like |---|---|---| (only dashes, colons, pipes, spaces)
+            if (/^\|[\s:\-]+(\|[\s:\-]+)*\|$/.test(row.trim())) return;
             const tag = i === 0 ? 'th' : 'td';
             const cells = row.split('|').filter((c, ci, arr) => ci > 0 && ci < arr.length - 1);
             html += '<tr>' + cells.map(c => `<${tag}>${c.trim()}</${tag}>`).join('') + '</tr>';

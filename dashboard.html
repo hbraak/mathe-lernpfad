@@ -469,7 +469,7 @@ function renderMath(text) {
         if (rows.length < 2) return block;
         let h = '<table class="md-table">';
         rows.forEach((row, i) => {
-            if (/^[\s|:\-]+$/.test(row.replace(/[^|:\-\s]/g, ''))) return;
+            if (/^\|[\s:\-]+(\|[\s:\-]+)*\|$/.test(row.trim())) return;
             const tag = i === 0 ? 'th' : 'td';
             const cells = row.split('|').filter((c, ci, a) => ci > 0 && ci < a.length - 1);
             h += '<tr>' + cells.map(c => `<${tag}>${c.trim()}</${tag}>`).join('') + '</tr>';
