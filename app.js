@@ -407,20 +407,47 @@ function showUnit(unitId) {
 }
 
 // ============================================================
+// MINI-MARKDOWN (bold, tables, newlines)
+// ============================================================
+function miniMarkdown(text) {
+    // Convert markdown tables to HTML
+    text = text.replace(/((?:\|[^\n]+\|\n?)+)/g, function(tableBlock) {
+        const rows = tableBlock.trim().split('\n').filter(r => r.trim());
+        if (rows.length < 2) return tableBlock;
+        let html = '<table class="md-table">';
+        rows.forEach((row, i) => {
+            // Skip separator rows (|---|---|)
+            if (/^\|[\s\-:]+\|$/.test(row.replace(/\|/g, m => m).trim().replace(/[^|\-:\s]/g, ''))) return;
+            if (/^[\s|:-]+$/.test(row.replace(/[^|:\-\s]/g, ''))) return;
+            const tag = i === 0 ? 'th' : 'td';
+            const cells = row.split('|').filter((c, ci, arr) => ci > 0 && ci < arr.length - 1);
+            html += '<tr>' + cells.map(c => `<${tag}>${c.trim()}</${tag}>`).join('') + '</tr>';
+        });
+        html += '</table>';
+        return html;
+    });
+    // Bold
+    text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    // Newlines (but not inside tables)
+    text = text.replace(/\n/g, '<br>');
+    return text;
+}
+
+// ============================================================
 // RENDER TASK
 // ============================================================
 function renderTask(task, idx, ts) {
     const taskNum = idx + 1;
     let html = `<div class="task-card" id="task-${task.id}" data-task-id="${task.id}">`;
     html += `<h3>Aufgabe ${taskNum}</h3>`;
-    html += `<div class="task-question">${task.question.replace(/\n/g, '<br>')}</div>`;
+    html += `<div class="task-question">${miniMarkdown(task.question)}</div>`;
     
     if (task.type === 'choice') {
         html += `<div class="structure-options" id="options-${task.id}">`;
         task.options.forEach((opt, i) => {
             const cls = ts.correct && i === task.correct ? 'selected-correct' : 
                         (ts.answer === i && !ts.correct && ts.attempts > 0) ? 'selected-wrong' : '';
-            html += `<button class="${cls}" onclick="checkChoice('${task.id}', ${i})" ${ts.correct ? 'disabled' : ''}>${opt}</button>`;
+            html += `<button class="${cls}" onclick="checkChoice('${task.id}', ${i})" ${ts.correct ? 'disabled' : ''}>${miniMarkdown(opt)}</button>`;
         });
         html += `</div>`;
     } else {
@@ -504,10 +531,10 @@ function checkAnswer(taskId) {
         if (ts.attempts >= 3 && task.hints && task.hints.length > 0) {
             const lastHint = task.hints[task.hints.length - 1];
             feedback.className = 'task-feedback show hint';
-            feedback.innerHTML = `❌ Nicht ganz. Hier ist der Lösungsweg:<br>${lastHint}<br><br><em>Warum funktioniert das so? Versuch es nochmal!</em>`;
+            feedback.innerHTML = `❌ Nicht ganz. Hier ist der Lösungsweg:<br>${miniMarkdown(lastHint)}<br><br><em>Warum funktioniert das so? Versuch es nochmal!</em>`;
         } else if (errorMsg) {
             feedback.className = 'task-feedback show wrong';
-            feedback.innerHTML = `❌ ${errorMsg}`;
+            feedback.innerHTML = `❌ ${miniMarkdown(errorMsg)}`;
         } else if (ts.attempts === 1) {
             feedback.className = 'task-feedback show wrong';
             feedback.textContent = '❌ Nicht ganz. Versuch es nochmal oder nutze den Hinweis!';
@@ -558,7 +585,7 @@ function checkChoice(taskId, choice) {
         
         if (task.hints && ts.attempts <= task.hints.length) {
             feedback.className = 'task-feedback show hint';
-            feedback.innerHTML = `💡 ${task.hints[ts.attempts - 1]}`;
+            feedback.innerHTML = `💡 ${miniMarkdown(task.hints[ts.attempts - 1])}`;
         } else {
             feedback.className = 'task-feedback show wrong';
             feedback.textContent = '❌ Nicht ganz. Überlege nochmal!';
@@ -584,7 +611,7 @@ function showHint(taskId) {
     
     const feedback = document.getElementById(`feedback-${taskId}`);
     feedback.className = 'task-feedback show hint';
-    feedback.innerHTML = `💡 Hinweis ${ts.hintLevel + 1}: ${task.hints[ts.hintLevel]}`;
+    feedback.innerHTML = `💡 Hinweis ${ts.hintLevel + 1}: ${miniMarkdown(task.hints[ts.hintLevel])}`;
     ts.hintLevel++;
     
     logEvent('hint', { task: taskId, level: ts.hintLevel });

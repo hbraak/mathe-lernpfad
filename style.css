@@ -49,6 +49,10 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; colo
 .task-card.incorrect { border-color: #ef4444; }
 .task-card h3 { color: #94a3b8; margin-bottom: 1rem; font-size: 0.9rem; }
 .task-question { font-size: 1.1rem; margin-bottom: 1rem; line-height: 1.6; }
+.md-table { border-collapse: collapse; margin: 0.8rem 0; width: auto; }
+.md-table th, .md-table td { border: 1px solid #475569; padding: 0.4rem 0.8rem; text-align: center; }
+.md-table th { background: #1e293b; font-weight: 600; color: #94a3b8; }
+.md-table td { background: #0f172a; }
 .task-input-row { display: flex; gap: 0.8rem; align-items: center; margin-bottom: 0.5rem; }
 .task-input-row input { flex: 1; padding: 0.6rem 1rem; border-radius: 8px; border: 2px solid #334155; background: #0f172a; color: #e2e8f0; font-size: 1rem; outline: none; font-family: 'Courier New', monospace; }
 .task-input-row input:focus { border-color: #3b82f6; }
