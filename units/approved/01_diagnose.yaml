@@ -1,0 +1,143 @@
+unit:
+  id: diagnose
+  title: "Einstiegsdiagnose"
+  description: >
+    Teste dein Vorwissen zu Ableitungen.
+    Das Ergebnis bestimmt deinen Lernpfad.
+  lernpfad: 1
+  masteryThreshold: 0.8
+  order: 1
+
+tasks:
+  - id: d1
+    type: freitext
+    question: |
+      **Potenzregel**
+
+      Leite die folgende Funktion ab:
+
+      $$f(x) = 3x^4$$
+    answer: "12x^3"
+    accepts: ["12x^3", "12x³", "12*x^3"]
+    hints:
+      - >
+        Potenzregel: $f(x) = ax^n \Rightarrow f'(x) = n \cdot a \cdot x^{n-1}$
+    errorPatterns:
+      "3x^3": "Du hast den Vorfaktor vergessen! Bei $3x^4$ musst du $4 \\cdot 3 = 12$ rechnen."
+      "12x^4": "Der Exponent muss um 1 kleiner werden: $n-1 = 3$."
+
+  - id: d2
+    type: freitext
+    question: |
+      **Summenregel**
+
+      Leite ab:
+
+      $$f(x) = 5x^2 + 3x - 7$$
+    answer: "10x+3"
+    accepts: ["10x+3", "10x + 3", "10*x+3", "3+10x"]
+    hints:
+      - "Summenregel: Jeden Summanden einzeln ableiten. Konstanten fallen weg."
+    errorPatterns:
+      "10x+3-7": "Konstanten ($-7$) fallen beim Ableiten weg!"
+      "10x": "Die Ableitung von $3x$ ist $3$ — nicht vergessen!"
+
+  - id: d3
+    type: freitext
+    question: |
+      **Wurzelfunktion**
+
+      Leite ab:
+
+      $$f(x) = \sqrt{x}$$
+
+      Tipp: Schreibe die Wurzel zuerst als Potenz um.
+    answer: "1/(2*sqrt(x))"
+    accepts: ["1/(2*sqrt(x))", "1/(2√x)", "0.5*x^(-0.5)", "0,5*x^(-0,5)", "1/2*x^(-1/2)", "0.5x^(-0.5)"]
+    hints:
+      - "$\\sqrt{x} = x^{1/2}$ — jetzt Potenzregel anwenden!"
+      - "$f(x) = x^{1/2} \\Rightarrow f'(x) = \\frac{1}{2} \\cdot x^{-1/2}$"
+    errorPatterns:
+      "1/2*x": "Fast! Aber der Exponent muss $\\frac{1}{2} - 1 = -\\frac{1}{2}$ sein."
+
+  - id: d4
+    type: freitext
+    question: |
+      **Exponentialfunktion**
+
+      Leite ab:
+
+      $$f(x) = e^x$$
+    answer: "e^x"
+    accepts: ["e^x", "exp(x)", "e^(x)"]
+    hints:
+      - "$e^x$ ist die einzige Funktion, die sich selbst als Ableitung hat."
+    errorPatterns:
+      "x*e^(x-1)": "Vorsicht! Die Potenzregel gilt hier nicht. $e^x$ ist eine Exponentialfunktion, keine Potenz."
+      "0": "$e^x$ ist keine Konstante!"
+
+  - id: d5
+    type: freitext
+    question: |
+      **Negative Exponenten**
+
+      Leite ab:
+
+      $$f(x) = \frac{1}{x^2}$$
+
+      Schreibe den Bruch zuerst als $x^{-2}$ um.
+    answer: "-2/x^3"
+    accepts: ["-2/x^3", "-2x^(-3)", "-2*x^(-3)", "-2/x³"]
+    hints:
+      - "$\\frac{1}{x^2} = x^{-2}$ — jetzt Potenzregel!"
+      - "$f'(x) = -2 \\cdot x^{-3} = \\frac{-2}{x^3}$"
+    errorPatterns:
+      "2/x^3": "Vorzeichen! $-2 \\cdot x^{-2-1} = -2x^{-3}$"
+
+  - id: d6
+    type: choice
+    question: |
+      **Regelwahl**
+
+      Welche Ableitungsregel brauchst du für die Funktion
+      $f(x) = x^2 \cdot \sin(x)$?
+    options:
+      - "Potenzregel"
+      - "Summenregel"
+      - "Produktregel"
+      - "Kettenregel"
+    correct: 2
+    hints:
+      - "Zwei Funktionen werden multipliziert: $u(x) \\cdot v(x)$. Welche Regel gilt für Produkte?"
+
+  - id: d7
+    type: choice
+    question: |
+      **Regelwahl**
+
+      Welche Ableitungsregel brauchst du für
+      $f(x) = (3x+1)^5$?
+    options:
+      - "Potenzregel"
+      - "Summenregel"
+      - "Produktregel"
+      - "Kettenregel"
+    correct: 3
+    hints:
+      - "Eine Funktion ist in eine andere „eingesetzt": äußere Funktion$($ innere Funktion$(x))$."
+
+  - id: d8
+    type: choice
+    question: |
+      **Regelwahl**
+
+      Welche Ableitungsregel brauchst du für
+      $f(x) = e^{2x}$?
+    options:
+      - "Potenzregel"
+      - "Keine — $e^x$ bleibt $e^x$"
+      - "Produktregel"
+      - "Kettenregel"
+    correct: 3
+    hints:
+      - "$e^{2x}$ ist nicht dasselbe wie $e^x$! Es steckt eine innere Funktion $2x$ drin."
