@@ -149,29 +149,40 @@ function speechToMathText(raw) {
     return t;
 }
 
-async function speechToMathViaGemini(spokenText) {
-    if (!spokenText?.trim()) return spokenText;
-    if (typeof GEMINI_API_KEY === 'undefined' || !GEMINI_API_KEY) {
-        return speechToMathText(spokenText);
-    }
-    try {
-        const model = 'gemini-2.5-flash-lite';
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
-        const resp = await fetch(apiUrl, {
+async function geminiRequest(body, model = 'gemini-2.5-flash-lite', retries = 3) {
+    for (let i = 0; i < retries; i++) {
+        const key = typeof getGeminiApiKey === 'function' ? getGeminiApiKey() : GEMINI_API_KEY;
+        if (!key) throw new Error('No API key');
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`;
+        const resp = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{ role: 'user', parts: [{ text: 'Konvertiere: ' + spokenText }] }],
-                systemInstruction: {
-                    parts: [{ text: `Du wandelst gesprochene deutsche Mathematik in Textnotation um. Gib AUSSCHLIESSLICH die Formel zurück. Kein Markdown, kein LaTeX, keine Dollarzeichen, kein erklärender Text.
+            body: JSON.stringify(body)
+        });
+        if (resp.status === 429 && typeof rotateGeminiKey === 'function') {
+            rotateGeminiKey();
+            continue;
+        }
+        if (!resp.ok) throw new Error(`API ${resp.status}`);
+        return await resp.json();
+    }
+    throw new Error('All API keys exhausted');
+}
+
+async function speechToMathViaGemini(spokenText) {
+    if (!spokenText?.trim()) return spokenText;
+    const key = typeof getGeminiApiKey === 'function' ? getGeminiApiKey() : (typeof GEMINI_API_KEY !== 'undefined' ? GEMINI_API_KEY : '');
+    if (!key) return speechToMathText(spokenText);
+    try {
+        const data = await geminiRequest({
+            contents: [{ role: 'user', parts: [{ text: 'Konvertiere: ' + spokenText }] }],
+            systemInstruction: {
+                parts: [{ text: `Du wandelst gesprochene deutsche Mathematik in Textnotation um. Gib AUSSCHLIESSLICH die Formel zurück. Kein Markdown, kein LaTeX, keine Dollarzeichen, kein erklärender Text.
 Notation: ^ für Potenzen, sqrt() für Wurzeln, sin()/cos()/tan()/ln() für Funktionen.
 Beispiele: "x hoch 2" = x^2, "12 x hoch 3" = 12x^3, "Wurzel aus x" = sqrt(x), "e hoch x" = e^x, "minus 2 durch x hoch 3" = -2/x^3, "x quadrat plus 1" = x^2+1, "3x plus 1 hoch 5" = (3x+1)^5, "Cosinus von 2x" = cos(2x)` }]
-                },
-                generationConfig: { maxOutputTokens: 60, temperature: 0.1 }
-            })
+            },
+            generationConfig: { maxOutputTokens: 60, temperature: 0.1 }
         });
-        if (!resp.ok) throw new Error(`API ${resp.status}`);
-        const data = await resp.json();
         const result = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
         console.log('[Speech→Math] Input:', spokenText, '→ Gemini:', result);
         if (!result) return speechToMathText(spokenText);
@@ -327,7 +338,8 @@ function clearDrawPad(taskId) {
 async function recognizeDrawing(taskId) {
     const pad = drawPads[taskId];
     if (!pad || pad.isEmpty()) return;
-    if (typeof GEMINI_API_KEY === 'undefined' || !GEMINI_API_KEY) {
+    const key = typeof getGeminiApiKey === 'function' ? getGeminiApiKey() : (typeof GEMINI_API_KEY !== 'undefined' ? GEMINI_API_KEY : '');
+    if (!key) {
         alert('Zeichenerkennung benötigt einen Gemini API-Key.');
         return;
     }
@@ -341,23 +353,16 @@ async function recognizeDrawing(taskId) {
         const dataUrl = pad.toDataURL('image/png');
         const base64 = dataUrl.split(',')[1];
 
-        const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${GEMINI_API_KEY}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{
-                    role: 'user',
-                    parts: [
-                        { inlineData: { mimeType: 'image/png', data: base64 } },
-                        { text: 'Erkenne die handgeschriebene Mathematik im Bild. Gib AUSSCHLIESSLICH die Formel zurück — kein Text, kein Markdown, kein LaTeX, keine Dollarzeichen. Notation: ^ für Potenzen, sqrt() für Wurzeln, sin()/cos() für Funktionen.' }
-                    ]
-                }],
-                generationConfig: { maxOutputTokens: 60, temperature: 0.1 }
-            })
+        const data = await geminiRequest({
+            contents: [{
+                role: 'user',
+                parts: [
+                    { inlineData: { mimeType: 'image/png', data: base64 } },
+                    { text: 'Erkenne die handgeschriebene Mathematik im Bild. Gib AUSSCHLIESSLICH die Formel zurück — kein Text, kein Markdown, kein LaTeX, keine Dollarzeichen. Notation: ^ für Potenzen, sqrt() für Wurzeln, sin()/cos() für Funktionen.' }
+                ]
+            }],
+            generationConfig: { maxOutputTokens: 60, temperature: 0.1 }
         });
-
-        if (!resp.ok) throw new Error(`API ${resp.status}`);
-        const data = await resp.json();
         let result = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
         result = result.replace(/^```[a-z]*\n?/g, '').replace(/\n?```$/g, '').replace(/^`|`$/g, '').replace(/^["']|["']$/g, '').replace(/^\$+|\$+$/g, '').trim();
         console.log('[Draw→Math] Recognized:', result);
@@ -798,13 +803,9 @@ function renderTask(task, idx, ts) {
 // CHECK ANSWER
 // ============================================================
 async function checkAnswerWithGemini(task, studentAnswer) {
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${GEMINI_API_KEY}`;
-    const resp = await fetch(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            contents: [{ role: 'user', parts: [{ text: `Aufgabe: ${task.question}\nKorrekte Lösung: ${task.answer}\nAntwort des Schülers: ${studentAnswer}` }] }],
-            systemInstruction: { parts: [{ text: `Du bist ein Mathe-Korrektor. Prüfe ob die Antwort des Schülers mathematisch äquivalent zur korrekten Lösung ist.
+    const data = await geminiRequest({
+        contents: [{ role: 'user', parts: [{ text: `Aufgabe: ${task.question}\nKorrekte Lösung: ${task.answer}\nAntwort des Schülers: ${studentAnswer}` }] }],
+        systemInstruction: { parts: [{ text: `Du bist ein Mathe-Korrektor. Prüfe ob die Antwort des Schülers mathematisch äquivalent zur korrekten Lösung ist.
 
 WICHTIG:
 - Die Reihenfolge der Terme ist egal (Kommutativgesetz): u'v + uv' = uv' + u'v
@@ -814,11 +815,8 @@ WICHTIG:
 - Teilweise vereinfacht ist auch richtig, solange mathematisch korrekt
 
 Antworte NUR mit einem einzelnen Wort: RICHTIG oder FALSCH` }] },
-            generationConfig: { maxOutputTokens: 10, temperature: 0.0 }
-        })
+        generationConfig: { maxOutputTokens: 10, temperature: 0.0 }
     });
-    if (!resp.ok) throw new Error(`API ${resp.status}`);
-    const data = await resp.json();
     const result = (data?.candidates?.[0]?.content?.parts?.[0]?.text || '').trim().toUpperCase();
     console.log('[GeminiCheck]', studentAnswer, '→', result);
     return result.startsWith('RICHTIG');
@@ -1170,7 +1168,7 @@ function toggleGemini() {
     btn.classList.toggle('active');
     
     if (!panel.classList.contains('hidden') && state.geminiHistory.length === 0) {
-        if (!GEMINI_API_KEY) {
+        if (!_tkey) {
             addGeminiMessage('ai', '⚠️ KI-Tutor nicht verfügbar. Frag deinen Lehrer um den richtigen Link!');
         } else {
             addGeminiMessage('ai', 'Hallo! 👋 Ich bin dein Mathe-Tutor. Frag mich, wenn du bei einer Aufgabe nicht weiterkommst. Ich gebe dir Hinweise — aber nicht die Lösung! 😉');
@@ -1209,8 +1207,9 @@ async function sendGemini() {
     
     logEvent('gemini_question', { question: text.substring(0, 100) });
     
-    if (!GEMINI_API_KEY) {
-        addGeminiMessage('ai', '⚠️ KI-Tutor nicht verfügbar. Frag deinen Lehrer!');
+    const _tkey = typeof getGeminiApiKey === 'function' ? getGeminiApiKey() : (typeof GEMINI_API_KEY !== 'undefined' ? GEMINI_API_KEY : '');
+    if (!_tkey) {
+        addGeminiMessage('ai', '⚠️ KI-Tutor nicht verfügbar. Fragen Sie Ihren Lehrer!');
         return;
     }
     
@@ -1231,26 +1230,14 @@ async function sendGemini() {
     const loadingMsg = document.getElementById('gemini-messages').lastChild;
     
     try {
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
-        const resp = await fetch(apiUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: contents,
-                systemInstruction: {
-                    parts: [{ text: GEMINI_SYSTEM_PROMPT + (currentTask ? `\n\nAktuelle Aufgabe: ${currentTask}` : '') }]
-                },
-                generationConfig: { maxOutputTokens: 500, temperature: 0.7 }
-            })
-        });
+        const data = await geminiRequest({
+            contents: contents,
+            systemInstruction: {
+                parts: [{ text: GEMINI_SYSTEM_PROMPT + (currentTask ? `\n\nAktuelle Aufgabe: ${currentTask}` : '') }]
+            },
+            generationConfig: { maxOutputTokens: 500, temperature: 0.7 }
+        }, GEMINI_MODEL);
         
-        if (!resp.ok) {
-            const errText = await resp.text().catch(() => '');
-            console.error('Gemini API response:', resp.status, errText);
-            throw new Error(`API Error: ${resp.status}`);
-        }
-        
-        const data = await resp.json();
         const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Entschuldigung, ich konnte keine Antwort generieren.';
         
         loadingMsg.innerHTML = reply;

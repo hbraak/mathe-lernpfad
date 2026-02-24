@@ -1287,7 +1287,22 @@ const UNIT_ORDER = ['diagnose', 'unit0', 'unit1', 'unit2', 'unit25', 'anwendunge
 // Gemini API (domain-restricted to hbraak.github.io)
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions';
 // Keys aus URL-Parametern
-const GEMINI_API_KEY = new URLSearchParams(window.location.search).get('key') || '';
+const _urlParams = new URLSearchParams(window.location.search);
+const GEMINI_API_KEYS = [
+    _urlParams.get('key') || '',
+    _urlParams.get('key2') || '',
+    _urlParams.get('key3') || ''
+].filter(k => k.length > 0);
+let _geminiKeyIndex = 0;
+function getGeminiApiKey() {
+    if (GEMINI_API_KEYS.length === 0) return '';
+    return GEMINI_API_KEYS[_geminiKeyIndex % GEMINI_API_KEYS.length];
+}
+function rotateGeminiKey() {
+    _geminiKeyIndex++;
+    console.log('[Gemini] Rotated to key', (_geminiKeyIndex % GEMINI_API_KEYS.length) + 1);
+}
+const GEMINI_API_KEY = getGeminiApiKey();
 const GITHUB_TOKEN = new URLSearchParams(window.location.search).get('ghtoken') || '';
 const GIST_ID = '1adfc536c05ff59f6448fb95dcd3bb92';
 const GEMINI_MODEL = 'gemini-2.5-flash';
