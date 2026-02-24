@@ -99,50 +99,54 @@ function speechInputSupported() {
 
 function speechToMathText(raw) {
     if (!raw) return '';
-    let text = raw
+    let t = raw
         .toLowerCase()
         .replace(/[.,!?;:]/g, ' ')
         .replace(/\s+/g, ' ')
         .trim();
 
-    text = text.replace(/\bein halb\b/g, '1/2');
-    text = text.replace(/\beine halb\b/g, '1/2');
+    // Number words → digits
+    const nums = { null:'0', eins:'1', ein:'1', eine:'1', zwei:'2', drei:'3', vier:'4',
+        'fünf':'5', funf:'5', fuenf:'5', sechs:'6', sieben:'7', acht:'8', neun:'9',
+        zehn:'10', elf:'11', 'zwölf':'12', zwolf:'12', dreizehn:'13', vierzehn:'14',
+        'fünfzehn':'15', sechzehn:'16', siebzehn:'17', achtzehn:'18', neunzehn:'19',
+        zwanzig:'20', dreißig:'30', vierzig:'40', 'fünfzig':'50', hundert:'100' };
+    t = t.replace(/\b(null|eins|ein|eine|zwei|drei|vier|f[uü]n?f|fuenf|sechs|sieben|acht|neun|zehn|elf|zw[oö]lf|dreizehn|vierzehn|f[uü]nfzehn|sechzehn|siebzehn|achtzehn|neunzehn|zwanzig|drei[sß]ig|vierzig|f[uü]nfzig|hundert)\b/g, m => nums[m] || m);
 
-    const numberWords = {
-        null: '0',
-        eins: '1',
-        ein: '1',
-        eine: '1',
-        zwei: '2',
-        drei: '3',
-        vier: '4',
-        funf: '5',
-        fuenf: '5',
-        'fünf': '5',
-        sechs: '6',
-        sieben: '7',
-        acht: '8',
-        neun: '9',
-        zehn: '10'
-    };
-    text = text.replace(/\b(null|eins|ein|eine|zwei|drei|vier|funf|fuenf|fünf|sechs|sieben|acht|neun|zehn)\b/g, m => numberWords[m] || m);
+    // Fractions
+    t = t.replace(/\bein halb\b/g, '1/2');
+    t = t.replace(/\bein drittel\b/g, '1/3');
+    t = t.replace(/\bein viertel\b/g, '1/4');
 
-    text = text.replace(/\be\s+hoch\s+minus\s+([a-z0-9]+)\b/g, 'e^(-$1)');
-    text = text.replace(/\be\s+hoch\s+([a-z0-9]+)\b/g, 'e^$1');
-    text = text.replace(/\b([a-z0-9]+)\s+hoch\s+minus\s+([a-z0-9]+)\b/g, '$1^(-$2)');
-    text = text.replace(/\b([a-z0-9]+)\s+hoch\s+([a-z0-9]+)\b/g, '$1^$2');
-    text = text.replace(/\bwurzel aus\s+([a-z0-9]+)\b/g, 'sqrt($1)');
+    // Wurzel / Quadratwurzel
+    t = t.replace(/\b(?:die\s+)?(?:quadrat)?wurzel\s+(?:von|aus)\s+(.+?)(?=\s+(?:plus|minus|mal|durch|geteilt|$))/g, 'sqrt($1)');
+    t = t.replace(/\b(?:die\s+)?(?:quadrat)?wurzel\s+(?:von|aus)\s+(\S+)/g, 'sqrt($1)');
+    t = t.replace(/\bwurzel\s+(\S+)/g, 'sqrt($1)');
 
-    text = text.replace(/\bgeteilt durch\b/g, '/');
-    text = text.replace(/\bmal\b/g, '*');
-    text = text.replace(/\bdurch\b/g, '/');
-    text = text.replace(/\bplus\b/g, '+');
-    text = text.replace(/\bminus\b/g, '-');
+    // "hoch" → ^
+    t = t.replace(/\bhoch\s+minus\s+(\S+)/g, '^(-$1)');
+    t = t.replace(/\bhoch\s+(\S+)/g, '^$1');
+    t = t.replace(/\bquadrat\b/g, '^2');
+    t = t.replace(/\bhoch\b/g, '^');
 
-    text = text.replace(/\s*([+\-*/^])\s*/g, ' $1 ');
-    text = text.replace(/\(\s+/g, '(').replace(/\s+\)/g, ')');
-    text = text.replace(/\s+/g, ' ').trim();
-    return text;
+    // Operators
+    t = t.replace(/\bgeteilt\s+durch\b/g, '/');
+    t = t.replace(/\bmal\b/g, '*');
+    t = t.replace(/\bdurch\b/g, '/');
+    t = t.replace(/\bplus\b/g, '+');
+    t = t.replace(/\bminus\b/g, '-');
+
+    // Trig/log
+    t = t.replace(/\bsinus\s+(?:von\s+)?/g, 'sin(');
+    t = t.replace(/\bcosinus\s+(?:von\s+)?/g, 'cos(');
+    t = t.replace(/\btangens\s+(?:von\s+)?/g, 'tan(');
+    t = t.replace(/\blogarithmus\s+(?:von\s+)?/g, 'ln(');
+
+    // Clean up
+    t = t.replace(/\s*([+\-*/^])\s*/g, '$1');
+    t = t.replace(/\(\s+/g, '(').replace(/\s+\)/g, ')');
+    t = t.replace(/\s+/g, '').trim();
+    return t;
 }
 
 async function speechToMathViaGemini(spokenText) {
@@ -159,22 +163,27 @@ async function speechToMathViaGemini(spokenText) {
             body: JSON.stringify({
                 contents: [{ role: 'user', parts: [{ text: spokenText }] }],
                 systemInstruction: {
-                    parts: [{ text: `Du bist ein Sprache-zu-Mathe-Konverter. Du erhältst gesprochenen deutschen Text und wandelst ihn in mathematische Notation um.
+                    parts: [{ text: `Du konvertierst gesprochene deutsche Mathematik in Notation. Gib NUR die Formel zurück — kein Text, keine Erklärung, keine Anführungszeichen, kein Markdown.
 
-REGELN:
-- Gib NUR die mathematische Formel zurück, NICHTS anderes (kein Text, keine Erklärung)
-- Verwende diese Notation: ^ für Potenzen, sqrt() für Wurzeln, * für Multiplikation, / für Division, e^ für Exponentialfunktion
-- Beispiele:
-  "zwölf x hoch drei" → 12x^3
-  "zehn x plus drei" → 10x+3
-  "eins durch zwei x hoch minus eins halb" → 1/2*x^(-1/2)
-  "e hoch x" → e^x
-  "minus zwei durch x hoch drei" → -2/x^3
-  "x quadrat mal sinus x" → x^2*sin(x)
-  "drei x plus eins hoch fünf" → (3x+1)^5
-  "zwei x mal e hoch x" → 2x*e^x
-  "cosinus von zwei x" → cos(2x)
-- Wenn der Text keine Mathematik enthält, gib ihn unverändert zurück` }]
+Notation: ^ für Potenzen, sqrt() für Wurzeln, * für Multiplikation (kann weggelassen werden vor x/Klammern), / für Division, e^x für Exponentialfunktion, sin()/cos()/tan()/ln() für Funktionen.
+
+WICHTIG: Die Eingabe kommt von Googles Spracherkennung. Wörter wie "hoch", "Wurzel", "mal", "durch", "plus", "minus", "Quadrat" sind mathematische Operatoren!
+
+Beispiele:
+"12 x hoch 3" → 12x^3
+"zwölf x hoch drei" → 12x^3
+"10x + 3" → 10x+3
+"1 durch 2 x hoch -1/2" → 1/(2*x^(1/2))  
+"e hoch x" → e^x
+"minus 2 durch x hoch 3" → -2/x^3
+"x Quadrat mal Sinus x" → x^2*sin(x)
+"3x + 1 hoch 5" → (3x+1)^5
+"Wurzel x" → sqrt(x)
+"Wurzel aus x" → sqrt(x)
+"Quadratwurzel von x" → sqrt(x)
+"Cosinus von 2x" → cos(2x)
+"x hoch 2 plus 1" → x^2+1
+"f Strich von x gleich" → ignorieren, nur die Formel danach` }]
                 },
                 generationConfig: { maxOutputTokens: 60, temperature: 0.1 }
             })
