@@ -797,6 +797,33 @@ function renderTask(task, idx, ts) {
 // ============================================================
 // CHECK ANSWER
 // ============================================================
+async function checkAnswerWithGemini(task, studentAnswer) {
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${GEMINI_API_KEY}`;
+    const resp = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            contents: [{ role: 'user', parts: [{ text: `Aufgabe: ${task.question}\nKorrekte Lösung: ${task.answer}\nAntwort des Schülers: ${studentAnswer}` }] }],
+            systemInstruction: { parts: [{ text: `Du bist ein Mathe-Korrektor. Prüfe ob die Antwort des Schülers mathematisch äquivalent zur korrekten Lösung ist.
+
+WICHTIG:
+- Die Reihenfolge der Terme ist egal (Kommutativgesetz): u'v + uv' = uv' + u'v
+- Nicht vereinfachte aber korrekte Formen zählen als richtig: 2x*e^x + x^2*e^x = e^x*(x^2+2x)
+- Verschiedene Schreibweisen sind ok: 1/(2sqrt(x)) = 0.5*x^(-0.5) = x^(-1/2)/2
+- Faktorisierte und ausmultiplizierte Form sind beide richtig
+- Teilweise vereinfacht ist auch richtig, solange mathematisch korrekt
+
+Antworte NUR mit einem einzelnen Wort: RICHTIG oder FALSCH` }] },
+            generationConfig: { maxOutputTokens: 10, temperature: 0.0 }
+        })
+    });
+    if (!resp.ok) throw new Error(`API ${resp.status}`);
+    const data = await resp.json();
+    const result = (data?.candidates?.[0]?.content?.parts?.[0]?.text || '').trim().toUpperCase();
+    console.log('[GeminiCheck]', studentAnswer, '→', result);
+    return result.startsWith('RICHTIG');
+}
+
 async function checkAnswer(taskId) {
     const unit = UNITS[state.currentUnit];
     const task = unit.tasks.find(t => t.id === taskId);
@@ -814,14 +841,31 @@ async function checkAnswer(taskId) {
     const raw = input.value.trim();
     if (!raw) return;
     
-    const normalized = normalizeAnswer(raw);
-    const isCorrect = task.accepts.some(a => normalizeAnswer(a) === normalized);
-    
-    ts.attempts++;
-    ts.answer = raw;
-    
     const card = document.getElementById(`task-${taskId}`);
     const feedback = document.getElementById(`feedback-${taskId}`);
+    const checkBtn = document.getElementById(`check-btn-${taskId}`);
+
+    // Stage 1: Fast string comparison
+    const normalized = normalizeAnswer(raw);
+    let isCorrect = task.accepts.some(a => normalizeAnswer(a) === normalized);
+
+    // Stage 2: If no string match and API key available, ask Gemini
+    if (!isCorrect && typeof GEMINI_API_KEY !== 'undefined' && GEMINI_API_KEY) {
+        if (checkBtn) { checkBtn.disabled = true; checkBtn.textContent = '⏳'; }
+        feedback.className = 'task-feedback show';
+        feedback.textContent = '🔍 Wird geprüft...';
+        feedback.style.background = '#1e293b'; feedback.style.color = '#94a3b8';
+        try {
+            isCorrect = await checkAnswerWithGemini(task, raw);
+        } catch (e) {
+            console.warn('Gemini answer check failed:', e);
+        }
+        if (checkBtn) { checkBtn.disabled = false; checkBtn.textContent = 'Prüfen'; }
+        feedback.style.background = ''; feedback.style.color = '';
+    }
+
+    ts.attempts++;
+    ts.answer = raw;
     
     logEvent('answer', { task: taskId, answer: raw, correct: isCorrect, attempt: ts.attempts });
     
@@ -832,7 +876,6 @@ async function checkAnswer(taskId) {
         feedback.className = 'task-feedback show correct';
         feedback.textContent = '✅ Richtig!';
         input.disabled = true;
-        const checkBtn = document.getElementById(`check-btn-${taskId}`);
         if (checkBtn) checkBtn.disabled = true;
         const micBtn = document.getElementById(`mic-${taskId}`);
         if (micBtn) {
