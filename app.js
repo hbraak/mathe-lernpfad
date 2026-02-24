@@ -303,9 +303,14 @@ function initDrawPad(taskId) {
     if (drawPads[taskId]) return;
     const canvas = document.getElementById(`draw-${taskId}`);
     if (!canvas) return;
+    // Defer init if canvas not yet visible (offsetWidth = 0)
+    if (canvas.offsetWidth === 0) {
+        requestAnimationFrame(() => initDrawPad(taskId));
+        return;
+    }
     const ratio = Math.max(window.devicePixelRatio || 1, 1);
     canvas.width = Math.floor(canvas.offsetWidth * ratio);
-    canvas.height = Math.floor(canvas.offsetHeight * ratio);
+    canvas.height = Math.floor(150 * ratio);
     canvas.getContext('2d').scale(ratio, ratio);
     // White background
     const ctx = canvas.getContext('2d');
@@ -322,7 +327,11 @@ function toggleDrawPad(taskId) {
     const wrap = document.getElementById(`draw-wrap-${taskId}`);
     if (!wrap) return;
     const isVisible = wrap.classList.toggle('visible');
-    if (isVisible) initDrawPad(taskId);
+    if (isVisible) {
+        // Re-init every time to handle canvas sizing correctly
+        delete drawPads[taskId];
+        requestAnimationFrame(() => initDrawPad(taskId));
+    }
 }
 
 function clearDrawPad(taskId) {
