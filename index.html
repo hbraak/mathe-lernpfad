@@ -66,7 +66,7 @@
                 <div id="gemini-input-area">
                     <input type="text" id="gemini-input" placeholder="Fragen Sie mich etwas..." onkeydown="if(event.key==='Enter')sendGemini()"
                            inputmode="text" enterkeyhint="send" autocomplete="off" autocorrect="on" autocapitalize="sentences" spellcheck="true">
-                    <button type="button" id="gemini-mic-btn" class="mic-btn" onclick="toggleSpeechInput('gemini-input','gemini-mic-btn', false)"
+                    <button type="button" id="gemini-mic-btn" class="mic-btn" hidden onclick="toggleSpeechInput('gemini-input','gemini-mic-btn', false)"
                             title="Frage per Sprache eingeben" aria-label="Frage per Sprache eingeben">🎤</button>
                     <button type="button" class="send-btn" onclick="sendGemini()">→</button>
                 </div>
