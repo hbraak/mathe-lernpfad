@@ -155,35 +155,17 @@ async function speechToMathViaGemini(spokenText) {
         return speechToMathText(spokenText);
     }
     try {
-        const model = typeof GEMINI_MODEL !== 'undefined' ? GEMINI_MODEL : 'gemini-2.5-flash';
+        const model = 'gemini-2.5-flash-lite';
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
         const resp = await fetch(apiUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                contents: [{ role: 'user', parts: [{ text: spokenText }] }],
+                contents: [{ role: 'user', parts: [{ text: 'Konvertiere: ' + spokenText }] }],
                 systemInstruction: {
-                    parts: [{ text: `Du konvertierst gesprochene deutsche Mathematik in Notation. Gib NUR die Formel zurück — kein Text, keine Erklärung, keine Anführungszeichen, kein Markdown.
-
-Notation: ^ für Potenzen, sqrt() für Wurzeln, * für Multiplikation (kann weggelassen werden vor x/Klammern), / für Division, e^x für Exponentialfunktion, sin()/cos()/tan()/ln() für Funktionen.
-
-WICHTIG: Die Eingabe kommt von Googles Spracherkennung. Wörter wie "hoch", "Wurzel", "mal", "durch", "plus", "minus", "Quadrat" sind mathematische Operatoren!
-
-Beispiele:
-"12 x hoch 3" → 12x^3
-"zwölf x hoch drei" → 12x^3
-"10x + 3" → 10x+3
-"1 durch 2 x hoch -1/2" → 1/(2*x^(1/2))  
-"e hoch x" → e^x
-"minus 2 durch x hoch 3" → -2/x^3
-"x Quadrat mal Sinus x" → x^2*sin(x)
-"3x + 1 hoch 5" → (3x+1)^5
-"Wurzel x" → sqrt(x)
-"Wurzel aus x" → sqrt(x)
-"Quadratwurzel von x" → sqrt(x)
-"Cosinus von 2x" → cos(2x)
-"x hoch 2 plus 1" → x^2+1
-"f Strich von x gleich" → ignorieren, nur die Formel danach` }]
+                    parts: [{ text: `Du wandelst gesprochene deutsche Mathematik in Textnotation um. Gib AUSSCHLIESSLICH die Formel zurück. Kein Markdown, kein LaTeX, keine Dollarzeichen, kein erklärender Text.
+Notation: ^ für Potenzen, sqrt() für Wurzeln, sin()/cos()/tan()/ln() für Funktionen.
+Beispiele: "x hoch 2" = x^2, "12 x hoch 3" = 12x^3, "Wurzel aus x" = sqrt(x), "e hoch x" = e^x, "minus 2 durch x hoch 3" = -2/x^3, "x quadrat plus 1" = x^2+1, "3x plus 1 hoch 5" = (3x+1)^5, "Cosinus von 2x" = cos(2x)` }]
                 },
                 generationConfig: { maxOutputTokens: 60, temperature: 0.1 }
             })
