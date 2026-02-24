@@ -191,7 +191,11 @@ Beispiele:
         if (!resp.ok) throw new Error(`API ${resp.status}`);
         const data = await resp.json();
         const result = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-        return result || speechToMathText(spokenText);
+        console.log('[Speech→Math] Input:', spokenText, '→ Gemini:', result);
+        if (!result) return speechToMathText(spokenText);
+        // Strip markdown code fences, quotes, backticks
+        let clean = result.replace(/^```[a-z]*\n?/g, '').replace(/\n?```$/g, '').replace(/^`|`$/g, '').replace(/^["']|["']$/g, '').trim();
+        return clean || speechToMathText(spokenText);
     } catch (e) {
         console.warn('Gemini math conversion failed, using regex fallback:', e);
         return speechToMathText(spokenText);
@@ -251,8 +255,11 @@ function toggleSpeechInput(inputId, buttonId, useMathTransform = true) {
 
         // When final, use Gemini for better conversion
         if (isFinal && useMathTransform) {
+            const rawTranscript = transcript;
+            console.log('[Speech] Raw transcript:', rawTranscript);
             input.classList.add('converting');
-            speechToMathViaGemini(transcript).then(converted => {
+            speechToMathViaGemini(rawTranscript).then(converted => {
+                console.log('[Speech] Converted:', converted);
                 input.value = baseText ? `${baseText} ${converted}`.trim() : converted.trim();
                 input.classList.remove('converting');
                 if (input.id.startsWith('input-')) renderPreview(input.id);
