@@ -149,7 +149,7 @@ function speechToMathText(raw) {
     return t;
 }
 
-async function geminiRequest(body, model = 'gemini-2.5-flash-lite', retries = 3) {
+async function geminiRequest(body, model = 'gemini-2.5-flash-lite', retries = 6) {
     for (let i = 0; i < retries; i++) {
         const key = typeof getGeminiApiKey === 'function' ? getGeminiApiKey() : GEMINI_API_KEY;
         if (!key) throw new Error('No API key');
@@ -159,14 +159,18 @@ async function geminiRequest(body, model = 'gemini-2.5-flash-lite', retries = 3)
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body)
         });
-        if (resp.status === 429 && typeof rotateGeminiKey === 'function') {
-            rotateGeminiKey();
+        if (resp.status === 429) {
+            if (typeof rotateGeminiKey === 'function') rotateGeminiKey();
+            // Wait before retry (exponential: 2s, 4s, 8s...)
+            const waitMs = Math.min(2000 * Math.pow(2, Math.floor(i / GEMINI_API_KEYS.length)), 15000);
+            console.log(`[Gemini] Rate limited, waiting ${waitMs}ms...`);
+            await new Promise(r => setTimeout(r, waitMs));
             continue;
         }
         if (!resp.ok) throw new Error(`API ${resp.status}`);
         return await resp.json();
     }
-    throw new Error('All API keys exhausted');
+    throw new Error('Rate limit — bitte warten Sie einen Moment und versuchen es erneut.');
 }
 
 async function speechToMathViaGemini(spokenText) {
@@ -409,6 +413,11 @@ async function recognizeDrawing(taskId) {
         }
     } catch (e) {
         console.error('Drawing recognition failed:', e);
+        const feedback = document.getElementById(`feedback-${taskId}`);
+        if (feedback) {
+            feedback.className = 'task-feedback show incorrect';
+            feedback.textContent = '⏳ ' + (e.message || 'Erkennung fehlgeschlagen — bitte erneut versuchen.');
+        }
     } finally {
         input.classList.remove('converting');
     }
