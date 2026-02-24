@@ -301,8 +301,9 @@ function initDrawPad(taskId) {
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     drawPads[taskId] = new SignaturePad(canvas, {
-        minWidth: 2, maxWidth: 4, penColor: '#1a2a3a',
-        backgroundColor: 'rgb(255,255,255)'
+        minWidth: 0.8, maxWidth: 2, penColor: '#1a2a3a',
+        backgroundColor: 'rgb(255,255,255)',
+        throttle: 0, velocityFilterWeight: 0.2
     });
 }
 
