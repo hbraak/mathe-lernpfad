@@ -283,6 +283,100 @@ function toggleSpeechInput(inputId, buttonId, useMathTransform = true) {
     }
 }
 
+// ============================================================
+// HANDWRITING INPUT (Canvas + Gemini Vision)
+// ============================================================
+const drawPads = {};
+
+function initDrawPad(taskId) {
+    if (drawPads[taskId]) return;
+    const canvas = document.getElementById(`draw-${taskId}`);
+    if (!canvas) return;
+    const ratio = Math.max(window.devicePixelRatio || 1, 1);
+    canvas.width = Math.floor(canvas.offsetWidth * ratio);
+    canvas.height = Math.floor(canvas.offsetHeight * ratio);
+    canvas.getContext('2d').scale(ratio, ratio);
+    // White background
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    drawPads[taskId] = new SignaturePad(canvas, {
+        minWidth: 2, maxWidth: 4, penColor: '#1a2a3a',
+        backgroundColor: 'rgb(255,255,255)'
+    });
+}
+
+function toggleDrawPad(taskId) {
+    const wrap = document.getElementById(`draw-wrap-${taskId}`);
+    if (!wrap) return;
+    const isVisible = wrap.classList.toggle('visible');
+    if (isVisible) initDrawPad(taskId);
+}
+
+function clearDrawPad(taskId) {
+    if (!drawPads[taskId]) return;
+    drawPads[taskId].clear();
+    // Re-fill white
+    const canvas = document.getElementById(`draw-${taskId}`);
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+
+async function recognizeDrawing(taskId) {
+    const pad = drawPads[taskId];
+    if (!pad || pad.isEmpty()) return;
+    if (typeof GEMINI_API_KEY === 'undefined' || !GEMINI_API_KEY) {
+        alert('Zeichenerkennung benötigt einen Gemini API-Key.');
+        return;
+    }
+
+    const input = document.getElementById(`input-${taskId}`);
+    const btn = document.getElementById(`draw-recognize-${taskId}`);
+    if (!input) return;
+
+    btn.disabled = true;
+    btn.textContent = '⏳';
+    input.classList.add('converting');
+
+    try {
+        const dataUrl = pad.toDataURL('image/png');
+        const base64 = dataUrl.split(',')[1];
+
+        const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${GEMINI_API_KEY}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{
+                    role: 'user',
+                    parts: [
+                        { inlineData: { mimeType: 'image/png', data: base64 } },
+                        { text: 'Erkenne die handgeschriebene Mathematik im Bild. Gib AUSSCHLIESSLICH die Formel zurück — kein Text, kein Markdown, kein LaTeX, keine Dollarzeichen. Notation: ^ für Potenzen, sqrt() für Wurzeln, sin()/cos() für Funktionen.' }
+                    ]
+                }],
+                generationConfig: { maxOutputTokens: 60, temperature: 0.1 }
+            })
+        });
+
+        if (!resp.ok) throw new Error(`API ${resp.status}`);
+        const data = await resp.json();
+        let result = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+        result = result.replace(/^```[a-z]*\n?/g, '').replace(/\n?```$/g, '').replace(/^`|`$/g, '').replace(/^["']|["']$/g, '').replace(/^\$+|\$+$/g, '').trim();
+        console.log('[Draw→Math] Recognized:', result);
+
+        if (result && /[0-9x^()+\-*/]/.test(result)) {
+            input.value = result;
+            renderPreview(`input-${taskId}`);
+        }
+    } catch (e) {
+        console.error('Drawing recognition failed:', e);
+    } finally {
+        input.classList.remove('converting');
+        btn.disabled = false;
+        btn.textContent = '📷';
+    }
+}
+
 function updateSpeechUi() {
     const supported = speechInputSupported();
     const geminiMicBtn = document.getElementById('gemini-mic-btn');
@@ -665,6 +759,9 @@ function renderTask(task, idx, ts) {
                    title="Antwort per Sprache eingeben" aria-label="Antwort per Sprache eingeben"
                    ${ts.correct ? 'disabled' : ''}>🎤</button>`
             : '';
+        const drawBtn = !ts.correct
+            ? `<button type="button" class="draw-btn" onclick="toggleDrawPad('${task.id}')" title="Antwort zeichnen" aria-label="Antwort zeichnen">✏️</button>`
+            : '';
         // Text input with math keyboard and live preview
         html += `<div class="math-input-area">
             <div class="task-input-row">
@@ -675,8 +772,16 @@ function renderTask(task, idx, ts) {
                        inputmode="text" enterkeyhint="done"
                        autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
                 ${micBtn}
+                ${drawBtn}
                 <button type="button" class="check-btn" id="check-btn-${task.id}" onclick="checkAnswer('${task.id}')" ${ts.correct ? 'disabled' : ''}>Prüfen</button>
             </div>
+            ${!ts.correct ? `<div class="draw-wrap" id="draw-wrap-${task.id}">
+                <canvas id="draw-${task.id}" class="draw-canvas"></canvas>
+                <div class="draw-buttons">
+                    <button type="button" onclick="clearDrawPad('${task.id}')">🗑️ Löschen</button>
+                    <button type="button" id="draw-recognize-${task.id}" onclick="recognizeDrawing('${task.id}')" class="draw-recognize-btn">📷 Erkennen</button>
+                </div>
+            </div>` : ''}
             <div class="math-preview" id="preview-${task.id}"><span class="preview-placeholder">Vorschau...</span></div>
             ${!ts.correct ? buildMathKeyboard(task.id) : ''}
         </div>`;
