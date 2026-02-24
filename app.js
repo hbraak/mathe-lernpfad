@@ -84,6 +84,152 @@ function renderPreview(inputId) {
 }
 
 // ============================================================
+// SPEECH INPUT
+// ============================================================
+let activeSpeechSession = null;
+
+function getSpeechRecognitionCtor() {
+    if (typeof window === 'undefined') return null;
+    return window.SpeechRecognition || window.webkitSpeechRecognition || null;
+}
+
+function speechInputSupported() {
+    return !!getSpeechRecognitionCtor();
+}
+
+function speechToMathText(raw) {
+    if (!raw) return '';
+    let text = raw
+        .toLowerCase()
+        .replace(/[.,!?;:]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+    text = text.replace(/\bein halb\b/g, '1/2');
+    text = text.replace(/\beine halb\b/g, '1/2');
+
+    const numberWords = {
+        null: '0',
+        eins: '1',
+        ein: '1',
+        eine: '1',
+        zwei: '2',
+        drei: '3',
+        vier: '4',
+        funf: '5',
+        fuenf: '5',
+        'fünf': '5',
+        sechs: '6',
+        sieben: '7',
+        acht: '8',
+        neun: '9',
+        zehn: '10'
+    };
+    text = text.replace(/\b(null|eins|ein|eine|zwei|drei|vier|funf|fuenf|fünf|sechs|sieben|acht|neun|zehn)\b/g, m => numberWords[m] || m);
+
+    text = text.replace(/\be\s+hoch\s+minus\s+([a-z0-9]+)\b/g, 'e^(-$1)');
+    text = text.replace(/\be\s+hoch\s+([a-z0-9]+)\b/g, 'e^$1');
+    text = text.replace(/\b([a-z0-9]+)\s+hoch\s+minus\s+([a-z0-9]+)\b/g, '$1^(-$2)');
+    text = text.replace(/\b([a-z0-9]+)\s+hoch\s+([a-z0-9]+)\b/g, '$1^$2');
+    text = text.replace(/\bwurzel aus\s+([a-z0-9]+)\b/g, 'sqrt($1)');
+
+    text = text.replace(/\bgeteilt durch\b/g, '/');
+    text = text.replace(/\bmal\b/g, '*');
+    text = text.replace(/\bdurch\b/g, '/');
+    text = text.replace(/\bplus\b/g, '+');
+    text = text.replace(/\bminus\b/g, '-');
+
+    text = text.replace(/\s*([+\-*/^])\s*/g, ' $1 ');
+    text = text.replace(/\(\s+/g, '(').replace(/\s+\)/g, ')');
+    text = text.replace(/\s+/g, ' ').trim();
+    return text;
+}
+
+function stopActiveSpeechInput() {
+    if (!activeSpeechSession?.recognition) return;
+    try {
+        activeSpeechSession.recognition.stop();
+    } catch (e) {}
+}
+
+function toggleSpeechInput(inputId, buttonId, useMathTransform = true) {
+    const SpeechRecognitionCtor = getSpeechRecognitionCtor();
+    if (!SpeechRecognitionCtor) return;
+
+    const input = document.getElementById(inputId);
+    const button = document.getElementById(buttonId);
+    if (!input || !button || input.disabled) return;
+
+    if (activeSpeechSession && activeSpeechSession.buttonId === buttonId) {
+        stopActiveSpeechInput();
+        return;
+    }
+    if (activeSpeechSession) {
+        stopActiveSpeechInput();
+    }
+
+    const recognition = new SpeechRecognitionCtor();
+    recognition.lang = 'de-DE';
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    recognition.maxAlternatives = 1;
+
+    const baseText = input.value.trim();
+    activeSpeechSession = { recognition, buttonId };
+
+    button.classList.add('recording');
+    button.setAttribute('aria-pressed', 'true');
+    input.focus();
+
+    recognition.onresult = (event) => {
+        let transcript = '';
+        for (let i = 0; i < event.results.length; i++) {
+            transcript += `${event.results[i][0].transcript} `;
+        }
+        transcript = transcript.trim();
+        if (!transcript) return;
+
+        const normalizedTranscript = useMathTransform ? speechToMathText(transcript) : transcript;
+        input.value = baseText ? `${baseText} ${normalizedTranscript}`.trim() : normalizedTranscript.trim();
+        if (input.id.startsWith('input-')) renderPreview(input.id);
+    };
+
+    recognition.onerror = (event) => {
+        console.warn('Speech recognition error:', event.error);
+    };
+
+    recognition.onend = () => {
+        const micBtn = document.getElementById(buttonId);
+        if (micBtn) {
+            micBtn.classList.remove('recording');
+            micBtn.setAttribute('aria-pressed', 'false');
+        }
+        if (activeSpeechSession && activeSpeechSession.recognition === recognition) {
+            activeSpeechSession = null;
+        }
+    };
+
+    try {
+        recognition.start();
+    } catch (e) {
+        console.error('Speech recognition start failed:', e);
+        button.classList.remove('recording');
+        button.setAttribute('aria-pressed', 'false');
+        if (activeSpeechSession && activeSpeechSession.recognition === recognition) {
+            activeSpeechSession = null;
+        }
+    }
+}
+
+function updateSpeechUi() {
+    const supported = speechInputSupported();
+    const geminiMicBtn = document.getElementById('gemini-mic-btn');
+    if (geminiMicBtn) geminiMicBtn.hidden = !supported;
+    const geminiSpeechHint = document.getElementById('gemini-speech-hint');
+    if (geminiSpeechHint) geminiSpeechHint.hidden = !supported;
+}
+
+// ============================================================
 // MATH KEYBOARD
 // ============================================================
 function insertMathSymbol(taskId, symbol) {
@@ -359,6 +505,7 @@ function copyProgressCode() {
 function showUnit(unitId) {
     state.currentUnit = unitId;
     const area = document.getElementById('content-area');
+    stopActiveSpeechInput();
     
     if (unitId === 'complete') { showCompletion(); return; }
     
@@ -450,6 +597,12 @@ function renderTask(task, idx, ts) {
         });
         html += `</div>`;
     } else {
+        const micBtn = speechInputSupported()
+            ? `<button type="button" class="mic-btn" id="mic-${task.id}"
+                   onclick="toggleSpeechInput('input-${task.id}','mic-${task.id}', true)"
+                   title="Antwort per Sprache eingeben" aria-label="Antwort per Sprache eingeben"
+                   ${ts.correct ? 'disabled' : ''}>🎤</button>`
+            : '';
         // Text input with math keyboard and live preview
         html += `<div class="math-input-area">
             <div class="task-input-row">
@@ -457,8 +610,10 @@ function renderTask(task, idx, ts) {
                        value="${ts.correct ? ts.answer : ''}" ${ts.correct ? 'disabled' : ''}
                        oninput="renderPreview('input-${task.id}')"
                        onkeydown="if(event.key==='Enter')checkAnswer('${task.id}')"
+                       inputmode="text" enterkeyhint="done"
                        autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-                <button onclick="checkAnswer('${task.id}')" ${ts.correct ? 'disabled' : ''}>Prüfen</button>
+                ${micBtn}
+                <button type="button" class="check-btn" id="check-btn-${task.id}" onclick="checkAnswer('${task.id}')" ${ts.correct ? 'disabled' : ''}>Prüfen</button>
             </div>
             <div class="math-preview" id="preview-${task.id}"><span class="preview-placeholder">Vorschau...</span></div>
             ${!ts.correct ? buildMathKeyboard(task.id) : ''}
@@ -508,7 +663,13 @@ function checkAnswer(taskId) {
         feedback.className = 'task-feedback show correct';
         feedback.textContent = '✅ Richtig!';
         input.disabled = true;
-        input.nextElementSibling.disabled = true;
+        const checkBtn = document.getElementById(`check-btn-${taskId}`);
+        if (checkBtn) checkBtn.disabled = true;
+        const micBtn = document.getElementById(`mic-${taskId}`);
+        if (micBtn) {
+            micBtn.disabled = true;
+            if (activeSpeechSession?.buttonId === micBtn.id) stopActiveSpeechInput();
+        }
         // Hide keyboard
         const kbd = document.getElementById(`kbd-${taskId}`);
         if (kbd) kbd.style.display = 'none';
@@ -803,6 +964,14 @@ function toggleGemini() {
             addGeminiMessage('ai', 'Hallo! 👋 Ich bin dein Mathe-Tutor. Frag mich, wenn du bei einer Aufgabe nicht weiterkommst. Ich gebe dir Hinweise — aber nicht die Lösung! 😉');
         }
     }
+    
+    if (!panel.classList.contains('hidden')) {
+        const input = document.getElementById('gemini-input');
+        if (input) setTimeout(() => input.focus(), 60);
+    } else if (activeSpeechSession?.buttonId === 'gemini-mic-btn') {
+        stopActiveSpeechInput();
+    }
+    updateSpeechUi();
 }
 
 function addGeminiMessage(role, text) {
@@ -954,4 +1123,5 @@ function initDraggable() {
 // ============================================================
 window.addEventListener('load', () => {
     initDraggable();
+    updateSpeechUi();
 });
