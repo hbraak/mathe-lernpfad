@@ -333,11 +333,8 @@ async function recognizeDrawing(taskId) {
     }
 
     const input = document.getElementById(`input-${taskId}`);
-    const btn = document.getElementById(`draw-recognize-${taskId}`);
     if (!input) return;
 
-    btn.disabled = true;
-    btn.textContent = '⏳';
     input.classList.add('converting');
 
     try {
@@ -373,8 +370,6 @@ async function recognizeDrawing(taskId) {
         console.error('Drawing recognition failed:', e);
     } finally {
         input.classList.remove('converting');
-        btn.disabled = false;
-        btn.textContent = '📷';
     }
 }
 
@@ -780,7 +775,6 @@ function renderTask(task, idx, ts) {
                 <canvas id="draw-${task.id}" class="draw-canvas"></canvas>
                 <div class="draw-buttons">
                     <button type="button" onclick="clearDrawPad('${task.id}')">🗑️ Löschen</button>
-                    <button type="button" id="draw-recognize-${task.id}" onclick="recognizeDrawing('${task.id}')" class="draw-recognize-btn">📷 Erkennen</button>
                 </div>
             </div>` : ''}
             <div class="math-preview" id="preview-${task.id}"><span class="preview-placeholder">Vorschau...</span></div>
@@ -803,13 +797,20 @@ function renderTask(task, idx, ts) {
 // ============================================================
 // CHECK ANSWER
 // ============================================================
-function checkAnswer(taskId) {
+async function checkAnswer(taskId) {
     const unit = UNITS[state.currentUnit];
     const task = unit.tasks.find(t => t.id === taskId);
     if (!task) return;
     
     const ts = state.taskStates[taskId];
     const input = document.getElementById(`input-${taskId}`);
+
+    // If draw pad is open and has content, recognize first
+    const drawWrap = document.getElementById(`draw-wrap-${taskId}`);
+    if (drawWrap?.classList.contains('visible') && drawPads[taskId] && !drawPads[taskId].isEmpty()) {
+        await recognizeDrawing(taskId);
+    }
+
     const raw = input.value.trim();
     if (!raw) return;
     
