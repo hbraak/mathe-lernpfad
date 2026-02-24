@@ -323,6 +323,33 @@ function initDrawPad(taskId) {
     });
 }
 
+function resizeDrawPad(taskId) {
+    const pad = drawPads[taskId];
+    const canvas = document.getElementById(`draw-${taskId}`);
+    if (!pad || !canvas || canvas.offsetWidth === 0) return;
+    // Save current drawing
+    const data = pad.toData();
+    const ratio = Math.max(window.devicePixelRatio || 1, 1);
+    canvas.width = Math.floor(canvas.offsetWidth * ratio);
+    canvas.height = Math.floor(150 * ratio);
+    canvas.getContext('2d').scale(ratio, ratio);
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // Restore drawing
+    if (data.length > 0) pad.fromData(data);
+}
+
+// Re-init all visible canvases on orientation change / resize
+window.addEventListener('resize', () => {
+    for (const taskId of Object.keys(drawPads)) {
+        const wrap = document.getElementById(`draw-wrap-${taskId}`);
+        if (wrap?.classList.contains('visible')) {
+            resizeDrawPad(taskId);
+        }
+    }
+});
+
 function toggleDrawPad(taskId) {
     const wrap = document.getElementById(`draw-wrap-${taskId}`);
     if (!wrap) return;
