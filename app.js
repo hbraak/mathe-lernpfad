@@ -238,13 +238,20 @@ function toggleSpeechInput(inputId, buttonId, useMathTransform = true) {
         // When final, use Gemini for better conversion
         if (isFinal && useMathTransform) {
             const rawTranscript = transcript;
-            console.log('[Speech] Raw transcript:', rawTranscript);
+            const regexResult = input.value; // current regex result as fallback
+            console.log('[Speech] Raw transcript:', rawTranscript, '| Regex result:', regexResult);
             input.classList.add('converting');
             speechToMathViaGemini(rawTranscript).then(converted => {
-                console.log('[Speech] Converted:', converted);
-                input.value = baseText ? `${baseText} ${converted}`.trim() : converted.trim();
+                console.log('[Speech] Gemini result:', converted);
+                // Only use Gemini result if it looks like math (has digits or operators)
+                const looksLikeMath = /[0-9x^()+\-*/]/.test(converted) && converted.length > 0;
+                const finalResult = looksLikeMath ? converted : regexResult;
+                console.log('[Speech] Using:', finalResult);
+                input.value = baseText ? `${baseText} ${finalResult}`.trim() : finalResult.trim();
                 input.classList.remove('converting');
                 if (input.id.startsWith('input-')) renderPreview(input.id);
+            }).catch(() => {
+                input.classList.remove('converting');
             });
         }
     };
