@@ -18,6 +18,12 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; colo
 #login-btn { padding: 0.8rem; border-radius: 8px; border: none; background: #3b82f6; color: white; font-size: 1.1rem; cursor: pointer; transition: background 0.2s; }
 #login-btn:hover { background: #2563eb; }
 .hint { font-size: 0.8rem; color: #475569; }
+.changelog { margin-top: 1.5rem; text-align: left; font-size: 0.82rem; color: #94a3b8; }
+.changelog summary { cursor: pointer; color: #64748b; font-size: 0.85rem; text-align: center; }
+.changelog summary:hover { color: #e2e8f0; }
+.changelog ul { margin-top: 0.6rem; padding-left: 1.2rem; display: flex; flex-direction: column; gap: 0.4rem; }
+.changelog li { line-height: 1.4; }
+.changelog-date { color: #64748b; font-size: 0.75rem; }
 
 /* Top Bar */
 #topbar { display: flex; align-items: center; padding: 0.8rem 1.2rem; background: #1e293b; border-bottom: 1px solid #334155; gap: 1rem; position: sticky; top: 0; z-index: 50; }

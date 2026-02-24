@@ -1,0 +1,615 @@
+unit:
+  id: modellierung
+  title: "Modellieren & Optimieren"
+  description: |
+    Sie lernen, aus Messdaten mathematische Modelle zu erstellen (Regression),
+    deren Güte zu beurteilen (R²), Extremwertprobleme zu lösen und
+    abschnittsweise definierte Funktionen zu untersuchen.
+  explanation: |
+    <h3>Modellieren mit Funktionen</h3>
+    <p>In der Technik werden Zusammenhänge häufig durch Funktionen beschrieben.
+    Dabei gibt es zwei Wege:</p>
+    <ol style="margin-left:1.5rem; line-height:2.2;">
+      <li><strong>Regression:</strong> Aus Messdaten eine passende Funktion berechnen
+        (z.&nbsp;B. linear, quadratisch). Das <strong>Bestimmtheitsmaß R²</strong> (zwischen 0 und 1)
+        sagt Ihnen, wie gut die Funktion zu den Daten passt. Je näher an 1, desto besser.</li>
+      <li><strong>Optimierung:</strong> Extremwerte einer Modellfunktion bestimmen
+        (Maximum/Minimum), um z.&nbsp;B. den besten Arbeitspunkt zu finden.</li>
+      <li><strong>Abschnittsweise Funktionen:</strong> Verschiedene Formeln für verschiedene
+        Bereiche — wichtig ist, ob an den Nahtstellen Sprünge oder Knicke auftreten
+        (Stetigkeit, Differenzierbarkeit).</li>
+    </ol>
+    <div style="margin-top:1rem; padding:0.8rem; background:#fff3cd; border-radius:8px; color:#333;">
+      <strong>Werkzeuge:</strong> Nutzen Sie Ihren TI-Nspire CAS für Regressionen
+      (Menü → Statistik → Regression) und zum Ableiten/Lösen.
+    </div>
+  lernpfad: 2
+  bildungsplan:
+    as: 6
+    ziele: [Z2, Z3, Z4, Z5]
+  masteryThreshold: 0.7
+  order: 9
+
+tasks:
+  # ============================================================
+  # BLOCK 1: REGRESSION + R² (4 Aufgaben, Z2/Z3)
+  # ============================================================
+
+  - id: mod1
+    type: freitext
+    difficulty: leicht
+    question: |
+      **Widerstandsthermometer Pt100 — Lineare Regression**
+
+      Ein Pt100-Sensor ist ein Widerstandsthermometer, dessen elektrischer
+      Widerstand sich mit der Temperatur ändert. In einem Kalibrierversuch
+      wurden folgende Messwerte aufgenommen:
+
+      | Temperatur $T$ (°C) | 0 | 20 | 40 | 60 | 80 | 100 |
+      |---|---|---|---|---|---|---|
+      | Widerstand $R$ (Ω)  | 100,0 | 107,8 | 115,5 | 123,2 | 130,9 | 138,5 |
+
+      Der Zusammenhang soll durch eine lineare Funktion $R(T) = aT + b$
+      modelliert werden.
+
+      **Führen Sie mit Ihrem TI-Nspire eine lineare Regression durch.**
+      Geben Sie die Steigung $a$ auf vier Nachkommastellen und den
+      y-Achsenabschnitt $b$ auf eine Nachkommastelle gerundet an.
+
+      Format: `a; b` (z. B. `0,1234; 56,7`)
+    answer: "0,3850; 100,1"
+    accepts:
+      - "0,3850; 100,1"
+      - "0.3850; 100.1"
+      - "0,385; 100,1"
+      - "0.385; 100.1"
+      - "0,385;100,1"
+    hints:
+      - |
+        Geben Sie die Daten in zwei Listen ein (Temperatur und Widerstand).
+        Wählen Sie dann: Menü → Statistik → Stat-Berechnungen → Lineare Regression ($y = ax + b$).
+      - |
+        Der TI liefert: $a \approx 0{,}3850$ und $b \approx 100{,}07$.
+        Gerundet: $a = 0{,}3850$; $b = 100{,}1$.
+    errorPatterns:
+      "100,1; 0,385": "Reihenfolge beachten! Erst die Steigung $a$, dann der Achsenabschnitt $b$."
+      "0,385; 100": "Der Achsenabschnitt ist $b \\approx 100{,}07$, also gerundet $100{,}1$ — nicht genau $100$."
+    as6_ziel: Z2
+    kontext: Messtechnik
+
+  - id: mod2
+    type: choice
+    difficulty: leicht
+    question: |
+      **Bestimmtheitsmaß R² — Was sagt es aus?**
+
+      Für die Pt100-Regression aus der vorigen Aufgabe liefert der TI-Nspire
+      ein Bestimmtheitsmaß von $R^2 = 0{,}99999$. Ein Kollege sagt: „Dann
+      ist das Modell perfekt, da kann nichts schiefgehen."
+
+      Sie wissen es besser. **Welche Aussage ist korrekt?**
+    options:
+      - "$R^2 \\approx 1$ bedeutet, dass die lineare Funktion die Messdaten fast perfekt beschreibt — aber Extrapolation weit über den Messbereich hinaus ist trotzdem riskant."
+      - "$R^2 \\approx 1$ beweist, dass der Zusammenhang exakt linear ist und für alle Temperaturen gilt."
+      - "$R^2$ sagt nur etwas über die Anzahl der Messpunkte aus, nicht über die Modellgüte."
+      - "Ein $R^2$ so nahe an 1 deutet auf einen Messfehler hin."
+    correct: 0
+    hints:
+      - |
+        $R^2$ misst, welcher Anteil der Streuung in den Daten durch das Modell
+        erklärt wird. $R^2 = 1$ heißt: alle Punkte liegen exakt auf der Geraden.
+      - |
+        Aber: Eine gute Anpassung im Messbereich garantiert nicht, dass das Modell
+        auch außerhalb gilt! Der Pt100 ist z. B. bei sehr hohen Temperaturen
+        nicht mehr linear.
+    as6_ziel: Z2
+    kontext: Messtechnik
+
+  - id: mod3
+    type: freitext
+    difficulty: mittel
+    question: |
+      **Betondruckfestigkeit — Quadratische Regression**
+
+      In der Werkstoffprüfung wird untersucht, wie die 28-Tage-Druckfestigkeit
+      von Beton vom Wasser-Zement-Wert (w/z-Wert) abhängt. Je höher der
+      w/z-Wert, desto weniger fest ist der Beton — aber der Zusammenhang
+      ist nicht ganz linear. Folgende Messwerte liegen vor:
+
+      | w/z-Wert          | 0,35 | 0,40 | 0,45 | 0,50 | 0,55 | 0,60 | 0,65 |
+      |---|---|---|---|---|---|---|---|
+      | Druckfestigkeit (MPa) | 57   | 49   | 43   | 37   | 32   | 29   | 25   |
+
+      **a)** Führen Sie sowohl eine lineare als auch eine quadratische Regression durch.
+      Notieren Sie die $R^2$-Werte beider Modelle (auf vier Nachkommastellen).
+
+      **b)** Welches Modell passt besser? Begründen Sie anhand von $R^2$.
+
+      Geben Sie die beiden $R^2$-Werte an im Format: `R²_lin; R²_quad`
+    answer: "0,9783; 0,9990"
+    accepts:
+      - "0,9783; 0,9990"
+      - "0.9783; 0.9990"
+      - "0,978; 0,999"
+      - "0.978; 0.999"
+      - "0,9783;0,9990"
+    hints:
+      - |
+        Geben Sie die Daten ein und führen Sie nacheinander eine lineare
+        Regression ($y = ax + b$) und eine quadratische Regression
+        ($y = ax^2 + bx + c$) durch. Notieren Sie jeweils $R^2$.
+      - |
+        Linear: $R^2 \approx 0{,}9783$. Quadratisch: $R^2 \approx 0{,}9990$.
+        Das quadratische Modell hat ein höheres $R^2$ und beschreibt die
+        Daten deutlich besser — die leichte Krümmung wird eingefangen.
+    errorPatterns:
+      "0,9990; 0,9783": "Reihenfolge! Erst $R^2$ der linearen, dann der quadratischen Regression."
+    as6_ziel: Z2
+    kontext: Werkstoffprüfung
+
+  - id: mod4
+    type: freitext
+    difficulty: mittel
+    question: |
+      **Federkennlinie — Prognose mit Regression**
+
+      Im Physiklabor wird eine Schraubenfeder mit verschiedenen Massen
+      belastet und die resultierende Federlänge gemessen:
+
+      | Masse $m$ (g)      | 0    | 50   | 100  | 150  | 200  | 250  | 300  |
+      |---|---|---|---|---|---|---|---|
+      | Federlänge $L$ (cm) | 15,0 | 16,2 | 17,5 | 18,7 | 20,0 | 21,2 | 22,5 |
+
+      Eine lineare Regression liefert $L(m) = 0{,}025 \cdot m + 15{,}0$
+      mit $R^2 = 0{,}9999$.
+
+      Die Feder soll in einem Messgerät eingesetzt werden, das eine
+      Federlänge von exakt $25{,}0\,\text{cm}$ benötigt.
+
+      **Berechnen Sie mithilfe der Regressionsfunktion, welche Masse
+      dafür angehängt werden muss.** Geben Sie das Ergebnis in Gramm an.
+    answer: "400"
+    accepts:
+      - "400"
+      - "400 g"
+      - "400g"
+      - "400,0"
+      - "m=400"
+    hints:
+      - |
+        Setzen Sie $L = 25{,}0$ in die Regressionsgleichung ein:
+        $25{,}0 = 0{,}025 \cdot m + 15{,}0$
+      - |
+        Umstellen: $0{,}025 \cdot m = 10{,}0$, also $m = \frac{10{,}0}{0{,}025} = 400\,\text{g}$.
+    errorPatterns:
+      "10": "Das ist die Differenz $25 - 15 = 10$. Teilen Sie noch durch die Steigung $0{,}025$!"
+      "0,25": "Aufpassen: $m = \\frac{10}{0{,}025}$, nicht $10 \\cdot 0{,}025$."
+    as6_ziel: Z3
+    kontext: Messtechnik
+
+  # ============================================================
+  # BLOCK 2: EXTREMWERTAUFGABEN (4 Aufgaben, Z2/Z3 angewandt)
+  # ============================================================
+
+  - id: mod5
+    type: freitext
+    difficulty: leicht
+    question: |
+      **Maximale Leistung eines Solarmoduls — Geführt**
+
+      Die elektrische Leistung $P$ (in Watt) eines Solarmoduls hängt von
+      der Betriebsspannung $U$ (in Volt) ab. Im relevanten Bereich gilt
+      das Modell:
+      $$P(U) = -0{,}5\,U^2 + 6\,U$$
+
+      Um den **Maximum Power Point (MPP)** zu finden, müssen Sie das
+      Maximum dieser Funktion bestimmen.
+
+      **Schritt 1:** Berechnen Sie $P'(U)$ und setzen Sie $P'(U) = 0$.
+
+      **Bei welcher Spannung $U$ wird die maximale Leistung erreicht?**
+      Geben Sie den Wert in Volt an.
+    answer: "6"
+    accepts:
+      - "6"
+      - "6 V"
+      - "6V"
+      - "U=6"
+      - "U = 6"
+    hints:
+      - "$P'(U) = -U + 6$. Setzen Sie gleich Null: $-U + 6 = 0$."
+      - "$U = 6\\,\\text{V}$. Da $P''(U) = -1 < 0$, ist dies tatsächlich ein Maximum."
+    errorPatterns:
+      "-6": "Vorzeichen! Aus $-U + 6 = 0$ folgt $U = +6$."
+      "18": "Das ist $P(6) = 18\\,\\text{W}$, also die maximale Leistung. Gefragt war die Spannung!"
+    as6_ziel: Z2
+    kontext: Energietechnik
+
+  - id: mod6
+    type: freitext
+    difficulty: mittel
+    question: |
+      **Optimale Betriebstemperatur einer Gasturbine**
+
+      Der thermische Wirkungsgrad $\eta$ (in Prozent) einer Gasturbine
+      wird in Abhängigkeit von der Eintrittstemperatur $T$ (in °C) durch
+      folgende Modellfunktion beschrieben:
+      $$\eta(T) = -0{,}002\,T^2 + 1{,}2\,T - 100$$
+
+      Diese Funktion gilt im Bereich $100 \leq T \leq 500\,°\text{C}$.
+      Der Hersteller möchte die Temperatur finden, bei der der
+      Wirkungsgrad maximal ist.
+
+      **Bestimmen Sie die optimale Eintrittstemperatur und den
+      zugehörigen maximalen Wirkungsgrad.**
+
+      Format: `T_opt; η_max` (z. B. `250; 75`)
+    answer: "300; 80"
+    accepts:
+      - "300; 80"
+      - "300;80"
+      - "T=300; η=80"
+      - "300 °C; 80 %"
+      - "300; 80,0"
+    hints:
+      - |
+        $\eta'(T) = -0{,}004\,T + 1{,}2$. Setzen Sie $\eta'(T) = 0$:
+        $-0{,}004\,T + 1{,}2 = 0$, also $T = \frac{1{,}2}{0{,}004}$.
+      - |
+        $T_{\text{opt}} = 300\,°\text{C}$.
+        Einsetzen: $\eta(300) = -0{,}002 \cdot 90000 + 1{,}2 \cdot 300 - 100
+        = -180 + 360 - 100 = 80\,\%$.
+    errorPatterns:
+      "300; 260": "Rechenfehler! $\\eta(300) = -180 + 360 - 100 = 80$, nicht $260$."
+      "30; 80": "Einheiten prüfen! $T = \\frac{1{,}2}{0{,}004} = 300$, nicht $30$."
+    as6_ziel: Z2
+    kontext: Energietechnik
+
+  - id: mod7
+    type: freitext
+    difficulty: schwer
+    question: |
+      **Stückkosten in der CNC-Fertigung**
+
+      Ein Unternehmen produziert Präzisionsbauteile auf einer CNC-Fräse.
+      Die Stückkosten $K$ (in Euro) hängen von der Produktionsmenge $x$
+      (in Tausend Stück pro Monat) ab. Durch Datenanalyse wurde
+      folgendes Modell ermittelt:
+      $$K(x) = 2x^3 - 24x^2 + 90x + 50 \quad (1 \leq x \leq 8)$$
+
+      Bei kleinen Mengen sind die Kosten hoch (Rüstkosten), bei mittleren
+      Mengen sinken sie durch Skaleneffekte, und bei sehr großen Mengen
+      steigen sie wieder (Überstunden, Verschleiß).
+
+      **Bestimmen Sie die Produktionsmenge, bei der die Stückkosten
+      minimal sind, und die zugehörigen minimalen Stückkosten.**
+
+      Format: `x; K_min` (z. B. `3; 120`)
+    answer: "5; 150"
+    accepts:
+      - "5; 150"
+      - "5;150"
+      - "x=5; K=150"
+      - "5000; 150"
+      - "5; 150 €"
+    hints:
+      - |
+        $K'(x) = 6x^2 - 48x + 90$. Setzen Sie $K'(x) = 0$:
+        $6x^2 - 48x + 90 = 0$, also $x^2 - 8x + 15 = 0$.
+      - |
+        $(x - 3)(x - 5) = 0$, also $x_1 = 3$ und $x_2 = 5$.
+        Prüfen Sie mit $K''(x) = 12x - 48$:
+        $K''(3) = -12 < 0$ → Maximum bei $x = 3$.
+        $K''(5) = 12 > 0$ → **Minimum** bei $x = 5$.
+      - "$K(5) = 250 - 600 + 450 + 50 = 150\\,€$."
+    errorPatterns:
+      "3; 158": "Bei $x = 3$ liegt ein lokales Maximum ($K'' < 0$), kein Minimum! Prüfen Sie $x = 5$."
+      "5; 200": "Nachrechnen: $K(5) = 2 \\cdot 125 - 24 \\cdot 25 + 90 \\cdot 5 + 50 = 250 - 600 + 450 + 50 = 150$."
+    as6_ziel: Z3
+    kontext: CNC
+
+  - id: mod8
+    type: freitext
+    difficulty: schwer
+    question: |
+      **Optimaler Querschnitt eines Kabelkanals**
+
+      Für eine Industrieanlage soll ein rechteckiger Kabelkanal aus einem
+      Blechstreifen gebogen werden. Der Blechstreifen hat eine Breite von
+      $40\,\text{cm}$. Daraus wird ein offener Kanal (U-Profil) gebogen:
+      Zwei Seitenwände der Höhe $a$ und ein Boden der Breite $b$.
+
+      Da der gesamte Blechstreifen verwendet wird, gilt:
+      $2a + b = 40\,\text{cm}$.
+
+      **Bestimmen Sie die Maße $a$ und $b$, bei denen die
+      Querschnittsfläche $A = a \cdot b$ maximal wird.**
+
+      Format: `a; b; A_max` (in cm bzw. cm²)
+    answer: "10; 20; 200"
+    accepts:
+      - "10; 20; 200"
+      - "10;20;200"
+      - "a=10, b=20, A=200"
+      - "10 cm; 20 cm; 200 cm²"
+    hints:
+      - |
+        Drücken Sie $b$ durch $a$ aus: $b = 40 - 2a$.
+        Dann: $A(a) = a \cdot (40 - 2a) = 40a - 2a^2$.
+      - |
+        $A'(a) = 40 - 4a = 0$, also $a = 10\,\text{cm}$.
+        Dann $b = 40 - 20 = 20\,\text{cm}$ und $A = 10 \cdot 20 = 200\,\text{cm}^2$.
+      - "$A''(a) = -4 < 0$ bestätigt: es ist ein Maximum."
+    errorPatterns:
+      "20; 20; 400": "Wenn $a = 20$, dann $b = 40 - 40 = 0$ — kein Boden! Die Nebenbedingung ist $2a + b = 40$."
+      "10; 10; 100": "$b = 40 - 2a = 40 - 20 = 20$, nicht $10$."
+    as6_ziel: Z3
+    kontext: Elektronik
+
+  # ============================================================
+  # BLOCK 3: ABSCHNITTSWEISE FUNKTIONEN (3 Aufgaben, Z4)
+  # ============================================================
+
+  - id: mod9
+    type: choice
+    difficulty: leicht
+    question: |
+      **Temperaturverlauf im Härteofen — Stetigkeit**
+
+      Beim Härten von Stahl durchläuft das Werkstück drei Phasen.
+      Die Temperatur $T$ (in °C) wird abschnittsweise modelliert:
+
+      $$T(t) = \begin{cases}
+      50t & \text{für } 0 \leq t \leq 4 \quad \text{(Aufheizen)} \\
+      200 & \text{für } 4 < t \leq 8 \quad \text{(Halten)} \\
+      -25t + 400 & \text{für } 8 < t \leq 16 \quad \text{(Abkühlen)}
+      \end{cases}$$
+
+      Dabei ist $t$ die Zeit in Stunden.
+
+      **Ist die Temperaturfunktion stetig? Prüfen Sie die Nahtstellen
+      $t = 4$ und $t = 8$.**
+    options:
+      - "Stetig an beiden Stellen: $T$ springt nirgends."
+      - "Unstetig bei $t = 4$, stetig bei $t = 8$."
+      - "Stetig bei $t = 4$, unstetig bei $t = 8$."
+      - "Unstetig an beiden Stellen."
+    correct: 0
+    hints:
+      - |
+        Prüfen Sie $t = 4$: Von links: $50 \cdot 4 = 200$.
+        Von rechts: $T = 200$. → $200 = 200$ ✓
+      - |
+        Prüfen Sie $t = 8$: Von links: $T = 200$.
+        Von rechts: $-25 \cdot 8 + 400 = 200$. → $200 = 200$ ✓
+        Die Funktion ist an beiden Nahtstellen stetig (kein Sprung).
+    as6_ziel: Z4
+    kontext: Werkstoffprüfung
+
+  - id: mod10
+    type: freitext
+    difficulty: mittel
+    question: |
+      **Spannungs-Dehnungs-Diagramm — Differenzierbarkeit**
+
+      Bei einem Zugversuch wird das Verhalten eines Baustahls
+      abschnittsweise modelliert:
+
+      $$\sigma(\varepsilon) = \begin{cases}
+      100\,\varepsilon & \text{für } 0 \leq \varepsilon \leq 3 \quad \text{(elastisch)} \\
+      -5(\varepsilon - 7)^2 + 380 & \text{für } 3 < \varepsilon \leq 10 \quad \text{(plastisch)}
+      \end{cases}$$
+
+      Dabei ist $\varepsilon$ die Dehnung in ‰ und $\sigma$ die Spannung in MPa.
+
+      **a)** Prüfen Sie die Stetigkeit bei $\varepsilon = 3$: Stimmen die
+      Funktionswerte von links und rechts überein?
+
+      **b)** Prüfen Sie die Differenzierbarkeit bei $\varepsilon = 3$: Stimmen
+      die Ableitungen von links und rechts überein?
+
+      **c)** Bestimmen Sie die maximale Spannung $\sigma_{\max}$ und die
+      zugehörige Dehnung.
+
+      Format: `stetig ja/nein; differenzierbar ja/nein; σ_max; ε_max`
+    answer: "ja; nein; 380; 7"
+    accepts:
+      - "ja; nein; 380; 7"
+      - "ja;nein;380;7"
+      - "stetig; nicht differenzierbar; 380; 7"
+    hints:
+      - |
+        Stetigkeit: $\sigma_1(3) = 100 \cdot 3 = 300$.
+        $\sigma_2(3) = -5(3 - 7)^2 + 380 = -5 \cdot 16 + 380 = 300$. ✓ Stetig!
+      - |
+        Differenzierbarkeit: $\sigma_1'(\varepsilon) = 100$, also $\sigma_1'(3) = 100$.
+        $\sigma_2'(\varepsilon) = -10(\varepsilon - 7)$, also $\sigma_2'(3) = -10 \cdot (-4) = 40$.
+        $100 \neq 40$ → **nicht differenzierbar** (Knick!).
+      - |
+        Maximum: $\sigma_2'(\varepsilon) = 0$ bei $\varepsilon = 7$.
+        $\sigma_2(7) = -5 \cdot 0 + 380 = 380\,\text{MPa}$.
+    errorPatterns:
+      "ja; ja; 380; 7": "Ableitungen vergleichen! $\\sigma_1'(3) = 100$, aber $\\sigma_2'(3) = 40$ → nicht gleich → Knick!"
+      "nein; nein; 380; 7": "Beide Funktionswerte bei $\\varepsilon = 3$ sind $300$ — die Funktion IST stetig."
+    as6_ziel: Z4
+    kontext: Werkstoffprüfung
+
+  - id: mod11
+    type: freitext
+    difficulty: schwer
+    question: |
+      **CNC-Werkstück — Höhenprofil analysieren**
+
+      Ein CNC-gefrästes Werkstück hat ein Höhenprofil, das durch zwei
+      Funktionen beschrieben wird:
+
+      $$h(x) = \begin{cases}
+      x^2 & \text{für } 0 \leq x \leq 1 \\
+      -(x - 2)^2 + 2 & \text{für } 1 < x \leq 3
+      \end{cases}$$
+
+      Dabei ist $x$ die horizontale Position in cm und $h$ die Höhe in mm.
+      Für die Qualitätskontrolle müssen Sie das Profil vollständig
+      untersuchen.
+
+      **a)** Ist das Profil bei $x = 1$ stetig und differenzierbar?
+
+      **b)** Bestimmen Sie die maximale Höhe des Werkstücks und die
+      Position, an der sie auftritt.
+
+      **c)** Welche Höhe hat das Werkstück am rechten Rand ($x = 3$)?
+
+      Format: `stetig ja/nein; diff. ja/nein; h_max; x_max; h(3)`
+    answer: "ja; ja; 2; 2; 1"
+    accepts:
+      - "ja; ja; 2; 2; 1"
+      - "ja;ja;2;2;1"
+      - "stetig; differenzierbar; 2; 2; 1"
+    hints:
+      - |
+        Stetigkeit bei $x = 1$:
+        $h_1(1) = 1^2 = 1$ und $h_2(1) = -(1-2)^2 + 2 = -1 + 2 = 1$. ✓
+      - |
+        Differenzierbarkeit bei $x = 1$:
+        $h_1'(x) = 2x$, also $h_1'(1) = 2$.
+        $h_2'(x) = -2(x-2)$, also $h_2'(1) = -2 \cdot (-1) = 2$. ✓
+        Stetig UND differenzierbar!
+      - |
+        Maximum von $h_2$: $h_2'(x) = 0$ bei $x = 2$.
+        $h_2(2) = 0 + 2 = 2\,\text{mm}$.
+        Am Rand: $h_2(3) = -(3-2)^2 + 2 = -1 + 2 = 1\,\text{mm}$.
+    errorPatterns:
+      "ja; nein; 2; 2; 1": "Ableitungen nachrechnen: $h_1'(1) = 2$ und $h_2'(1) = 2$ — sie SIND gleich!"
+      "ja; ja; 1; 1; 1": "Bei $x = 1$ ist $h = 1$, aber das ist kein Maximum. Untersuchen Sie $h_2$ auf Extrema!"
+    as6_ziel: Z4
+    kontext: CNC
+
+  # ============================================================
+  # BLOCK 4: MODELLKRITIK (3 Aufgaben, Z5)
+  # ============================================================
+
+  - id: mod12
+    type: choice
+    difficulty: mittel
+    question: |
+      **Extrapolation — Risiken erkennen**
+
+      Sie haben eine quadratische Regressionsfunktion für die
+      Betondruckfestigkeit in Abhängigkeit vom w/z-Wert bestimmt.
+      Die Messdaten lagen im Bereich $0{,}35 \leq w/z \leq 0{,}65$.
+
+      Ihr Auftraggeber fragt: „Was ergibt das Modell für $w/z = 1{,}0$?"
+
+      Sie rechnen nach und erhalten einen negativen Wert für die
+      Druckfestigkeit.
+
+      **Welche Schlussfolgerung ist fachlich korrekt?**
+    options:
+      - "Das Modell ist falsch und muss komplett verworfen werden."
+      - "Negative Druckfestigkeit ist physikalisch unmöglich — das Modell darf nicht so weit über den Messbereich hinaus extrapoliert werden."
+      - "Negative Druckfestigkeit bedeutet, dass der Beton unter Zug steht."
+      - "Man muss einfach den Betrag nehmen: $|f(1{,}0)|$."
+    correct: 1
+    hints:
+      - |
+        Polynomfunktionen können beliebig große oder kleine Werte annehmen.
+        Außerhalb des Messbereichs gibt es keine Garantie, dass das Modell
+        die Realität noch beschreibt.
+      - |
+        Korrekt ist: Das Modell liefert im Messbereich gute Ergebnisse
+        ($R^2$ hoch), aber bei $w/z = 1{,}0$ ist es nicht mehr gültig.
+        Druckfestigkeit kann physikalisch nicht negativ werden!
+    as6_ziel: Z5
+    kontext: Werkstoffprüfung
+
+  - id: mod13
+    type: freitext
+    difficulty: schwer
+    question: |
+      **Modellvergleich — Welche Funktion passt?**
+
+      Ein Temperatursensor liefert über 24 Stunden folgende
+      Außentemperaturen (vereinfacht):
+
+      | Zeit $t$ (h) | 0 | 4 | 8 | 12 | 16 | 20 | 24 |
+      |---|---|---|---|---|---|---|---|
+      | Temperatur $T$ (°C) | 5 | 3 | 8 | 18 | 16 | 9 | 5 |
+
+      Ein Kollege schlägt ein Polynom 6. Grades vor (geht durch alle Punkte,
+      $R^2 = 1$). Ein anderer schlägt ein quadratisches Modell vor
+      ($R^2 = 0{,}72$).
+
+      **Nennen Sie zwei Argumente, warum das Polynom 6. Grades trotz
+      $R^2 = 1$ problematisch sein kann, und ein Argument für das
+      einfachere quadratische Modell.**
+
+      *(Freitext — formulieren Sie in ganzen Sätzen.)*
+    answer: |
+      1) Ein Polynom 6. Grades passt sich den Daten exakt an (Overfitting),
+      schwingt aber zwischen den Messpunkten möglicherweise stark — es
+      bildet physikalisch unsinnige Zwischenwerte.
+      2) Prognosen außerhalb des Messbereichs sind mit hohem Grad extrem
+      unzuverlässig, da das Polynom schnell divergiert.
+      3) Das quadratische Modell ist robuster: Es glättet Messrauschen
+      und liefert einen plausiblen Trendverlauf.
+    accepts: []
+    hints:
+      - |
+        Denken Sie an **Overfitting**: Ein Polynom hohen Grades kann die Daten
+        exakt treffen, aber zwischen den Punkten wild schwanken.
+      - |
+        Zwei Probleme: (1) Zwischen den Messpunkten kann das Polynom
+        unrealistische Werte annehmen (z. B. $-10\,°\text{C}$ mitten am Tag).
+        (2) Außerhalb von $0 \leq t \leq 24$ divergiert es extrem.
+      - |
+        Vorteil des einfacheren Modells: Es glättet Messrauschen und gibt
+        den generellen Trend wieder, auch wenn einzelne Punkte nicht exakt
+        getroffen werden.
+    as6_ziel: Z5
+    kontext: Messtechnik
+
+  - id: mod14
+    type: freitext
+    difficulty: mittel
+    question: |
+      **Reflexion: Grenzen ganzrationaler Modelle**
+
+      In dieser Unit haben Sie verschiedene technische Zusammenhänge mit
+      ganzrationalen Funktionen (Polynomen) modelliert: Widerstand vs.
+      Temperatur, Betondruckfestigkeit, Spannungs-Dehnungs-Diagramme,
+      Temperaturverläufe.
+
+      **Nennen Sie je zwei Vorteile und zwei Nachteile/Grenzen der
+      Modellierung mit ganzrationalen Funktionen.**
+
+      *(Freitext — formulieren Sie in ganzen Sätzen.)*
+    answer: |
+      Vorteile:
+      1) Polynome lassen sich leicht ableiten und integrieren — Extrema,
+      Wendepunkte und Flächen sind analytisch berechenbar.
+      2) Regression mit Polynomen ist mit jedem CAS oder Taschenrechner
+      durchführbar — die Methode ist universell verfügbar.
+
+      Nachteile/Grenzen:
+      1) Polynome wachsen für große |x| über alle Grenzen — sie können
+      physikalische Sättigungseffekte oder Grenzwerte nicht darstellen.
+      2) Hoher Polynomgrad führt zu Overfitting: Das Modell passt perfekt
+      zu den Daten, aber schwingt dazwischen und liefert keine sinnvollen
+      Prognosen.
+    accepts: []
+    hints:
+      - |
+        **Vorteile:** Denken Sie an die mathematische Handhabbarkeit
+        (Ableitung, Integration) und die Verfügbarkeit der Werkzeuge
+        (CAS, Taschenrechner).
+      - |
+        **Nachteile:** Was passiert bei großen $x$-Werten?
+        Können Polynome Sättigungseffekte oder periodische Vorgänge
+        (z. B. Temperaturverlauf über mehrere Tage) abbilden?
+      - |
+        Beispiel: Der Pt100-Widerstand ist im Messbereich linear, aber
+        bei sehr hohen Temperaturen krümmt sich die Kennlinie — ein
+        Polynom kann das nur mit hohem Grad annähern, und dann droht
+        Overfitting.
+    as6_ziel: Z5
+    kontext: Messtechnik

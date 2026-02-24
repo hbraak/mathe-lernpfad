@@ -1,0 +1,381 @@
+unit:
+  id: steckbrief
+  title: "Steckbriefaufgaben"
+  description: |
+    Sie lernen, wie man aus gegebenen Eigenschaften (Punkte, Extrema, Steigungen)
+    die passende Funktionsgleichung rekonstruiert — eine Schlüsseltechnik
+    für technische Modellierungen.
+  explanation: |
+    <h3>Vorgehen bei Steckbriefaufgaben</h3>
+    <ol style="margin-left:1.5rem; line-height:2.2;">
+      <li><strong>Funktionstyp wählen:</strong> Grad $n$ → $n+1$ Koeffizienten → Sie brauchen $n+1$ Bedingungen</li>
+      <li><strong>Bedingungen in Gleichungen übersetzen:</strong>
+        <ul>
+          <li>Punkt $(x_0 | y_0)$: Setze ein → $f(x_0) = y_0$</li>
+          <li>Extremum bei $x_0$: Die Steigung ist Null → $f'(x_0) = 0$</li>
+          <li>Wendepunkt bei $x_0$: Die Krümmung wechselt → $f''(x_0) = 0$</li>
+          <li>Steigung $m$ bei $x_0$: $f'(x_0) = m$</li>
+        </ul>
+      </li>
+      <li><strong>LGS aufstellen und lösen</strong> (Gauß-Verfahren oder CAS)</li>
+      <li><strong>Ergebnis prüfen:</strong> Setzen Sie die Lösung zurück in alle Bedingungen ein!</li>
+    </ol>
+    <div style="margin-top:1rem; padding:0.8rem; background:#fff3cd; border-radius:8px; color:#333;">
+      <strong>Merke:</strong> Quadratische Funktion → 3 Koeffizienten → 3 Bedingungen.
+      Kubische Funktion → 4 Koeffizienten → 4 Bedingungen.
+    </div>
+  lernpfad: 2
+  bildungsplan:
+    as: 6
+    ziele: [Z1]
+  masteryThreshold: 0.7
+  order: 8
+
+tasks:
+  # ============================================================
+  # GEFÜHRT: Schritt für Schritt zum LGS
+  # ============================================================
+
+  - id: sb1
+    type: freitext
+    difficulty: leicht
+    question: |
+      **Werkstückprofil — Bedingungen aufstellen**
+
+      Ein Werkstück hat ein Querschnittsprofil, das durch eine quadratische
+      Funktion beschrieben wird:
+      $$f(x) = ax^2 + bx + c$$
+
+      Aus der technischen Zeichnung liest Sie folgende Informationen ab:
+      - Am linken Rand ($x = 0$) beträgt die Höhe $2\,\text{cm}$.
+      - Am rechten Rand ($x = 4$) beträgt die Höhe $10\,\text{cm}$.
+      - Am rechten Rand läuft das Profil waagerecht aus (horizontale Tangente).
+
+      **Übersetze die erste Bedingung** „Höhe $2\,\text{cm}$ bei $x = 0$" in eine
+      Gleichung für die Koeffizienten $a$, $b$, $c$.
+    answer: "c=2"
+    accepts:
+      - "c=2"
+      - "c = 2"
+      - "f(0)=2"
+    hints:
+      - |
+        Setze $x = 0$ in $f(x) = ax^2 + bx + c$ ein:
+        $f(0) = a \cdot 0^2 + b \cdot 0 + c = c$.
+      - "Da $f(0) = 2$, folgt direkt: $c = 2$."
+    errorPatterns:
+      "a=2": "Nicht $a$ — setze $x = 0$ ein: $f(0) = a \\cdot 0 + b \\cdot 0 + c = c$."
+      "2": "Richtig gedacht! Schreibe es als Gleichung: $c = 2$."
+
+  - id: sb2
+    type: freitext
+    difficulty: leicht
+    question: |
+      **Werkstückprofil — LGS lösen**
+
+      Aus dem Werkstückprofil $f(x) = ax^2 + bx + c$ mit den drei Bedingungen
+      ergibt sich das Gleichungssystem:
+
+      $$\begin{cases} c = 2 \\ 16a + 4b + c = 10 \\ 8a + b = 0 \end{cases}$$
+
+      Die erste Gleichung sagt Ihnen sofort: $c = 2$.
+      Die dritte gibt Ihnen $b$ in Abhängigkeit von $a$: $b = -8a$.
+
+      **Setzen Sie beides in die zweite Gleichung ein und berechne $a$, $b$ und $c$.**
+      Gib Ihr Ergebnis als `a; b; c` an.
+    answer: "-1/2; 4; 2"
+    accepts:
+      - "-1/2; 4; 2"
+      - "-0.5; 4; 2"
+      - "-0,5; 4; 2"
+      - "a=-1/2, b=4, c=2"
+      - "-0.5;4;2"
+    hints:
+      - |
+        Einsetzen: $16a + 4(-8a) + 2 = 10$.
+        Vereinfache: $16a - 32a = 8$, also $-16a = 8$.
+      - "$a = -\\frac{1}{2}$. Dann $b = -8 \\cdot (-\\frac{1}{2}) = 4$. Und $c = 2$."
+    errorPatterns:
+      "1/2; 4; 2": "Vorzeichen beachten! $-16a = 8$ ergibt $a = -\\frac{1}{2}$."
+      "-1/2; -4; 2": "$b = -8a = -8 \\cdot (-\\frac{1}{2}) = +4$, nicht $-4$."
+
+  # ============================================================
+  # HALBGEFÜHRT: Bedingungen selbst aufstellen
+  # ============================================================
+
+  - id: sb3
+    type: freitext
+    difficulty: mittel
+    question: |
+      **Übergangskurve im Straßenbau**
+
+      Zwei gerade Fahrbahnabschnitte sollen durch eine glatte Kurve
+      verbunden werden:
+      - Links (für $x \leq 0$): Die Fahrbahn liegt auf Höhe $y = 0$.
+      - Rechts (für $x \geq 2$): Die Fahrbahn liegt auf Höhe $y = 1\,\text{m}$.
+
+      Im Bereich $0 \leq x \leq 2$ wird die Verbindung durch ein Polynom
+      $f(x) = ax^3 + bx^2$ beschrieben (ohne linearen und konstanten Term).
+
+      Damit kein Knick entsteht, müssen an den Nahtstellen $x = 0$ und $x = 2$
+      sowohl der **Funktionswert** als auch die **Steigung** übereinstimmen.
+
+      **Stellen Sie die Bedingungen bei $x = 2$ auf und berechne $a$ und $b$.**
+      (Die Bedingungen bei $x = 0$ sind automatisch erfüllt — überleg sich warum!)
+
+      Gib Ihr Ergebnis als `a; b` an (als Bruch).
+    answer: "-1/4; 3/4"
+    accepts:
+      - "-1/4; 3/4"
+      - "-0.25; 0.75"
+      - "-0,25; 0,75"
+      - "a=-1/4, b=3/4"
+    hints:
+      - |
+        Bei $x = 2$ muss gelten:
+        $f(2) = 8a + 4b = 1$ (Anschluss an $y = 1$)
+        $f'(2) = 12a + 4b = 0$ (Steigung $= 0$, weil rechts waagerecht)
+      - |
+        Subtrahiere die Gleichungen: $(12a + 4b) - (8a + 4b) = 0 - 1$
+        $4a = -1$, also $a = -\\frac{1}{4}$.
+      - "Einsetzen: $4b = -12 \\cdot (-\\frac{1}{4}) = 3$, also $b = \\frac{3}{4}$."
+    errorPatterns:
+      "1/4; 3/4": "Vorzeichen! Aus $4a = -1$ folgt $a = -\\frac{1}{4}$."
+      "-1/4; -3/4": "$4b = -12a = -12 \\cdot (-1/4) = +3$, also $b = +\\frac{3}{4}$."
+
+  - id: sb4
+    type: choice
+    difficulty: mittel
+    question: |
+      **Übergangskurve — Knickfreiheit prüfen**
+
+      Sie haben berechnet: $f(x) = -\frac{1}{4}x^3 + \frac{3}{4}x^2$.
+
+      Jetzt sollst Sie prüfen, ob die Kurve wirklich knickfrei an beide
+      geraden Stücke anschließt. Dafür müssen an den Nahtstellen $x = 0$
+      und $x = 2$ jeweils **Funktionswert und Steigung** übereinstimmen.
+
+      **Welche Aussage ist richtig?**
+    options:
+      - "Knickfrei an beiden Stellen: $f(0) = 0$, $f'(0) = 0$, $f(2) = 1$, $f'(2) = 0$ — alles passt"
+      - "Nur bei $x = 0$ knickfrei, bei $x = 2$ springt die Steigung"
+      - "Nur bei $x = 2$ knickfrei, bei $x = 0$ gibt es einen Knick"
+      - "An keiner Stelle knickfrei — man bräuchte ein Polynom höheren Grades"
+    correct: 0
+    hints:
+      - |
+        Rechnen Sie nach: $f(0) = 0$ ✓ (passt zu $y = 0$ links).
+        $f'(x) = -\\frac{3}{4}x^2 + \\frac{3}{2}x$, also $f'(0) = 0$ ✓ (Steigung links ist auch $0$).
+      - |
+        $f(2) = -2 + 3 = 1$ ✓ und $f'(2) = -3 + 3 = 0$ ✓.
+        An beiden Stellen stimmen Funktionswert UND Steigung überein — knickfrei!
+
+  - id: sb5
+    type: freitext
+    difficulty: mittel
+    question: |
+      **Spannungs-Dehnungs-Diagramm**
+
+      In der Werkstoffprüfung beschreibt man das Verhalten eines Metalls unter
+      Zugbelastung durch ein Spannungs-Dehnungs-Diagramm. Sie modellieren den
+      Bereich bis zur Zugfestigkeit mit einer quadratischen Funktion:
+      $$\sigma(\varepsilon) = a\varepsilon^2 + b\varepsilon$$
+
+      Aus dem Zugversuch kennst du:
+      - Ohne Dehnung keine Spannung: $\sigma(0) = 0$ (automatisch erfüllt ✓)
+      - Bei Dehnung $\varepsilon = 2\,\%$ wird die **Zugfestigkeit** $\sigma = 400\,\text{MPa}$ erreicht.
+      - Bei der Zugfestigkeit hat $\sigma$ ein **Maximum**: $\sigma'(2) = 0$.
+
+      **Berechne $a$ und $b$.**
+      Gib Ihr Ergebnis als `a; b` an.
+    answer: "-100; 400"
+    accepts:
+      - "-100; 400"
+      - "-100;400"
+      - "a=-100, b=400"
+      - "a=-100;b=400"
+    hints:
+      - |
+        Zwei Bedingungen, zwei Unbekannte:
+        $\sigma(2) = 4a + 2b = 400$
+        $\sigma'(\varepsilon) = 2a\varepsilon + b$, also $\sigma'(2) = 4a + b = 0$
+      - |
+        Subtrahiere: $(4a + 2b) - (4a + b) = 400 - 0$, also $b = 400$.
+        Einsetzen: $4a + 400 = 0$, also $a = -100$.
+    errorPatterns:
+      "100; 400": "Vorzeichen! Aus $4a + 400 = 0$ folgt $a = -100$."
+
+  # ============================================================
+  # SELBSTSTÄNDIG: Komplett eigener Lösungsweg
+  # ============================================================
+
+  - id: sb6
+    type: freitext
+    difficulty: schwer
+    question: |
+      **Nichtlineare Federkennlinie**
+
+      Eine Spezialfeder für einen Stoßdämpfer verhält sich nicht linear.
+      Die Kraft $F$ (in Newton) in Abhängigkeit vom Federweg $s$ (in cm)
+      wird durch eine quadratische Funktion modelliert:
+      $$F(s) = as^2 + bs + c$$
+
+      Im Labor wurden drei Messpunkte aufgenommen:
+
+      | Federweg $s$ (cm) | 0 | 2 | 5 |
+      |---|---|---|---|
+      | Kraft $F$ (N)      | 0 | 10 | 40 |
+
+      **Bestimmen Sie die drei Koeffizienten $a$, $b$ und $c$.**
+      Gib Ihr Ergebnis als `a; b; c` an.
+    answer: "1; 3; 0"
+    accepts:
+      - "1; 3; 0"
+      - "1;3;0"
+      - "a=1, b=3, c=0"
+      - "1, 3, 0"
+    hints:
+      - |
+        Setzen Sie die drei Punkte nacheinander ein:
+        $F(0) = c = 0$.
+        $F(2) = 4a + 2b = 10$.
+        $F(5) = 25a + 5b = 40$.
+      - |
+        Mit $c = 0$ bleiben zwei Gleichungen:
+        $4a + 2b = 10$ und $25a + 5b = 40$.
+        Aus der ersten: $2a + b = 5$, also $b = 5 - 2a$.
+      - |
+        Einsetzen: $25a + 5(5 - 2a) = 40$ → $25a + 25 - 10a = 40$
+        → $15a = 15$ → $a = 1$, $b = 3$, $c = 0$.
+    errorPatterns:
+      "0; 5; 0": "Das wäre linear ($F = 5s$). Aber $F(5) = 25 \\neq 40$ — passt nicht!"
+      "1; 3; 10": "$F(0) = c$. Da $F(0) = 0$, muss $c = 0$ sein."
+
+  - id: sb7
+    type: freitext
+    difficulty: schwer
+    question: |
+      **Temperaturverlauf in einem Reaktor**
+
+      Die Temperatur in einem chemischen Reaktor wird durch ein kubisches
+      Polynom modelliert:
+      $$T(t) = at^3 + bt^2 + ct + d \quad \text{(°C, } t \text{ in Stunden)}$$
+
+      Aus den Messdaten und der Prozesssteuerung kennst du:
+      - Starttemperatur: $T(0) = 20\,°\text{C}$
+      - Der Reaktor wird langsam hochgefahren, die Temperatur steigt anfangs
+        **nicht** sofort: $T'(0) = 0$
+      - Nach $4$ Stunden wird die Maximaltemperatur $T(4) = 52\,°\text{C}$ gemessen.
+      - Nach $6$ Stunden ist die Temperatur wieder auf dem Startwert: $T(6) = 20\,°\text{C}$
+
+      Das sind 4 Bedingungen für 4 Unbekannte.
+
+      **Bestimmen Sie die Funktionsgleichung.** Geben Sie die Koeffizienten als
+      `a; b; c; d` an (ganzzahlig).
+    answer: "-1; 6; 0; 20"
+    accepts:
+      - "-1; 6; 0; 20"
+      - "-1;6;0;20"
+      - "a=-1, b=6, c=0, d=20"
+      - "-1, 6, 0, 20"
+    hints:
+      - |
+        Aus $T(0) = d = 20$ und $T'(0) = c = 0$ folgt sofort: $d = 20$, $c = 0$.
+        Es bleiben zwei Gleichungen für $a$ und $b$.
+      - |
+        $T(4) = 52$: $64a + 16b + 20 = 52$, also $64a + 16b = 32$ → $4a + b = 2$.
+        $T(6) = 20$: $216a + 36b + 20 = 20$, also $216a + 36b = 0$ → $6a + b = 0$.
+      - |
+        Subtrahiere: $(6a + b) - (4a + b) = 0 - 2$, also $2a = -2$, $a = -1$.
+        Einsetzen: $b = -6 \cdot (-1) = 6$.
+        Ergebnis: $T(t) = -t^3 + 6t^2 + 20$.
+    errorPatterns:
+      "1; 6; 0; 20": "Vorzeichen! $2a = -2$, also $a = -1$."
+      "-1; -6; 0; 20": "$b = -6a = -6 \\cdot (-1) = +6$."
+
+  # ============================================================
+  # REFLEXION
+  # ============================================================
+
+  - id: sb8
+    type: choice
+    difficulty: leicht
+    question: |
+      **Reflexion: Wie viele Bedingungen braucht man?**
+
+      Sie sollen eine ganzrationale Funktion **dritten Grades** bestimmen:
+      $$f(x) = ax^3 + bx^2 + cx + d$$
+
+      **Wie viele Bedingungen brauchen Sie mindestens, um alle vier
+      Koeffizienten eindeutig zu bestimmen?**
+    options:
+      - "3 Bedingungen"
+      - "4 Bedingungen"
+      - "5 Bedingungen"
+      - "Das hängt von der Aufgabe ab"
+    correct: 1
+    hints:
+      - |
+        Zähle die Unbekannten: $a$, $b$, $c$, $d$ — das sind 4.
+        Jede Bedingung (Punkt, Extremum, Steigung, ...) liefert eine Gleichung.
+      - |
+        4 Unbekannte → 4 Gleichungen → **4 Bedingungen**.
+        Wichtig: Die Bedingungen müssen **voneinander unabhängig** sein!
+
+  - id: sb9
+    type: choice
+    difficulty: mittel
+    question: |
+      **Reflexion: Abhängige Bedingungen**
+
+      Sie modellieren eine symmetrische Brückenkontur mit
+      $f(x) = ax^4 + bx^2 + c$ (nur gerade Exponenten).
+
+      Bedingungen:
+      - Scheitelpunkt: $f(0) = 8$
+      - Auflager links: $f(-5) = 0$
+      - Auflager rechts: $f(5) = 0$
+
+      Das sind 3 Bedingungen für 3 Unbekannte ($a$, $b$, $c$). Trotzdem
+      liefert das LGS **nur 2 unabhängige Gleichungen**. Warum?
+    options:
+      - "Weil $f(-5) = 0$ und $f(5) = 0$ dasselbe ergeben — die Funktion ist ja symmetrisch!"
+      - "Weil $c = 0$ gilt"
+      - "Weil die Funktion keine ungeraden Exponenten hat"
+      - "Weil 3 Bedingungen nie für 3 Unbekannte reichen"
+    correct: 0
+    hints:
+      - |
+        Setze $x = -5$ und $x = 5$ in $f(x) = ax^4 + bx^2 + c$ ein.
+        Was fällt Ihnen auf?
+      - |
+        $f(-5) = a \cdot 625 + b \cdot 25 + c$ und
+        $f(5) = a \cdot 625 + b \cdot 25 + c$.
+        Identisch! Die Symmetrie macht eine Bedingung überflüssig.
+        Sie brauchen einen weiteren Punkt, z.\,B. $f(3) = 5$.
+
+  - id: sb10
+    type: choice
+    difficulty: mittel
+    question: |
+      **Reflexion: Welche Bedingung gehört wozu?**
+
+      Sie sollen eine Funktion bestimmen, die bei $x = 3$ ein **Maximum**
+      mit dem Funktionswert $5$ hat.
+
+      **Welche zwei Gleichungen ergeben sich daraus?**
+    options:
+      - "$f(3) = 5$ und $f'(3) = 5$"
+      - "$f(3) = 5$ und $f'(3) = 0$"
+      - "$f'(3) = 0$ und $f''(3) = 0$"
+      - "$f(3) = 0$ und $f'(3) = 5$"
+    correct: 1
+    hints:
+      - |
+        Ein Maximum hat zwei Eigenschaften:
+        1. Der **Funktionswert** ist gegeben: $f(3) = 5$
+        2. Die **Steigung** ist Null (horizontale Tangente): $f'(3) = 0$
+      - |
+        Verwechslungsgefahr: $f'(3) = 0$ heißt „Steigung Null",
+        nicht „Funktionswert Null"! Das $f''$ brauchen Sie nur,
+        um zu prüfen ob es ein Maximum oder Minimum ist.

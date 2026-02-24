@@ -12,7 +12,7 @@ Du schreibst **Aufgaben für einen adaptiven Online-Lernpfad** (12. Klasse, Bild
 - **Lehrer:** Heiko Braak (promovierter Physiker)
 - **Werkzeuge der SuS:** TI-Nspire CAS, Laptop
 - **Bildungsplan:** `t3bgy_te_mathe_gk` (Technik-Gymnasium, Mathe GK)
-- **Unterrichtssprache:** Deutsch, Du-Ansprache an SuS
+- **Unterrichtssprache:** Deutsch, **Sie-Ansprache** an SuS (Berufskolleg!)
 
 ## Regeln für Aufgaben
 

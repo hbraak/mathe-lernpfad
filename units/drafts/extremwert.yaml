@@ -1,0 +1,460 @@
+unit:
+  id: extremwert
+  title: "Komplexe Modellierung"
+  description: |
+    Die letzte inhaltliche Unit vor dem Abschlusstest: Sie lösen eigenständig
+    Extremwertaufgaben im Sachkontext, wählen geeignete Modelle und bewerten
+    deren Grenzen. Wenig Hilfestellung — Sie zeigen, was Sie können!
+  explanation: |
+    <h3>Vorgehen bei Extremwertaufgaben</h3>
+    <ol style="margin-left:1.5rem; line-height:2.2;">
+      <li><strong>Zielgröße identifizieren:</strong> Was soll maximiert/minimiert werden?</li>
+      <li><strong>Hauptbedingung aufstellen:</strong> Formel für die Zielgröße</li>
+      <li><strong>Nebenbedingung nutzen:</strong> Eine Variable eliminieren → Zielfunktion in einer Variablen</li>
+      <li><strong>Ableiten, Nullsetzen, Lösen:</strong> $f'(x) = 0$ → kritische Stelle(n)</li>
+      <li><strong>Art des Extremums prüfen:</strong> $f''(x) < 0$ → Maximum, $f''(x) > 0$ → Minimum</li>
+      <li><strong>Ergebnis interpretieren:</strong> Einheiten, Plausibilität, Definitionsbereich</li>
+    </ol>
+    <div style="margin-top:1rem; padding:0.8rem; background:#fff3cd; border-radius:8px; color:#333;">
+      <strong>Tipp:</strong> Fertigen Sie immer eine Skizze an! Sie hilft, die Nebenbedingung zu finden.
+    </div>
+  lernpfad: 2
+  bildungsplan:
+    as: 6
+    ziele: [Z1, Z2, Z3, Z4, Z5]
+  masteryThreshold: 0.7
+  order: 10
+
+tasks:
+  # ============================================================
+  # AUFGABE 1: Solarfeld (Extremwert, mittel — Einstieg)
+  # ============================================================
+
+  - id: ex1
+    type: freitext
+    difficulty: mittel
+    question: |
+      **Solarfeld an einer Gebäudewand**
+
+      Auf dem Dach eines Industriegebäudes soll ein rechteckiges Solarfeld
+      installiert werden. Eine Seite des Feldes liegt direkt an der Gebäudewand
+      (dort ist kein Zaun nötig). Für die drei übrigen Seiten stehen insgesamt
+      $120\,\text{m}$ Montageprofile zur Verfügung.
+
+      Bezeichnen Sie die Seite senkrecht zur Wand mit $x$ und die Seite
+      parallel zur Wand mit $y$.
+
+      **Bestimmen Sie die Maße $x$ und $y$, bei denen die Fläche des
+      Solarfeldes maximal wird.**
+
+      Geben Sie Ihr Ergebnis als `x; y` an (in Metern).
+    answer: "30; 60"
+    accepts:
+      - "30; 60"
+      - "30;60"
+      - "x=30, y=60"
+      - "30 m; 60 m"
+    hints:
+      - |
+        Die Nebenbedingung lautet: $2x + y = 120$, also $y = 120 - 2x$.
+        Die Zielfunktion ist die Fläche: $A(x) = x \cdot y = x(120 - 2x)$.
+      - |
+        $A(x) = 120x - 2x^2$.
+        $A'(x) = 120 - 4x = 0$ → $x = 30$.
+        $A''(x) = -4 < 0$ → Maximum.
+      - "$y = 120 - 2 \\cdot 30 = 60$. Die maximale Fläche beträgt $A = 30 \\cdot 60 = 1800\\,\\text{m}^2$."
+    errorPatterns:
+      "60; 30": "Prüfen Sie die Zuordnung: $x$ ist die Seite senkrecht zur Wand (kommt zweimal vor), $y$ parallel."
+      "40; 40": "Das wäre ein Quadrat, aber die optimale Form ist hier kein Quadrat, weil eine Seite fehlt."
+    as6_ziel: Z1
+    kontext: Energietechnik
+
+  # ============================================================
+  # AUFGABE 2: Blechkanal (Extremwert, mittel)
+  # ============================================================
+
+  - id: ex2
+    type: freitext
+    difficulty: mittel
+    question: |
+      **Entwässerungskanal aus Blech**
+
+      In einer Produktionshalle soll ein offener Entwässerungskanal mit
+      rechteckigem Querschnitt aus einem $30\,\text{cm}$ breiten Blechstreifen
+      gebogen werden. Dazu werden links und rechts die Ränder senkrecht
+      nach oben gebogen.
+
+      Bezeichnen Sie die Höhe der hochgebogenen Seiten mit $h$ (in cm).
+      Die Breite des Kanalbodens ist dann $b = 30 - 2h$.
+
+      **Welche Höhe $h$ ergibt den größten Querschnitt?**
+      Geben Sie $h$ in cm an.
+    answer: "7,5"
+    accepts:
+      - "7,5"
+      - "7.5"
+      - "7,5 cm"
+      - "7.5 cm"
+      - "15/2"
+    hints:
+      - |
+        Der Querschnitt (Fläche) ist $A(h) = h \cdot (30 - 2h) = 30h - 2h^2$.
+        Definitionsbereich: $0 < h < 15$.
+      - |
+        $A'(h) = 30 - 4h = 0$ → $h = 7{,}5\,\text{cm}$.
+        $A''(h) = -4 < 0$ → Maximum.
+      - "Bodenbreite: $b = 30 - 15 = 15\\,\\text{cm}$. Maximaler Querschnitt: $A = 7{,}5 \\cdot 15 = 112{,}5\\,\\text{cm}^2$."
+    errorPatterns:
+      "15": "Das wäre $h = 15\\,\\text{cm}$ — dann bleibt keine Bodenbreite übrig! Definitionsbereich beachten: $0 < h < 15$."
+      "10": "$A'(10) = 30 - 40 = -10 \\neq 0$. Leiten Sie $A(h) = 30h - 2h^2$ ab und setzen Sie gleich Null."
+    as6_ziel: Z1
+    kontext: Produktion
+
+  # ============================================================
+  # AUFGABE 3: Wärmedämmung (Extremwert + Modellierung, schwer)
+  # ============================================================
+
+  - id: ex3
+    type: freitext
+    difficulty: schwer
+    question: |
+      **Wirtschaftliche Dämmstärke**
+
+      Bei der energetischen Sanierung eines Laborgebäudes muss die optimale
+      Dämmstoffdicke bestimmt werden. Dickere Dämmung spart Heizkosten,
+      verursacht aber höhere Materialkosten.
+
+      Die **jährlichen Heizkosten** pro Quadratmeter Wandfläche sinken
+      umgekehrt proportional zur Dämmdicke $d$ (in cm):
+      $$K_H(d) = \frac{800}{d} \quad \text{(€/m}^2\text{·Jahr)}$$
+
+      Die **jährlichen Dämmkosten** (Material + Amortisation) steigen
+      proportional:
+      $$K_D(d) = 8d \quad \text{(€/m}^2\text{·Jahr)}$$
+
+      **Bestimmen Sie die Dämmdicke $d$, bei der die Gesamtkosten
+      $K(d) = K_H(d) + K_D(d)$ minimal werden.**
+
+      Geben Sie $d$ in cm und $K_{\min}$ in €/(m²·Jahr) an, im Format `d; K_min`.
+    answer: "10; 160"
+    accepts:
+      - "10; 160"
+      - "10;160"
+      - "10 cm; 160"
+      - "d=10, K=160"
+      - "10 cm; 160 €"
+    hints:
+      - |
+        $K(d) = \frac{800}{d} + 8d$.
+        Ableiten: $K'(d) = -\frac{800}{d^2} + 8$.
+      - |
+        $K'(d) = 0$: $\frac{800}{d^2} = 8$ → $d^2 = 100$ → $d = 10\,\text{cm}$.
+        $K''(d) = \frac{1600}{d^3} > 0$ → Minimum.
+      - "$K_{\\min} = \\frac{800}{10} + 8 \\cdot 10 = 80 + 80 = 160\\,\\text{€/(m}^2\\text{·Jahr)}$."
+    errorPatterns:
+      "10; 80": "Sie haben nur eine der beiden Kostenarten berechnet. $K_{\\min} = K_H(10) + K_D(10) = 80 + 80 = 160$."
+      "100; 160": "$d^2 = 100$ → $d = \\sqrt{100} = 10$, nicht $100$!"
+    as6_ziel: Z2
+    kontext: Bauwesen
+
+  # ============================================================
+  # AUFGABE 4: Dose / Materialverbrauch (Extremwert, schwer)
+  # ============================================================
+
+  - id: ex4
+    type: freitext
+    difficulty: schwer
+    question: |
+      **Zylindrische Chemikaliendose**
+
+      Für ein Labor sollen zylindrische Dosen mit einem Fassungsvermögen
+      von $V = 500\,\text{cm}^3$ hergestellt werden. Um Material zu sparen,
+      soll die Oberfläche möglichst klein sein. Die Dose hat einen Deckel
+      und einen Boden.
+
+      **Bestimmen Sie Radius $r$ und Höhe $h$ der optimalen Dose.**
+
+      *Hinweis:* Oberfläche des Zylinders: $O = 2\pi r^2 + 2\pi r h$.
+
+      Geben Sie Ihr Ergebnis als `r; h` an (gerundet auf eine Dezimalstelle, in cm).
+    answer: "4,3; 8,6"
+    accepts:
+      - "4,3; 8,6"
+      - "4.3; 8.6"
+      - "4,3;8,6"
+      - "4.3;8.6"
+      - "4,3 cm; 8,6 cm"
+    hints:
+      - |
+        Nebenbedingung: $V = \pi r^2 h = 500$ → $h = \frac{500}{\pi r^2}$.
+        Einsetzen in die Oberfläche: $O(r) = 2\pi r^2 + 2\pi r \cdot \frac{500}{\pi r^2} = 2\pi r^2 + \frac{1000}{r}$.
+      - |
+        $O'(r) = 4\pi r - \frac{1000}{r^2} = 0$ → $4\pi r^3 = 1000$ → $r^3 = \frac{250}{\pi}$ → $r = \sqrt[3]{\frac{250}{\pi}}$.
+      - |
+        $r \approx 4{,}3\,\text{cm}$, $h = \frac{500}{\pi \cdot 4{,}3^2} \approx 8{,}6\,\text{cm}$.
+        Es gilt $h = 2r$ — die optimale Dose ist so hoch wie breit (Durchmesser)!
+    errorPatterns:
+      "4,3; 4,3": "Verwechslung: $h = 2r$, nicht $h = r$. Setzen Sie $r$ in $h = \\frac{500}{\\pi r^2}$ ein."
+      "8,6; 4,3": "Radius und Höhe vertauscht! $r \\approx 4{,}3$ und $h \\approx 8{,}6$."
+    as6_ziel: Z2
+    kontext: Produktion
+
+  # ============================================================
+  # AUFGABE 5: Lagertank (Extremwert, schwer — eigenständig)
+  # ============================================================
+
+  - id: ex5
+    type: freitext
+    difficulty: schwer
+    question: |
+      **Zylindrischer Lagertank**
+
+      Für eine Produktionsanlage wird ein stehender, zylindrischer Lagertank
+      mit einem Volumen von $V = 1\,\text{m}^3$ ($= 1000$ Liter) benötigt.
+      Der Tank hat einen Boden und einen Deckel. Die Herstellungskosten
+      sind proportional zur Oberfläche.
+
+      **Bestimmen Sie das Verhältnis $\dfrac{h}{r}$ beim materialoptimalen Tank.**
+
+      *Diesen Aufgabentyp kennen Sie bereits von der Dose — hier ohne Zahlenwerte,
+      dafür allgemein.*
+
+      Geben Sie $\dfrac{h}{r}$ als ganze Zahl an.
+    answer: "2"
+    accepts:
+      - "2"
+      - "h/r=2"
+      - "h/r = 2"
+    hints:
+      - |
+        Wie bei der Dose: $V = \pi r^2 h$ → $h = \frac{V}{\pi r^2}$.
+        $O(r) = 2\pi r^2 + \frac{2V}{r}$.
+      - |
+        $O'(r) = 4\pi r - \frac{2V}{r^2} = 0$ → $r^3 = \frac{V}{2\pi}$ → $r = \left(\frac{V}{2\pi}\right)^{1/3}$.
+        Dann $h = \frac{V}{\pi r^2}$.
+      - |
+        $\frac{h}{r} = \frac{V}{\pi r^3} = \frac{V}{\pi \cdot \frac{V}{2\pi}} = 2$.
+        Unabhängig vom Volumen gilt: $h = 2r$ (Höhe = Durchmesser).
+    errorPatterns:
+      "1": "Das wäre $h = r$, also Höhe = Radius. Rechnen Sie $\\frac{h}{r} = \\frac{V}{\\pi r^3}$ mit $r^3 = \\frac{V}{2\\pi}$ aus."
+    as6_ziel: Z3
+    kontext: Produktion
+
+  # ============================================================
+  # AUFGABE 6: Rohrleitung (Extremwert + Geometrie, schwer)
+  # ============================================================
+
+  - id: ex6
+    type: freitext
+    difficulty: schwer
+    question: |
+      **Rohrleitung zu einer Offshore-Plattform**
+
+      Eine Gasleitung soll von einer Offshore-Plattform $P$ zu einer
+      Verarbeitungsanlage $A$ an der Küste verlegt werden. Die Plattform
+      liegt $3\,\text{km}$ vor der Küste. Die Anlage liegt $6\,\text{km}$
+      entlang der Küste vom nächstgelegenen Küstenpunkt $K$ entfernt.
+
+      Die Leitung führt zunächst unter Wasser vom Punkt $P$ schräg zu
+      einem Anlandepunkt $X$ an der Küste und dann an Land von $X$ zu $A$.
+      Bezeichnen Sie den Abstand $\overline{KX} = x$ (in km).
+
+      Kosten:
+      - Unterwasser: $800\,\text{€/m}$
+      - An Land: $400\,\text{€/m}$
+
+      **Bei welchem Wert von $x$ sind die Gesamtkosten minimal?**
+
+      Geben Sie $x$ gerundet auf zwei Dezimalstellen an (in km).
+
+      *Fertigen Sie unbedingt eine Skizze an!*
+    answer: "1,73"
+    accepts:
+      - "1,73"
+      - "1.73"
+      - "1,73 km"
+      - "1.73 km"
+      - "sqrt(3)"
+      - "√3"
+    hints:
+      - |
+        Unterwasserstrecke: $\overline{PX} = \sqrt{9 + x^2}$ (Pythagoras).
+        Landstrecke: $\overline{XA} = 6 - x$.
+        Kosten: $K(x) = 800\sqrt{9 + x^2} + 400(6 - x)$ (in €/m · km = k€).
+      - |
+        $K'(x) = \frac{800x}{\sqrt{9 + x^2}} - 400 = 0$
+        → $800x = 400\sqrt{9 + x^2}$ → $2x = \sqrt{9 + x^2}$.
+        Quadrieren: $4x^2 = 9 + x^2$ → $3x^2 = 9$ → $x = \sqrt{3}$.
+      - "$x = \\sqrt{3} \\approx 1{,}73\\,\\text{km}$. Gesamtkosten: $K = 800 \\cdot 2\\sqrt{3} + 400(6 - \\sqrt{3}) \\approx 4478\\,\\text{k€}$."
+    errorPatterns:
+      "3": "Haben Sie vergessen zu quadrieren? Aus $3x^2 = 9$ folgt $x^2 = 3$, also $x = \\sqrt{3} \\approx 1{,}73$."
+      "0": "Bei $x = 0$ wäre die Unterwasserstrecke $3\\,\\text{km}$ und die Landstrecke $6\\,\\text{km}$ — das ist nicht optimal."
+    as6_ziel: Z3
+    kontext: Energietechnik
+
+  # ============================================================
+  # AUFGABE 7: Stückkostenminimierung (Ökonomie + Diff., schwer)
+  # ============================================================
+
+  - id: ex7
+    type: freitext
+    difficulty: schwer
+    question: |
+      **Stückkosten in der Fertigung**
+
+      Die Gesamtkosten für die Produktion von $x$ Bauteilen werden durch
+      folgende Funktion beschrieben:
+      $$K(x) = 2x^2 + 50x + 1800 \quad \text{(€, } x > 0\text{)}$$
+
+      Die **Stückkosten** (= Kosten pro Bauteil) sind:
+      $$k(x) = \frac{K(x)}{x} = 2x + 50 + \frac{1800}{x}$$
+
+      **Bei welcher Stückzahl $x$ sind die Stückkosten minimal?
+      Wie hoch sind die minimalen Stückkosten?**
+
+      Geben Sie Ihr Ergebnis als `x; k_min` an.
+    answer: "30; 170"
+    accepts:
+      - "30; 170"
+      - "30;170"
+      - "x=30, k=170"
+      - "30; 170 €"
+    hints:
+      - |
+        $k(x) = 2x + 50 + \frac{1800}{x}$.
+        Ableiten: $k'(x) = 2 - \frac{1800}{x^2}$.
+      - |
+        $k'(x) = 0$: $\frac{1800}{x^2} = 2$ → $x^2 = 900$ → $x = 30$.
+        $k''(x) = \frac{3600}{x^3} > 0$ → Minimum.
+      - "$k(30) = 60 + 50 + 60 = 170\\,\\text{€/Stück}$."
+    errorPatterns:
+      "900; 170": "$x^2 = 900$, also $x = \\sqrt{900} = 30$, nicht $900$!"
+      "30; 110": "Haben Sie den Term $50$ vergessen? $k(30) = 2 \\cdot 30 + 50 + \\frac{1800}{30} = 60 + 50 + 60 = 170$."
+      "30; 120": "Alle drei Terme addieren: $k(30) = 60 + 50 + 60 = 170$."
+    as6_ziel: Z4
+    kontext: Produktion
+
+  # ============================================================
+  # AUFGABE 8: Gewinnmaximierung (Extremwert + Ökonomie, schwer)
+  # ============================================================
+
+  - id: ex8
+    type: freitext
+    difficulty: schwer
+    question: |
+      **Gewinnmaximierung bei einem Sensorhersteller**
+
+      Ein Unternehmen stellt Temperatursensoren für die Werkstoffprüfung her.
+      Die **Preis-Absatz-Funktion** lautet:
+      $$p(x) = 100 - 2x \quad \text{(€/Stück, } x \text{ in Stück/Tag)}$$
+
+      Die **Gesamtkosten** betragen:
+      $$K(x) = x^2 + 10x + 200 \quad \text{(€/Tag)}$$
+
+      **Bestimmen Sie die gewinnmaximale Stückzahl $x$, den zugehörigen
+      Verkaufspreis $p$ und den maximalen Tagesgewinn $G_{\max}$.**
+
+      Geben Sie Ihr Ergebnis als `x; p; G_max` an.
+    answer: "15; 70; 475"
+    accepts:
+      - "15; 70; 475"
+      - "15;70;475"
+      - "x=15, p=70, G=475"
+    hints:
+      - |
+        Erlös: $E(x) = x \cdot p(x) = 100x - 2x^2$.
+        Gewinn: $G(x) = E(x) - K(x) = 100x - 2x^2 - x^2 - 10x - 200 = -3x^2 + 90x - 200$.
+      - |
+        $G'(x) = -6x + 90 = 0$ → $x = 15$.
+        $G''(x) = -6 < 0$ → Maximum.
+      - |
+        $p(15) = 100 - 30 = 70\\,\\text{€/Stück}$.
+        $G(15) = -3 \\cdot 225 + 90 \\cdot 15 - 200 = -675 + 1350 - 200 = 475\\,\\text{€}$.
+    errorPatterns:
+      "15; 70; 675": "Das ist der Erlös, nicht der Gewinn! $G = E - K = 1050 - 200 - ... $ Rechnen Sie $G(15)$ nochmals."
+      "15; 100; 475": "$p(15) = 100 - 2 \\cdot 15 = 70$, nicht $100$!"
+      "45; 70; 475": "$G'(x) = -6x + 90 = 0$ → $x = 15$, nicht $x = 45$."
+    as6_ziel: Z4
+    kontext: Werkstoffprüfung
+
+  # ============================================================
+  # AUFGABE 9: Modellwahl und Modellkritik (Reflexion, schwer)
+  # ============================================================
+
+  - id: ex9
+    type: choice
+    difficulty: schwer
+    question: |
+      **Modellkritik: Abkühlung eines Werkstücks**
+
+      Nach dem Härten wird ein Stahlwerkstück an Luft abgekühlt.
+      Folgende Temperaturen werden gemessen:
+
+      | $t$ (min) | 0 | 10 | 30 |
+      |---|---|---|---|
+      | $T$ (°C) | 90 | 50 | 24 |
+
+      Zwei Modelle werden angepasst:
+
+      - **Modell A** (quadratisch): $T_A(t) = 0{,}09\,t^2 - 4{,}9\,t + 90$
+      - **Modell B** (exponentiell): $T_B(t) = 20 + 70 \cdot e^{-0{,}088\,t}$
+
+      Beide passen gut zu den Messdaten. Aber für $t = 50\,\text{min}$
+      liefert Modell A den Wert $T_A(50) = 70\,°\text{C}$ — die Temperatur
+      würde also wieder **steigen**.
+
+      **Welche Aussage ist korrekt?**
+    options:
+      - "Modell A ist trotzdem besser, weil Polynome einfacher zu rechnen sind."
+      - "Modell B ist physikalisch sinnvoller, weil eine Abkühlung monoton verläuft — die Temperatur kann nicht von selbst wieder steigen."
+      - "Beide Modelle sind gleichwertig, da sie im Messbereich übereinstimmen."
+      - "Modell A ist besser, weil es den Wert $T = 70\\,°\\text{C}$ bei $t = 50$ korrekt vorhersagt."
+    correct: 1
+    hints:
+      - |
+        Physik: Ein heißes Werkstück an kühlerer Luft kühlt **monoton** ab —
+        die Temperatur nähert sich der Umgebungstemperatur und steigt nie wieder.
+      - |
+        Das quadratische Modell hat ein Minimum bei $t \approx 27$ min und steigt
+        danach wieder. Das widerspricht dem zweiten Hauptsatz der Thermodynamik.
+        Für **Extrapolation** über den Messbereich hinaus ist das Exponentialmodell
+        physikalisch korrekt.
+    as6_ziel: Z5
+    kontext: Werkstoffprüfung
+
+  # ============================================================
+  # AUFGABE 10: Modellkritik Freitext (Reflexion, schwer)
+  # ============================================================
+
+  - id: ex10
+    type: freitext
+    difficulty: schwer
+    question: |
+      **Extrapolationsrisiko**
+
+      Die Leistung $P$ (in kW) einer Photovoltaikanlage wird über einen Tag
+      gemessen und durch ein Polynom vierten Grades modelliert:
+      $$P(t) = -0{,}003\,t^4 + 0{,}12\,t^3 - 1{,}5\,t^2 + 7\,t$$
+      ($t$ in Stunden ab 6:00 Uhr, gültig für $0 \leq t \leq 14$)
+
+      Ein Praktikant berechnet $P(16)$ und erhält einen negativen Wert.
+      Er folgert: „Die Anlage verbraucht abends Strom."
+
+      **Erklären Sie in ein bis zwei Sätzen, warum die Aussage des
+      Praktikanten falsch ist.**
+
+      Verwenden Sie den Fachbegriff „Extrapolation" in Ihrer Antwort.
+    answer: "Das Modell gilt nur im Bereich 0 ≤ t ≤ 14. Der Wert P(16) ist eine Extrapolation über den Gültigkeitsbereich hinaus und daher nicht aussagekräftig."
+    accepts:
+      - ".*[Ee]xtrapolation.*"
+    hints:
+      - |
+        Was bedeutet „gültig für $0 \leq t \leq 14$"?
+        Was passiert, wenn man ein Modell außerhalb seines Gültigkeitsbereichs verwendet?
+      - |
+        **Extrapolation** = Anwendung eines Modells außerhalb des Datenbereichs.
+        Polynome können außerhalb ihres Gültigkeitsbereichs beliebig große oder
+        kleine Werte annehmen — das hat keine physikalische Bedeutung.
+    errorPatterns: {}
+    as6_ziel: Z5
+    kontext: Energietechnik
