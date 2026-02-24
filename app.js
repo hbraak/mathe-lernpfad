@@ -145,6 +145,50 @@ function speechToMathText(raw) {
     return text;
 }
 
+async function speechToMathViaGemini(spokenText) {
+    if (!spokenText?.trim()) return spokenText;
+    if (typeof GEMINI_API_KEY === 'undefined' || !GEMINI_API_KEY) {
+        return speechToMathText(spokenText);
+    }
+    try {
+        const model = typeof GEMINI_MODEL !== 'undefined' ? GEMINI_MODEL : 'gemini-2.5-flash';
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
+        const resp = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{ role: 'user', parts: [{ text: spokenText }] }],
+                systemInstruction: {
+                    parts: [{ text: `Du bist ein Sprache-zu-Mathe-Konverter. Du erhältst gesprochenen deutschen Text und wandelst ihn in mathematische Notation um.
+
+REGELN:
+- Gib NUR die mathematische Formel zurück, NICHTS anderes (kein Text, keine Erklärung)
+- Verwende diese Notation: ^ für Potenzen, sqrt() für Wurzeln, * für Multiplikation, / für Division, e^ für Exponentialfunktion
+- Beispiele:
+  "zwölf x hoch drei" → 12x^3
+  "zehn x plus drei" → 10x+3
+  "eins durch zwei x hoch minus eins halb" → 1/2*x^(-1/2)
+  "e hoch x" → e^x
+  "minus zwei durch x hoch drei" → -2/x^3
+  "x quadrat mal sinus x" → x^2*sin(x)
+  "drei x plus eins hoch fünf" → (3x+1)^5
+  "zwei x mal e hoch x" → 2x*e^x
+  "cosinus von zwei x" → cos(2x)
+- Wenn der Text keine Mathematik enthält, gib ihn unverändert zurück` }]
+                },
+                generationConfig: { maxOutputTokens: 60, temperature: 0.1 }
+            })
+        });
+        if (!resp.ok) throw new Error(`API ${resp.status}`);
+        const data = await resp.json();
+        const result = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+        return result || speechToMathText(spokenText);
+    } catch (e) {
+        console.warn('Gemini math conversion failed, using regex fallback:', e);
+        return speechToMathText(spokenText);
+    }
+}
+
 function stopActiveSpeechInput() {
     if (!activeSpeechSession?.recognition) return;
     try {
@@ -183,15 +227,28 @@ function toggleSpeechInput(inputId, buttonId, useMathTransform = true) {
 
     recognition.onresult = (event) => {
         let transcript = '';
+        let isFinal = false;
         for (let i = 0; i < event.results.length; i++) {
             transcript += `${event.results[i][0].transcript} `;
+            if (event.results[i].isFinal) isFinal = true;
         }
         transcript = transcript.trim();
         if (!transcript) return;
 
-        const normalizedTranscript = useMathTransform ? speechToMathText(transcript) : transcript;
-        input.value = baseText ? `${baseText} ${normalizedTranscript}`.trim() : normalizedTranscript.trim();
+        // Show interim result immediately (regex only)
+        const interimText = useMathTransform ? speechToMathText(transcript) : transcript;
+        input.value = baseText ? `${baseText} ${interimText}`.trim() : interimText.trim();
         if (input.id.startsWith('input-')) renderPreview(input.id);
+
+        // When final, use Gemini for better conversion
+        if (isFinal && useMathTransform) {
+            input.classList.add('converting');
+            speechToMathViaGemini(transcript).then(converted => {
+                input.value = baseText ? `${baseText} ${converted}`.trim() : converted.trim();
+                input.classList.remove('converting');
+                if (input.id.startsWith('input-')) renderPreview(input.id);
+            });
+        }
     };
 
     recognition.onerror = (event) => {

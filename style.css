@@ -171,6 +171,8 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; colo
 }
 .mic-btn:hover { border-color: #3b82f6; color: #f8fafc; }
 .mic-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.task-input-row input.converting { border-color: #f59e0b; animation: convert-pulse 0.8s ease-in-out infinite; }
+@keyframes convert-pulse { 0%,100% { border-color: #f59e0b; } 50% { border-color: #334155; } }
 .mic-btn.recording {
     background: #b91c1c;
     border-color: #ef4444;
