@@ -233,6 +233,16 @@ function toggleSpeechInput(inputId, buttonId, useMathTransform = true) {
 
     button.classList.add('recording');
     button.setAttribute('aria-pressed', 'true');
+    // Show speech status indicator
+    let statusEl = document.getElementById(`speech-status-${buttonId}`);
+    if (!statusEl) {
+        statusEl = document.createElement('span');
+        statusEl.id = `speech-status-${buttonId}`;
+        statusEl.className = 'speech-status';
+        button.parentElement.insertBefore(statusEl, button.nextSibling);
+    }
+    statusEl.textContent = '🔴 Aufnahme...';
+    statusEl.style.display = 'inline-block';
     input.focus();
 
     recognition.onresult = (event) => {
@@ -256,6 +266,8 @@ function toggleSpeechInput(inputId, buttonId, useMathTransform = true) {
             const regexResult = input.value; // current regex result as fallback
             console.log('[Speech] Raw transcript:', rawTranscript, '| Regex result:', regexResult);
             input.classList.add('converting');
+            const sts = document.getElementById(`speech-status-${buttonId}`);
+            if (sts) { sts.textContent = '⏳ Wird umgewandelt...'; sts.style.display = 'inline-block'; }
             speechToMathViaGemini(rawTranscript).then(converted => {
                 console.log('[Speech] Gemini result:', converted);
                 // Only use Gemini result if it looks like math (has digits or operators)
@@ -264,9 +276,11 @@ function toggleSpeechInput(inputId, buttonId, useMathTransform = true) {
                 console.log('[Speech] Using:', finalResult);
                 input.value = baseText ? `${baseText} ${finalResult}`.trim() : finalResult.trim();
                 input.classList.remove('converting');
+                if (sts) sts.style.display = 'none';
                 if (input.id.startsWith('input-')) renderPreview(input.id);
             }).catch(() => {
                 input.classList.remove('converting');
+                if (sts) sts.style.display = 'none';
             });
         }
     };
@@ -281,6 +295,8 @@ function toggleSpeechInput(inputId, buttonId, useMathTransform = true) {
             micBtn.classList.remove('recording');
             micBtn.setAttribute('aria-pressed', 'false');
         }
+        const statusInd = document.getElementById(`speech-status-${buttonId}`);
+        if (statusInd) statusInd.style.display = 'none';
         if (activeSpeechSession && activeSpeechSession.recognition === recognition) {
             activeSpeechSession = null;
         }
@@ -314,14 +330,14 @@ function initDrawPad(taskId) {
     }
     const ratio = Math.max(window.devicePixelRatio || 1, 1);
     canvas.width = Math.floor(canvas.offsetWidth * ratio);
-    canvas.height = Math.floor(150 * ratio);
+    canvas.height = Math.floor(200 * ratio);
     canvas.getContext('2d').scale(ratio, ratio);
     // White background
     const ctx = canvas.getContext('2d');
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     drawPads[taskId] = new SignaturePad(canvas, {
-        minWidth: 0.8, maxWidth: 2, penColor: '#1a2a3a',
+        minWidth: 1.0, maxWidth: 2.5, penColor: '#1a2a3a',
         backgroundColor: 'rgb(255,255,255)',
         throttle: 0, velocityFilterWeight: 0.2
     });
@@ -335,7 +351,7 @@ function resizeDrawPad(taskId) {
     const data = pad.toData();
     const ratio = Math.max(window.devicePixelRatio || 1, 1);
     canvas.width = Math.floor(canvas.offsetWidth * ratio);
-    canvas.height = Math.floor(150 * ratio);
+    canvas.height = Math.floor(200 * ratio);
     canvas.getContext('2d').scale(ratio, ratio);
     const ctx = canvas.getContext('2d');
     ctx.fillStyle = '#ffffff';
@@ -799,13 +815,17 @@ function renderTask(task, idx, ts) {
         });
         html += `</div>`;
     } else {
-        const micBtn = speechInputSupported()
+        // input_mode: 'canvas', 'speech', 'both' (default: 'both')
+        const inputMode = task.input_mode || 'both';
+        const showMic = (inputMode === 'both' || inputMode === 'speech') && speechInputSupported();
+        const showDraw = (inputMode === 'both' || inputMode === 'canvas');
+        const micBtn = showMic
             ? `<button type="button" class="mic-btn" id="mic-${task.id}"
                    onclick="toggleSpeechInput('input-${task.id}','mic-${task.id}', true)"
                    title="Antwort per Sprache eingeben" aria-label="Antwort per Sprache eingeben"
                    ${ts.correct ? 'disabled' : ''}>🎤</button>`
             : '';
-        const drawBtn = !ts.correct
+        const drawBtn = showDraw && !ts.correct
             ? `<button type="button" class="draw-btn" onclick="toggleDrawPad('${task.id}')" title="Antwort zeichnen" aria-label="Antwort zeichnen">✏️</button>`
             : '';
         // Text input with math keyboard and live preview
@@ -821,7 +841,7 @@ function renderTask(task, idx, ts) {
                 ${drawBtn}
                 <button type="button" class="check-btn" id="check-btn-${task.id}" onclick="checkAnswer('${task.id}')" ${ts.correct ? 'disabled' : ''}>Prüfen</button>
             </div>
-            ${!ts.correct ? `<div class="draw-wrap" id="draw-wrap-${task.id}">
+            ${showDraw && !ts.correct ? `<div class="draw-wrap" id="draw-wrap-${task.id}">
                 <canvas id="draw-${task.id}" class="draw-canvas"></canvas>
                 <div class="draw-buttons">
                     <button type="button" onclick="clearDrawPad('${task.id}')">🗑️ Löschen</button>

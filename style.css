@@ -168,8 +168,10 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; colo
 }
 .draw-wrap.visible { display: block; }
 .draw-canvas {
-    display: block; width: 100%; height: 150px;
+    display: block; width: 100%; height: 200px;
     touch-action: none; cursor: crosshair;
+    -webkit-user-select: none; user-select: none;
+    -webkit-touch-callout: none;
 }
 .draw-buttons {
     display: flex; gap: 0.5rem; padding: 0.4rem;
@@ -215,6 +217,14 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; colo
     70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
     100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
 }
+.speech-status {
+    display: none; font-size: 0.8rem; color: #fbbf24;
+    margin-left: 0.4rem; white-space: nowrap;
+    animation: speech-status-fade 1.5s ease-in-out infinite;
+}
+@keyframes speech-status-fade {
+    0%,100% { opacity: 1; } 50% { opacity: 0.5; }
+}
 
 /* Responsive */
 @media (max-width: 600px) {
@@ -225,5 +235,5 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; colo
     .math-key { padding: 0.6rem 0.1rem; font-size: 0.95rem; min-height: 42px; }
     .mic-btn, .draw-btn { width: 2.15rem; min-width: 2.15rem; height: 2.15rem; font-size: 0.95rem; }
     .task-input-row { gap: 0.5rem; }
-    .draw-canvas { height: 130px; }
+    .draw-canvas { height: 170px; }
 }

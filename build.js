@@ -92,6 +92,7 @@ function generateDataJS(units) {
                 if (t.accepts) js += `                accepts: ${JSON.stringify(t.accepts)},\n`;
             }
             
+            if (t.input_mode) js += `                input_mode: ${JSON.stringify(t.input_mode)},\n`;
             if (t.hints) js += `                hints: ${JSON.stringify(t.hints.map(h => h?.trim ? h.trim() : h))},\n`;
             if (t.errorPatterns) js += `                errorPatterns: ${JSON.stringify(t.errorPatterns)}\n`;
             
