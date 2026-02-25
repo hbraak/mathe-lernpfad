@@ -60,18 +60,18 @@
             </div>
 
             <!-- Gemini Chat Panel -->
-            <div id="gemini-panel" class="hidden">
+            <div id="gemini-panel" class="hidden" role="complementary" aria-label="KI-Tutor Chat">
                 <div id="gemini-header">
-                    <span>🤖 KI-Tutor</span>
-                    <button onclick="toggleGemini()">✕</button>
+                    <span id="gemini-drag-handle" aria-label="KI-Tutor Panel verschieben">🤖 KI-Tutor</span>
+                    <button onclick="toggleGemini()" aria-label="KI-Tutor schließen">✕</button>
                 </div>
-                <div id="gemini-messages"></div>
+                <div id="gemini-messages" role="log" aria-label="Chat-Verlauf"></div>
                 <div id="gemini-input-area">
-                    <input type="text" id="gemini-input" placeholder="Fragen Sie mich etwas..." onkeydown="if(event.key==='Enter')sendGemini()"
+                    <input type="text" id="gemini-input" placeholder="Fragen Sie mich etwas..." aria-label="Nachricht an KI-Tutor" onkeydown="if(event.key==='Enter')sendGemini()"
                            inputmode="text" enterkeyhint="send" autocomplete="off" autocorrect="on" autocapitalize="sentences" spellcheck="true">
                     <button type="button" id="gemini-mic-btn" class="mic-btn" hidden onclick="toggleSpeechInput('gemini-input','gemini-mic-btn', false)"
                             title="Frage per Sprache eingeben" aria-label="Frage per Sprache eingeben">🎤</button>
-                    <button type="button" class="send-btn" onclick="sendGemini()">→</button>
+                    <button type="button" class="send-btn" onclick="sendGemini()" aria-label="Nachricht senden">→</button>
                 </div>
                 <p class="gemini-hint" id="gemini-speech-hint" hidden>Sie können auch per Sprache eingeben 🎤</p>
                 <p class="gemini-hint">⚠️ Keine Namen oder persönliche Daten eingeben!</p>

@@ -483,44 +483,45 @@ function insertMathSymbol(taskId, symbol) {
 
 function buildMathKeyboard(taskId) {
     const keys = [
-        { label: 'x', value: 'x' },
-        { label: 'e', value: 'e' },
-        { label: 'π', value: 'pi' },
-        { label: 'x²', value: 'x^(2)', cls: 'key-op' },
-        { label: 'x³', value: 'x^(3)', cls: 'key-op' },
-        { label: 'xⁿ', value: '^()', cls: 'key-op' },
-        { label: '√', value: 'sqrt()', cls: 'key-fn' },
-        { label: 'sin', value: 'sin()', cls: 'key-fn' },
-        { label: 'cos', value: 'cos()', cls: 'key-fn' },
-        { label: 'ln', value: 'ln()', cls: 'key-fn' },
-        { label: '(', value: '(' },
-        { label: ')', value: ')' },
-        { label: '+', value: '+', cls: 'key-op' },
-        { label: '−', value: '-', cls: 'key-op' },
-        { label: '·', value: '*', cls: 'key-op' },
-        { label: '/', value: '/', cls: 'key-op' },
-        { label: '0', value: '0', cls: 'key-num' },
-        { label: '1', value: '1', cls: 'key-num' },
-        { label: '2', value: '2', cls: 'key-num' },
-        { label: '3', value: '3', cls: 'key-num' },
-        { label: '4', value: '4', cls: 'key-num' },
-        { label: '5', value: '5', cls: 'key-num' },
-        { label: '6', value: '6', cls: 'key-num' },
-        { label: '7', value: '7', cls: 'key-num' },
-        { label: '8', value: '8', cls: 'key-num' },
-        { label: '9', value: '9', cls: 'key-num' },
-        { label: '⌫', value: '__backspace__', cls: 'key-del' },
-        { label: 'C', value: '__clear__', cls: 'key-del' },
+        { label: 'x', value: 'x', aria: 'Variable x einfügen' },
+        { label: 'e', value: 'e', aria: 'Eulersche Zahl e einfügen' },
+        { label: 'π', value: 'pi', aria: 'Pi einfügen' },
+        { label: 'x²', value: 'x^(2)', cls: 'key-op', aria: 'x Quadrat einfügen' },
+        { label: 'x³', value: 'x^(3)', cls: 'key-op', aria: 'x hoch 3 einfügen' },
+        { label: 'xⁿ', value: '^()', cls: 'key-op', aria: 'Potenz einfügen' },
+        { label: '√', value: 'sqrt()', cls: 'key-fn', aria: 'Wurzel einfügen' },
+        { label: 'sin', value: 'sin()', cls: 'key-fn', aria: 'Sinus einfügen' },
+        { label: 'cos', value: 'cos()', cls: 'key-fn', aria: 'Cosinus einfügen' },
+        { label: 'ln', value: 'ln()', cls: 'key-fn', aria: 'Logarithmus einfügen' },
+        { label: '(', value: '(', aria: 'Klammer auf' },
+        { label: ')', value: ')', aria: 'Klammer zu' },
+        { label: '+', value: '+', cls: 'key-op', aria: 'Plus einfügen' },
+        { label: '−', value: '-', cls: 'key-op', aria: 'Minus einfügen' },
+        { label: '·', value: '*', cls: 'key-op', aria: 'Mal einfügen' },
+        { label: '/', value: '/', cls: 'key-op', aria: 'Bruch einfügen' },
+        { label: '0', value: '0', cls: 'key-num', aria: 'Ziffer 0' },
+        { label: '1', value: '1', cls: 'key-num', aria: 'Ziffer 1' },
+        { label: '2', value: '2', cls: 'key-num', aria: 'Ziffer 2' },
+        { label: '3', value: '3', cls: 'key-num', aria: 'Ziffer 3' },
+        { label: '4', value: '4', cls: 'key-num', aria: 'Ziffer 4' },
+        { label: '5', value: '5', cls: 'key-num', aria: 'Ziffer 5' },
+        { label: '6', value: '6', cls: 'key-num', aria: 'Ziffer 6' },
+        { label: '7', value: '7', cls: 'key-num', aria: 'Ziffer 7' },
+        { label: '8', value: '8', cls: 'key-num', aria: 'Ziffer 8' },
+        { label: '9', value: '9', cls: 'key-num', aria: 'Ziffer 9' },
+        { label: '⌫', value: '__backspace__', cls: 'key-del', aria: 'Letztes Zeichen löschen' },
+        { label: 'C', value: '__clear__', cls: 'key-del', aria: 'Eingabe leeren' },
     ];
     
-    let html = `<div class="math-keyboard" id="kbd-${taskId}">`;
+    let html = `<div class="math-keyboard" role="group" aria-label="Mathematik-Tastatur" id="kbd-${taskId}">`;
     for (const k of keys) {
+        const ariaAttr = `aria-label="${k.aria}"`;
         if (k.value === '__backspace__') {
-            html += `<button class="math-key ${k.cls || ''}" onclick="mathBackspace('${taskId}')">${k.label}</button>`;
+            html += `<button type="button" class="math-key ${k.cls || ''}" ${ariaAttr} onclick="mathBackspace('${taskId}')">${k.label}</button>`;
         } else if (k.value === '__clear__') {
-            html += `<button class="math-key ${k.cls || ''}" onclick="mathClear('${taskId}')">${k.label}</button>`;
+            html += `<button type="button" class="math-key ${k.cls || ''}" ${ariaAttr} onclick="mathClear('${taskId}')">${k.label}</button>`;
         } else {
-            html += `<button class="math-key ${k.cls || ''}" onclick="insertMathSymbol('${taskId}','${k.value}')">${k.label}</button>`;
+            html += `<button type="button" class="math-key ${k.cls || ''}" ${ariaAttr} onclick="insertMathSymbol('${taskId}','${k.value}')">${k.label}</button>`;
         }
     }
     html += `</div>`;
@@ -842,7 +843,8 @@ function renderTask(task, idx, ts) {
                 <button type="button" class="check-btn" id="check-btn-${task.id}" onclick="checkAnswer('${task.id}')" ${ts.correct ? 'disabled' : ''}>Prüfen</button>
             </div>
             ${showDraw && !ts.correct ? `<div class="draw-wrap" id="draw-wrap-${task.id}">
-                <canvas id="draw-${task.id}" class="draw-canvas"></canvas>
+                <button type="button" class="draw-close-btn" aria-label="Zeichenfläche schließen" onclick="toggleDrawPad('${task.id}')">✕</button>
+                <canvas id="draw-${task.id}" class="draw-canvas" role="img" aria-label="Zeichenfläche für handschriftliche Eingabe"></canvas>
                 <div class="draw-buttons">
                     <button type="button" onclick="clearDrawPad('${task.id}')">🗑️ Löschen</button>
                 </div>
